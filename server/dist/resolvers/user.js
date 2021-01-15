@@ -94,18 +94,25 @@ let UserResolver = class UserResolver {
                     errors: [
                         {
                             field: 'password',
-                            message: 'length must be longer than 3',
+                            message: 'length must be longer than 2',
                         },
                     ],
                 };
             }
             const hashedPassword = yield argon2_1.default.hash(credentials.password);
-            const user = em.create(User_1.User, {
-                username: credentials.username,
-                password: hashedPassword,
-            });
+            let user;
             try {
-                yield em.persistAndFlush(user);
+                const result = yield em
+                    .createQueryBuilder(User_1.User)
+                    .getKnexQuery()
+                    .insert({
+                    username: credentials.username,
+                    password: hashedPassword,
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                })
+                    .returning('*');
+                user = result[0];
             }
             catch (err) {
                 if (err.code === '23505') {
