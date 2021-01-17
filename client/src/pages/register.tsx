@@ -1,4 +1,3 @@
-import React from 'react';
 import { Form, Formik } from 'formik';
 import { Wrapper } from '../components/Wrapper';
 import { InputField } from '../components/InputField';
@@ -17,7 +16,7 @@ const Register: React.FC<registerProps> = ({}) => {
   return (
     <Wrapper variant='small'>
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ email: '', username: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
           const response = await register({ credentials: values });
           if (response.data?.register.errors) {
@@ -31,9 +30,17 @@ const Register: React.FC<registerProps> = ({}) => {
           <Form>
             <InputField
               name='username'
-              placeholder='username'
+              placeholder='Bob the Builder'
               label='Username'
             />
+            <Box mt={4}>
+              <InputField
+                name='email'
+                placeholder='example@gmail.com'
+                label='Email'
+                type='email'
+              />
+            </Box>
             <Box mt={4}>
               <InputField
                 name='password'
