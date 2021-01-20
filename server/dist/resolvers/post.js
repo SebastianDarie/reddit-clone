@@ -23,6 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
 const type_graphql_1 = require("type-graphql");
+const typeorm_1 = require("typeorm");
 const Post_1 = require("../entities/Post");
 const isAuth_1 = require("../middleware/isAuth");
 let PostInput = class PostInput {
@@ -39,8 +40,20 @@ PostInput = __decorate([
     type_graphql_1.InputType()
 ], PostInput);
 let PostResolver = class PostResolver {
-    posts() {
-        return Post_1.Post.find();
+    textSnippet(root) {
+        return root.text.slice(0, 50);
+    }
+    posts(limit, cursor) {
+        const realLimit = Math.min(50, limit);
+        const qb = typeorm_1.getConnection()
+            .getRepository(Post_1.Post)
+            .createQueryBuilder('p')
+            .orderBy('"createdAt"', 'DESC')
+            .take(realLimit);
+        if (cursor) {
+            qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
+        }
+        return qb.getMany();
     }
     post(id) {
         return Post_1.Post.findOne(id);
@@ -70,9 +83,18 @@ let PostResolver = class PostResolver {
     }
 };
 __decorate([
-    type_graphql_1.Query(() => [Post_1.Post]),
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Post_1.Post]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "textSnippet", null);
+__decorate([
+    type_graphql_1.Query(() => [Post_1.Post]),
+    __param(0, type_graphql_1.Arg('limit', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('cursor', () => String, { nullable: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([
@@ -107,7 +129,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 PostResolver = __decorate([
-    type_graphql_1.Resolver()
+    type_graphql_1.Resolver(Post_1.Post)
 ], PostResolver);
 exports.PostResolver = PostResolver;
 //# sourceMappingURL=post.js.map

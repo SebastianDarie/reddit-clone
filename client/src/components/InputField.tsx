@@ -22,7 +22,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 }) => {
   let InputOrTextarea = Input;
   if (textarea) {
-    InputOrTextarea = Textarea;
+    InputOrTextarea = Textarea as typeof Input;
   }
   const [field, { error }] = useField(props);
   return (
