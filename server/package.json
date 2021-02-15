@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
     "megaDev": "ts-node-dev --watch --respawn ./src/index.ts",
