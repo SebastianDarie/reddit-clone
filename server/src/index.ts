@@ -1,6 +1,8 @@
 import 'reflect-metadata';
-import { COOKIE_NAME, __prod__ } from './constants';
+import 'dotenv-safe/config';
 import express from 'express';
+import path from 'path';
+import { COOKIE_NAME, __prod__ } from './constants';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
 import { PostResolver } from './resolvers/post';
@@ -12,7 +14,6 @@ import cors from 'cors';
 import { createConnection } from 'typeorm';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
-import path from 'path';
 import { Upvote } from './entities/Upvote';
 import { createUserLoader } from './utils/createUserLoader';
 import { createUpvoteLoader } from './utils/createUpvoteLoader';
@@ -20,11 +21,9 @@ import { createUpvoteLoader } from './utils/createUpvoteLoader';
 const main = async () => {
   const conn = await createConnection({
     type: 'postgres',
-    database: 'reddit2',
-    username: 'sebastian',
-    password: '2772',
+    url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    //synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, User, Upvote],
   });
@@ -36,9 +35,10 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
-  app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+  app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+  app.set('proxy', 1);
   app.use(
     session({
       name: COOKIE_NAME,
@@ -50,7 +50,7 @@ const main = async () => {
         secure: __prod__,
       },
       saveUninitialized: false,
-      secret: 'qwioiqwoieoeiwoeoeiqwjxbjh',
+      secret: process.env.SECRET,
       resave: false,
     })
   );
@@ -74,8 +74,8 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
-    console.log('Server running on port 4000');
+  app.listen(parseInt(process.env.PORT), () => {
+    console.log(`Server running on port ${process.env.PORT}`);
   });
 };
 
