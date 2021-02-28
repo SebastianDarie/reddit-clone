@@ -23,31 +23,30 @@ const main = async () => {
     type: 'postgres',
     url: process.env.DATABASE_URL,
     logging: true,
-    //synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, User, Upvote],
   });
 
   await conn.runMigrations();
 
-  //await Post.delete({});
-
   const app = express();
 
   const RedisStore = connectRedis(session);
   const redis = new Redis(process.env.REDIS_URL);
 
+  app.set('trust proxy', 1);
+
   app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
-  app.set('proxy', 1);
   app.use(
     session({
       name: COOKIE_NAME,
       store: new RedisStore({ client: redis, disableTouch: true }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+        maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
         sameSite: 'lax',
         secure: __prod__,
+        domain: __prod__ ? '.reddit-clone.tech' : undefined,
       },
       saveUninitialized: false,
       secret: process.env.SECRET,
