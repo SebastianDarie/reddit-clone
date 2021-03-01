@@ -8,28 +8,27 @@
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.11",
     "@chakra-ui/icons": "^1.0.0",
     "@chakra-ui/react": "^1.0.0",
     "@chakra-ui/theme-tools": "1.0.0",
     "@emotion/react": "11.1.1",
     "@emotion/styled": "11.0.0",
-    "@urql/exchange-graphcache": "^3.3.4",
     "formik": "^2.2.6",
     "framer-motion": "^2.9.4",
     "graphql": "^15.4.0",
     "graphql-tag": "^2.11.0",
     "next": "latest",
-    "next-urql": "^2.1.1",
+    "next-apollo": "^5.0.4",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-is": "^17.0.1",
-    "urql": "^1.11.5"
+    "react-is": "^17.0.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.20.0",
     "@graphql-codegen/typescript": "1.20.0",
     "@graphql-codegen/typescript-operations": "1.17.13",
-    "@graphql-codegen/typescript-urql": "^2.0.3",
+    "@graphql-codegen/typescript-react-apollo": "^2.2.1",
     "@types/node": "^14.6.0",
     "@types/react": "^16.9.46",
     "@types/react-dom": "^16.9.8",
