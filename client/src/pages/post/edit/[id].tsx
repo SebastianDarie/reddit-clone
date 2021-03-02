@@ -38,7 +38,7 @@ const EditPost = ({}) => {
   }
 
   return (
-    <Layout variant='small'>
+    <Layout variant="small">
       <Formik
         initialValues={{ title: data.post.title, text: data.post.text }}
         onSubmit={async (values) => {
@@ -49,23 +49,23 @@ const EditPost = ({}) => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
-              name='title'
-              placeholder='Bob the Builder'
-              label='Title'
+              name="title"
+              placeholder="Bob the Builder"
+              label="Title"
             />
             <Box mt={4}>
               <InputField
                 textarea
-                name='text'
-                placeholder='text'
-                label='Body'
+                name="text"
+                placeholder="text"
+                label="Body"
               />
             </Box>
             <Button
               mt={4}
-              type='submit'
+              type="submit"
               isLoading={isSubmitting}
-              colorScheme='teal'
+              colorScheme="teal"
             >
               Update Post
             </Button>

@@ -27,13 +27,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
+const uuid_1 = require("uuid");
+const typeorm_1 = require("typeorm");
 const User_1 = require("../entities/User");
 const constants_1 = require("../constants");
 const UsernamePasswordInput_1 = require("./UsernamePasswordInput");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
-const uuid_1 = require("uuid");
-const typeorm_1 = require("typeorm");
 let FieldError = class FieldError {
 };
 __decorate([

@@ -58,9 +58,9 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({ post }) => {
   const [vote] = useVoteMutation();
 
   return (
-    <Flex direction='column' justifyContent='center' alignItems='center' mr={4}>
+    <Flex direction="column" justifyContent="center" alignItems="center" mr={4}>
       <IconButton
-        aria-label='upvote'
+        aria-label="upvote"
         colorScheme={post.voteStatus === 1 ? 'orange' : undefined}
         icon={<ChevronUpIcon />}
         isLoading={loadingState === 'upvote-loading'}
@@ -78,7 +78,7 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({ post }) => {
       />
       {post.points}
       <IconButton
-        aria-label='downvote'
+        aria-label="downvote"
         colorScheme={post.voteStatus === -1 ? 'blue' : undefined}
         icon={<ChevronDownIcon />}
         isLoading={loadingState === 'downvote-loading'}

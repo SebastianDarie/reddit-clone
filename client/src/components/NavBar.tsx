@@ -1,8 +1,8 @@
 import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { useApolloClient } from '@apollo/client';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
-import { useApolloClient } from '@apollo/client';
 
 export const NavBar: React.FC<{}> = ({}) => {
   const apolloClient = useApolloClient();

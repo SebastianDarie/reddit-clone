@@ -21,11 +21,11 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
 
   return (
     <Box>
-      <NextLink href='/post/edit/[id]' as={`/post/edit/${id}`}>
-        <IconButton as={Link} mr={4} aria-label='edit' icon={<EditIcon />} />
+      <NextLink href="/post/edit/[id]" as={`/post/edit/${id}`}>
+        <IconButton as={Link} mr={4} aria-label="edit" icon={<EditIcon />} />
       </NextLink>
       <IconButton
-        aria-label='delete'
+        aria-label="delete"
         icon={<DeleteIcon />}
         onClick={() => {
           deletePost({

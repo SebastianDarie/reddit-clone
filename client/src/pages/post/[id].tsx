@@ -5,12 +5,16 @@ import { useGetPostFromUrl } from '../../utils/useGetPostFromUrl';
 import { withApollo } from '../../utils/withApollo';
 
 const Post = ({}) => {
-  const { data, loading } = useGetPostFromUrl();
+  const { data, error, loading } = useGetPostFromUrl();
 
   if (loading) {
     <Layout>
       <Box>loading...</Box>
     </Layout>;
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
   }
 
   if (!data?.post) {

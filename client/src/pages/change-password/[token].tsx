@@ -12,6 +12,7 @@ import {
   Link,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
+import NextLink from 'next/link';
 import { InputField } from '../../components/InputField';
 import { Wrapper } from '../../components/Wrapper';
 import { toErrorMap } from '../../utils/toErrorMap';
@@ -20,7 +21,6 @@ import {
   MeQuery,
   useChangePasswordMutation,
 } from '../../generated/graphql';
-import NextLink from 'next/link';
 import { withApollo } from '../../utils/withApollo';
 
 const ChangePassword: NextPage = () => {
@@ -28,7 +28,7 @@ const ChangePassword: NextPage = () => {
   const [changePassword] = useChangePasswordMutation();
   const [tokenError, setTokenError] = useState('');
   return (
-    <Wrapper variant='small'>
+    <Wrapper variant="small">
       <Formik
         initialValues={{ newPassword: '' }}
         onSubmit={async (values, { setErrors }) => {
@@ -65,18 +65,18 @@ const ChangePassword: NextPage = () => {
         {({ isSubmitting }) => (
           <Form>
             <InputField
-              name='newPassword'
-              placeholder='new password'
-              label='New Password'
-              type='password'
+              name="newPassword"
+              placeholder="new password"
+              label="New Password"
+              type="password"
             />
             {tokenError ? (
               <Box>
                 <Alert
-                  status='error'
+                  status="error"
                   mt={2}
-                  flexDirection='column'
-                  alignItems='center'
+                  flexDirection="column"
+                  alignItems="center"
                 >
                   <AlertIcon />
                   <AlertTitle mr={2}>{tokenError}</AlertTitle>
@@ -84,22 +84,22 @@ const ChangePassword: NextPage = () => {
                     Click the link below to get a new token
                   </AlertDescription>
                   <CloseButton
-                    position='absolute'
-                    right='8px'
-                    top='8px'
+                    position="absolute"
+                    right="8px"
+                    top="8px"
                     onClick={() => setTokenError('')}
                   />
                 </Alert>
-                <NextLink href='/forgot-password'>
+                <NextLink href="/forgot-password">
                   <Link>Forgot Password</Link>
                 </NextLink>
               </Box>
             ) : null}
             <Button
               mt={4}
-              type='submit'
+              type="submit"
               isLoading={isSubmitting}
-              colorScheme='teal'
+              colorScheme="teal"
             >
               Change Password
             </Button>

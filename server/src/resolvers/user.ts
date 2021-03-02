@@ -10,14 +10,14 @@ import {
   Root,
 } from 'type-graphql';
 import argon2 from 'argon2';
+import { v4 } from 'uuid';
+import { getConnection } from 'typeorm';
 import { User } from '../entities/User';
 import { MyContext } from '../types';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { UsernamePasswordInput } from './UsernamePasswordInput';
 import { validateRegister } from '../utils/validateRegister';
 import { sendEmail } from '../utils/sendEmail';
-import { v4 } from 'uuid';
-import { getConnection } from 'typeorm';
 
 @ObjectType()
 class FieldError {
