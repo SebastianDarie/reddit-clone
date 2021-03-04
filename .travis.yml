@@ -1,44 +1,47 @@
+arch: amd64
+os: linux
+dist: focal
 language: node_js
-sudo: false
 node_js:
   - node
   - lts/*
-
 branches:
   except:
-    - /^v?\d+\.\d+\.\d+$/
-
+    - "/^v?\\d+\\.\\d+\\.\\d+$/"
 env:
   global:
-    secure: 'tXjmp/4Kra6amNNwY+pgQ9EIq02wbBgfcohhwFjS9yFNyE1o9viDz6YNpI4i5mLhQh6oZpUJkBnwgUZX047yKSokNEMKXcDlwclFemllqvtkvemnWAk3NzWeEyyet/HdhXfAm9Q8K6WFCMtFxj5Y9Ddq45QN1tFEVypTBB4Lh4oK4LTABEo7bpdWuiailQ7NtaaOnljrtHrmDyscaeDvApSp5P7Ltvk1iaCb3RXLZMnzdWAOnUCP4KLmplmaSXTDhgT8fsykdLu+g2vkhOmEF6oFX0fR6NQzPSI87tqpnvmf+EW7FRuWu7vkqh2ZUMBckLJArREhSpJLAyQyzpROGYd2LqIBQkHB90J7pwmAaf7t7AkBeUVMVV7RXA69lOQTM//tf6IzIXnB2fpkLsulSd/gcN8KnqL7/ajDBhlJRLwOR6MaIulZZ4gV4i8zM31F814fsaBs/gQKQzHt2CxzmhgEbnl28skYBmsZSRa1xg5PXToQ4v86d+/tuKONNYxr60Wucan/vPL8wAL3VZLo4WGsftA99/1iHaEPzsBBvdNKdlCICo8l2UA11Fq3z3Q2kqhBKjXO8sLTDESJpRPYIvL2ToNoanK0LEWJo9B/GWdSoLkM2dA3BW22GqRev7nHVbxfaGlUy/aNX/Co/iGzUx3xHIOTAuy4KoalullZ+YI='
+    - secure: tXjmp/4Kra6amNNwY+pgQ9EIq02wbBgfcohhwFjS9yFNyE1o9viDz6YNpI4i5mLhQh6oZpUJkBnwgUZX047yKSokNEMKXcDlwclFemllqvtkvemnWAk3NzWeEyyet/HdhXfAm9Q8K6WFCMtFxj5Y9Ddq45QN1tFEVypTBB4Lh4oK4LTABEo7bpdWuiailQ7NtaaOnljrtHrmDyscaeDvApSp5P7Ltvk1iaCb3RXLZMnzdWAOnUCP4KLmplmaSXTDhgT8fsykdLu+g2vkhOmEF6oFX0fR6NQzPSI87tqpnvmf+EW7FRuWu7vkqh2ZUMBckLJArREhSpJLAyQyzpROGYd2LqIBQkHB90J7pwmAaf7t7AkBeUVMVV7RXA69lOQTM//tf6IzIXnB2fpkLsulSd/gcN8KnqL7/ajDBhlJRLwOR6MaIulZZ4gV4i8zM31F814fsaBs/gQKQzHt2CxzmhgEbnl28skYBmsZSRa1xg5PXToQ4v86d+/tuKONNYxr60Wucan/vPL8wAL3VZLo4WGsftA99/1iHaEPzsBBvdNKdlCICo8l2UA11Fq3z3Q2kqhBKjXO8sLTDESJpRPYIvL2ToNoanK0LEWJo9B/GWdSoLkM2dA3BW22GqRev7nHVbxfaGlUy/aNX/Co/iGzUx3xHIOTAuy4KoalullZ+YI=
+    - secure: MWSul6ywSCQ1OvMN/u0f4nd6LVzOvkxkZLn4BGEQcsM0kn5XCmj3y7FccyKFHlda2UTGTYEzGz+HUefxxxoVtEUWRpA4l/Dxs+odbg4vTNKnwfuqPxNQsXp8tzdyt0CcOnjsbOmh8KpSQgBZR/QmDY+W1nPzYoNCdWpfTNoE/++TgUZi4UvLq5Ka/xGQh/NNx0P7dL1YnwrA+L03I6TM7pY9Da6HwTZBKeTccSD3cF7T8wGuRv59r2GebZjyZiWQKjLqnUavHlAiQy7ptjrcS4py573P+oMnPLs/n1/snf6sC1B0DhYjoeSQyMNU3UULeY3vMExoTz0cPcXzxPCbsQROjuY8MYipuFW4f64EUhemvW2CTdz8T3SVOpVqSgCw5//o9aDYStDhqBHt/JA/f6LhrkM64lYPYUnrysTElcKZrI50M8xQeTCfAUXf6ixwdV603rhIiAkOJM8TGEO35twnp0xByYhP6iLo71h3UTIMTMo/g5cvZkHYIJp6b2k8kC1rzHpnQJiOPkEueUo/jR5Yk6BxMdQJh6j9ILv4KaYFGOTzz7kiV5sE+2ogQ7M5FIGQs08HlNZCIF7Fi4dIOjUfDFLwW5BhiOWpqW/GaVqXbu//9atHpuO0CB5sQbhKMyGKm1lhnnS9gBAHOtYkKGRN7mAJspWY7M6Il96AQXI=
 
 before_install:
-  - "{ sed -nE 's/^[ \\t]*\"version\": \"([0-9]{1,}\\.[0-9]{1,}\\.)[0-9x]{1,}\",$/\\1/p' package.json; git describe --abbrev=0 | sed -E 's/^v([0-9]{1,}\\.[0-9]{1,}\\.)([0-9]{1,})$/\\1 \\2/g'; } | tr \"\\n\" \" \" | awk '{printf($1==$2?\"v\"$2$3+1:\"v\"$1\"0\")}' | xargs -I {} git tag -a {} -m \"{}\"\n"
-  - npm --no-git-tag-version version from-git
+  - '{ sed -nE ''s/^[ \t]*"version": "([0-9]{1,}\.[0-9]{1,}\.)[0-9x]{1,}",$/\1/p'' package.json;
+    git describe --abbrev=0 | sed -E ''s/^v([0-9]{1,}\.[0-9]{1,}\.)([0-9]{1,})$/\1 \2/g'';
+    } | tr "\n" " " | awk ''{printf($1==$2?"v"$2$3+1:"v"$1"0")}'' | xargs -I {} git
+    tag -a {} -m "{}"
 
+    '
+  - npm --no-git-tag-version version from-git
 script:
   - npm install codecov -g
+  - npm run type-check
   - npm run lint
-
 deploy:
   - provider: script
-    skip_cleanup: true
+    cleanup: true
     script: git push --tags
     on:
       branch: main
-
 after_success:
   - codecov
-
+  - bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
 notifications:
   email:
     on_failure: change
   slack:
     rooms:
-      - secure: 'GT4qD1+M9Sg+EGTY1AJDCxmKNbQanGHwN9vyuihAsU544QYmEeiGwJLPPHpYBENvxzp8wAAxUYtN/5lrBcD6FNvUb6Ps8iJKQVszE1h0Mhf7kdT90dqT9nMrLvjjxetEAEjGveQlrHCj4cW6uW7LFtnjyJ/X8Ohzf79dRiMJlhwn3FwDtna1T7BBlSdRK3fpCHC/dVj51esH3wme+zGl7fkzGXz3Mx4dJtWzlQNbESx2wBVQkEUzNeNDQRKaRcon1jS0EaMc20UumMq15JJmWNEhXcBAhT7mb/YIz7hxajIliqASZHB/98sn4oRtyBUvJ/5CG8Jik8JUVbWiXCTbB1NUFaNwRLdtuKQTw74OJKfREz5JDHpQq7oq19QaOMlU5ILKeVqzkMREO5WBR/SQi0UDA2nSpdif/DcZ65nzAs6Q/b/APUP9FIMkN+vLYoFiwOUQHc6rkGfNgvyy9i81A8uYtgJgyo1G/0zD0cXqaQ3Nuo8Yn9M7H0uo1/EhPbdpyR4F9cY9fl1yCBWVgX3ICbL+taojQP+ceQ751zZbv8BYxe4/R4ps+Zg7wUSfELFfe8H1k8asz0BNXtGDwljGPpwv4B2fv+L/m4paZ9ILcTgRd7N/+c6CuwXO6qY7yM91Kk6S4QCv9s7zOfxOXbI3oyywa4GwonfFnolaS/WnMts='
+      - secure: GT4qD1+M9Sg+EGTY1AJDCxmKNbQanGHwN9vyuihAsU544QYmEeiGwJLPPHpYBENvxzp8wAAxUYtN/5lrBcD6FNvUb6Ps8iJKQVszE1h0Mhf7kdT90dqT9nMrLvjjxetEAEjGveQlrHCj4cW6uW7LFtnjyJ/X8Ohzf79dRiMJlhwn3FwDtna1T7BBlSdRK3fpCHC/dVj51esH3wme+zGl7fkzGXz3Mx4dJtWzlQNbESx2wBVQkEUzNeNDQRKaRcon1jS0EaMc20UumMq15JJmWNEhXcBAhT7mb/YIz7hxajIliqASZHB/98sn4oRtyBUvJ/5CG8Jik8JUVbWiXCTbB1NUFaNwRLdtuKQTw74OJKfREz5JDHpQq7oq19QaOMlU5ILKeVqzkMREO5WBR/SQi0UDA2nSpdif/DcZ65nzAs6Q/b/APUP9FIMkN+vLYoFiwOUQHc6rkGfNgvyy9i81A8uYtgJgyo1G/0zD0cXqaQ3Nuo8Yn9M7H0uo1/EhPbdpyR4F9cY9fl1yCBWVgX3ICbL+taojQP+ceQ751zZbv8BYxe4/R4ps+Zg7wUSfELFfe8H1k8asz0BNXtGDwljGPpwv4B2fv+L/m4paZ9ILcTgRd7N/+c6CuwXO6qY7yM91Kk6S4QCv9s7zOfxOXbI3oyywa4GwonfFnolaS/WnMts=
     on_success: change
     on_failure: always
-
 cache:
   directories:
     - node_modules

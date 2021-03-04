@@ -1,2 +1,7 @@
-node_modules/
-server/dist/
+node_modules/**
+server/dist/**
+client/.next/**
+client/.vercel/**
+client/src/generated/**
+client/public/**
+yarn.lock

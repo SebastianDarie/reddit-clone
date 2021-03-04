@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Index page should match the snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="css-gh9ooz"
+  >
+    <div
+      class="css-zdacg6"
+    >
+      <a
+        class="chakra-link css-1bvdrhg"
+      >
+        <h2
+          class="chakra-heading css-zey6tx"
+        >
+          NRG Reddit
+        </h2>
+      </a>
+      <div
+        class="css-zdpt2t"
+      >
+        loading please wait
+      </div>
+    </div>
+  </div>
+  <div
+    class="css-7vnqq8"
+  >
+    <div>
+      loading...
+    </div>
+  </div>
+</DocumentFragment>
+`;

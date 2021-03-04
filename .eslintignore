@@ -1,3 +1,7 @@
-node_modules/
-server/dist/
-server/src/index.ts
+**/node_modules/**
+**/server/dist/**
+**/server/src/index.ts
+**/client/.next/**
+**/client/.vercel/**
+**/client/src/generated/**
+**/client/public/**

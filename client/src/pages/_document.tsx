@@ -8,10 +8,7 @@ export default class Document extends NextDocument {
         <Head>
           <meta charSet="utf-8" />
           <link rel="icon" href="/favicon.io" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, user-scalable=no, user-scalable=0"
-          />
+
           <meta name="theme-color" content="#ff4500" />
           <meta
             name="description"
@@ -51,7 +48,6 @@ export default class Document extends NextDocument {
           <meta name="twitter:site" content="@DarieSebastian6" />
           <meta name="twitter:title" content="RedditClone" />
           <meta property="twitter:url" content="https://reddit-clone.tech/" />
-          <title>reddit: the front page of the internet</title>
         </Head>
         <body>
           <ColorModeScript />

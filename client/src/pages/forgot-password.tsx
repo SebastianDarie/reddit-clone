@@ -26,7 +26,7 @@ const ForgotPassword: React.FC<{}> = ({}) => {
               fontWeight={500}
               lineHeight="20px"
             >
-              Thanks! If your Reddit username and email address match, you'll
+              Thanks! If your Reddit username and email address match, you will
               get an email with a link to reset your password shortly.
             </Box>
           ) : (
@@ -47,7 +47,8 @@ const ForgotPassword: React.FC<{}> = ({}) => {
                 Reset Password
               </Button>
             </Form>
-          )}
+          )
+        }
       </Formik>
     </Wrapper>
   );
