@@ -6,7 +6,7 @@ import { Wrapper } from '../components/Wrapper';
 import { useForgotPasswordMutation } from '../generated/graphql';
 import { withApollo } from '../utils/withApollo';
 
-const ForgotPassword: React.FC<{}> = ({}) => {
+const ForgotPassword: React.FC<unknown> = ({}) => {
   const [forgotPassword] = useForgotPasswordMutation();
   const [complete, setComplete] = useState(false);
   return (

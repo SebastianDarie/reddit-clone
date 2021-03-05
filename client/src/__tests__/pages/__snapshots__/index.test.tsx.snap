@@ -1,35 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Index page should match the snapshot 1`] = `
-<DocumentFragment>
+Array [
   <div
-    class="css-gh9ooz"
+    className="css-b2pafk"
   >
     <div
-      class="css-zdacg6"
+      className="css-zdacg6"
     >
       <a
-        class="chakra-link css-1bvdrhg"
+        className="chakra-link css-0"
+        onClick={[Function]}
+        onMouseEnter={[Function]}
       >
         <h2
-          class="chakra-heading css-zey6tx"
+          className="chakra-heading css-0"
         >
           NRG Reddit
         </h2>
       </a>
       <div
-        class="css-zdpt2t"
+        className="css-zdpt2t"
       >
         loading please wait
       </div>
     </div>
-  </div>
+  </div>,
   <div
-    class="css-7vnqq8"
+    className="css-83x9sm"
   >
     <div>
       loading...
     </div>
-  </div>
-</DocumentFragment>
+  </div>,
+]
 `;

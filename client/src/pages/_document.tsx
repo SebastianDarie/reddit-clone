@@ -1,8 +1,7 @@
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document';
-import { ColorModeScript } from '@chakra-ui/react';
 
 export default class Document extends NextDocument {
-  render() {
+  render(): JSX.Element {
     return (
       <Html lang="en">
         <Head>
@@ -50,7 +49,6 @@ export default class Document extends NextDocument {
           <meta property="twitter:url" content="https://reddit-clone.tech/" />
         </Head>
         <body>
-          <ColorModeScript />
           <Main />
           <NextScript />
         </body>

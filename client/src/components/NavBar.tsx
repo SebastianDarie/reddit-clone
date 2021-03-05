@@ -1,15 +1,26 @@
-import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  IconButton,
+  Link,
+  useColorMode,
+} from '@chakra-ui/react';
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import NextLink from 'next/link';
 import { useApolloClient } from '@apollo/client';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 
-export const NavBar: React.FC<{}> = ({}) => {
+export const NavBar: React.FC<Record<string, never>> = ({}) => {
   const apolloClient = useApolloClient();
   const [logout, { loading: logoutFetching }] = useLogoutMutation();
   const { data, loading } = useMeQuery({
     skip: isServer(),
   });
+
+  const { colorMode, toggleColorMode } = useColorMode();
 
   let body = null;
 
@@ -36,6 +47,7 @@ export const NavBar: React.FC<{}> = ({}) => {
         </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
+          mr={2}
           variant="link"
           isLoading={logoutFetching}
           onClick={async () => {
@@ -45,6 +57,11 @@ export const NavBar: React.FC<{}> = ({}) => {
         >
           Logout
         </Button>
+        <IconButton
+          aria-label="Change colorMode"
+          icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+          onClick={toggleColorMode}
+        />
       </Flex>
     );
   }

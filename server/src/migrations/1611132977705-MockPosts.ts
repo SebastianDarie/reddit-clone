@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class MockPosts1611132977705 implements MigrationInterface {

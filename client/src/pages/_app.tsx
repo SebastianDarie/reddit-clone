@@ -1,11 +1,10 @@
-import { ChakraProvider } from '@chakra-ui/react';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import theme from '../theme';
+import { Chakra } from '../components/Chakra';
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   return (
-    <ChakraProvider resetCSS theme={theme}>
+    <Chakra cookies={pageProps.cookies}>
       <Head>
         <meta
           name="viewport"
@@ -14,8 +13,10 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
         <title>reddit: the front page of the internet</title>
       </Head>
       <Component {...pageProps} />
-    </ChakraProvider>
+    </Chakra>
   );
 };
+
+export { getServerSideProps } from '../components/Chakra';
 
 export default MyApp;

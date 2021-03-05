@@ -9,7 +9,7 @@
     "lint": "eslint **/*.{js,ts,tsx}",
     "lint:fix": "eslint **/*.{js,ts,tsx} --fix",
     "test": "jest",
-    "test:w": "jest --watch",
+    "test:w": "jest --watchAll",
     "test:frontend": "jest --projects client/jest.config.js"
   },
   "devDependencies": {

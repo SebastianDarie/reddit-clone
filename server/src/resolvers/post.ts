@@ -38,12 +38,12 @@ class PaginatedPosts {
 @Resolver(Post)
 export class PostResolver {
   @FieldResolver(() => String)
-  textSnippet(@Root() root: Post) {
+  textSnippet(@Root() root: Post): string {
     return root.text.slice(0, 50);
   }
 
   @FieldResolver(() => User)
-  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext): Promise<User> {
     return userLoader.load(post.creatorId);
   }
 
@@ -51,7 +51,7 @@ export class PostResolver {
   async voteStatus(
     @Root() post: Post,
     @Ctx() { req, upvoteLoader }: MyContext
-  ) {
+  ): Promise<number | null> {
     if (!req.session.userId) {
       return null;
     }
@@ -70,7 +70,7 @@ export class PostResolver {
     @Arg('postId', () => Int) postId: number,
     @Arg('value', () => Int) value: number,
     @Ctx() { req }: MyContext
-  ) {
+  ): Promise<boolean> {
     const isUpvote = value !== -1;
     const realValue = isUpvote ? 1 : -1;
     const { userId } = req.session;
@@ -129,7 +129,7 @@ export class PostResolver {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
 
-    const replacements: any[] = [realLimitPlusOne];
+    const replacements: (Date | number)[] = [realLimitPlusOne];
 
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));

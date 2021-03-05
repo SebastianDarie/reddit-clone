@@ -40,7 +40,7 @@ class UserResponse {
 @Resolver(User)
 export class UserResolver {
   @FieldResolver(() => String)
-  email(@Root() user: User, @Ctx() { req }: MyContext) {
+  email(@Root() user: User, @Ctx() { req }: MyContext): string {
     if (req.session.userId === user.id) {
       return user.email;
     }
@@ -103,7 +103,7 @@ export class UserResolver {
   async forgotPassword(
     @Arg('email') email: string,
     @Ctx() { redis }: MyContext
-  ) {
+  ): Promise<boolean> {
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return true;
@@ -127,7 +127,7 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  me(@Ctx() { req }: MyContext) {
+  me(@Ctx() { req }: MyContext): Promise<User | undefined> | null {
     if (!req.session.userId) {
       return null;
     }
@@ -220,7 +220,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  logout(@Ctx() { req, res }: MyContext) {
+  logout(@Ctx() { req, res }: MyContext): Promise<unknown> {
     return new Promise((resolve) => {
       req.session.destroy((err) => {
         res.clearCookie(COOKIE_NAME);

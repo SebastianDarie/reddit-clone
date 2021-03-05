@@ -9,11 +9,14 @@ module.exports = {
     '!**/.vercel/**',
   ],
   setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
+  testEnvironment: 'jsdom',
   testPathIgnorePatterns: [
     '<rootDir>[/\\\\](node_modules|.next)[/\\\\]',
     '<rootDir>[/\\\\]src[/\\\\]__tests__[/\\\\]__mocks__',
   ],
+  testRegex: '((\\.|/*.)(test))\\.(ts|js)?(x)?$',
   transform: {
     '^.+\\.(ts|tsx)$': 'babel-jest',
   },
+  verbose: true,
 };

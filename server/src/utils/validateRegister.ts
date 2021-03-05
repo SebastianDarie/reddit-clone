@@ -1,6 +1,8 @@
 import { UsernamePasswordInput } from '../resolvers/UsernamePasswordInput';
 
-export const validateRegister = (credentials: UsernamePasswordInput) => {
+export const validateRegister = (
+  credentials: UsernamePasswordInput
+): [{ field: string; message: string }] | null => {
   if (
     !/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(
       credentials.email

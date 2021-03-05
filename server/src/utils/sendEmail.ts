@@ -1,6 +1,10 @@
 import nodemailer from 'nodemailer';
 
-export async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string
+): Promise<void> {
   // let testAccount = await nodemailer.createTestAccount();
   // console.log(testAccount);
 
