@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import NextLink from 'next/link';
-import { InputField } from '../../components/InputField';
+import { InputField } from '../../components/form-fields/InputField';
 import { Wrapper } from '../../components/Wrapper';
 import { toErrorMap } from '../../utils/toErrorMap';
 import {

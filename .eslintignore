@@ -3,5 +3,6 @@
 **/server/src/index.ts
 **/client/.next/**
 **/client/.vercel/**
+**/client/src/__tests__/**
 **/client/src/generated/**
 **/client/public/**

@@ -1,7 +1,8 @@
 import { Box, Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 import { useRouter } from 'next/router';
-import { InputField } from '../../../components/InputField';
+import { InputField } from '../../../components/form-fields/InputField';
 import { Layout } from '../../../components/Layout';
 import {
   usePostQuery,
@@ -9,6 +10,17 @@ import {
 } from '../../../generated/graphql';
 import { useGetIntId } from '../../../utils/useGetIntId';
 import { withApollo } from '../../../utils/withApollo';
+
+const PostSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(3, 'Update your title!')
+    .max(50, 'Too much already!')
+    .required(),
+  text: Yup.string()
+    .min(3, "There's gotta be more to your content!")
+    .max(40000, 'Create separate posts!')
+    .required(),
+});
 
 const EditPost = ({}) => {
   const router = useRouter();
@@ -41,6 +53,7 @@ const EditPost = ({}) => {
     <Layout variant="small">
       <Formik
         initialValues={{ title: data.post.title, text: data.post.text }}
+        validationSchema={PostSchema}
         onSubmit={async (values) => {
           await updatePost({ variables: { id: intId, ...values } });
           router.back();

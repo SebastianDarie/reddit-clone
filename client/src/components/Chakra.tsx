@@ -3,7 +3,7 @@ import {
   cookieStorageManager,
   localStorageManager,
 } from '@chakra-ui/react';
-import http from 'http';
+import { IncomingMessage } from 'http';
 
 interface ChakraProps {
   cookies: string;
@@ -24,7 +24,7 @@ export function Chakra({ cookies, children }: ChakraProps): JSX.Element {
 }
 
 interface ServerSideProps {
-  req: http.IncomingMessage;
+  req: IncomingMessage;
 }
 
 export function getServerSideProps({

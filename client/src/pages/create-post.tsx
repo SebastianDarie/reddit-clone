@@ -1,11 +1,23 @@
 import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import * as Yup from 'yup';
 import { useRouter } from 'next/router';
-import { InputField } from '../components/InputField';
+import { InputField } from '../components/form-fields/InputField';
 import { Layout } from '../components/Layout';
 import { useCreatePostMutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
 import { withApollo } from '../utils/withApollo';
+
+const PostSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(3, 'Choose an interesting title!')
+    .max(50, 'Too much already!')
+    .required('Anything works!'),
+  text: Yup.string()
+    .min(3, "There's gotta be more to your content!")
+    .max(40000, 'Create separate posts!')
+    .required('Why did you click create post?'),
+});
 
 const CreatePost: React.FC<unknown> = ({}) => {
   const router = useRouter();
@@ -16,6 +28,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
     <Layout variant="small">
       <Formik
         initialValues={{ title: '', text: '' }}
+        validationSchema={PostSchema}
         onSubmit={async (values) => {
           const { errors } = await createPost({
             variables: { input: values },

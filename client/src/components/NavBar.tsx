@@ -47,7 +47,6 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
         </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
-          mr={2}
           variant="link"
           isLoading={logoutFetching}
           onClick={async () => {
@@ -57,11 +56,6 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
         >
           Logout
         </Button>
-        <IconButton
-          aria-label="Change colorMode"
-          icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-          onClick={toggleColorMode}
-        />
       </Flex>
     );
   }
@@ -74,7 +68,14 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
             <Heading>NRG Reddit</Heading>
           </Link>
         </NextLink>
-        <Box ml="auto">{body}</Box>
+        <Box ml="auto" mr={2}>
+          {body}
+        </Box>
+        <IconButton
+          aria-label="Change colorMode"
+          icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+          onClick={toggleColorMode}
+        />
       </Flex>
     </Flex>
   );

@@ -1,20 +1,74 @@
 import { Form, Formik } from 'formik';
-import { Box, Button, Flex, Link } from '@chakra-ui/react';
+import * as Yup from 'yup';
+import {
+  Box,
+  Button,
+  Heading,
+  Link,
+  Stack,
+  Text,
+  useColorModeValue as mode,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import NextLink from 'next/link';
-import { Wrapper } from '../components/Wrapper';
-import { InputField } from '../components/InputField';
+import { InputField } from '../components/form-fields/InputField';
 import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { withApollo } from '../utils/withApollo';
+import { PasswordField } from '../components/form-fields/PasswordField';
+
+const LoginSchema = Yup.object().shape({
+  usernameOrEmail: Yup.string()
+    .min(3, 'Length does not match')
+    .max(50, 'That is too much Jimbo')
+    .required('Identify yourself'),
+  password: Yup.string()
+    .min(3, 'Passwords are minimum 3 characters')
+    .max(50, 'That is the limit!')
+    .required('Password is required'),
+});
 
 const Login: React.FC<unknown> = ({}) => {
   const router = useRouter();
   const [login] = useLoginMutation();
   return (
-    <Wrapper variant="small">
+    <Box
+      bg={mode('gray.50', 'inherit')}
+      minH="100vh"
+      py="12"
+      px={{ sm: '6', lg: '8' }}
+    >
+      <Box maxW={{ sm: 'md' }} mx={{ sm: 'auto' }} w={{ sm: 'full' }}>
+        <Box display="flex" justifyContent="center">
+          <Image
+            src="/assets/reddit-logo.svg"
+            alt="reddit logo"
+            height={128}
+            width={128}
+          />
+        </Box>
+        <Heading mt="6" textAlign="center" size="xl" fontWeight="extrabold">
+          Sign in to your account
+        </Heading>
+        <Text mt="4" align="center" maxW="md" fontWeight="medium">
+          <span>Don&apos;t have an account?</span>
+          <NextLink href="/register">
+            <Link
+              marginStart="1"
+              color={mode('blue.600', 'blue.200')}
+              _hover={{ color: 'blue.600' }}
+              display={{ base: 'block', sm: 'revert' }}
+            >
+              Register here
+            </Link>
+          </NextLink>
+        </Text>
+      </Box>
+
       <Formik
         initialValues={{ usernameOrEmail: '', password: '' }}
+        validationSchema={LoginSchema}
         onSubmit={async (values, { setErrors }) => {
           const response = await login({
             variables: values,
@@ -41,37 +95,43 @@ const Login: React.FC<unknown> = ({}) => {
         }}
       >
         {({ isSubmitting }) => (
-          <Form>
-            <InputField
-              name="usernameOrEmail"
-              placeholder="Bob the Builder or example@gmail.com"
-              label="Username or Email"
-            />
-            <Box mt={4}>
-              <InputField
-                name="password"
-                placeholder="password"
-                label="Password"
-                type="password"
-              />
-            </Box>
-            <Flex mt={2}>
-              <NextLink href="/forgot-password">
-                <Link ml="auto">Forgot Password?</Link>
-              </NextLink>
-            </Flex>
-            <Button
-              mt={4}
-              type="submit"
-              isLoading={isSubmitting}
-              colorScheme="teal"
+          <Box
+            maxW={{ sm: 'md' }}
+            mx={{ sm: 'auto' }}
+            mt="8"
+            w={{ sm: 'full' }}
+          >
+            <Box
+              bg={mode('white', 'gray.700')}
+              py="8"
+              px={{ base: '4', md: '10' }}
+              shadow="base"
+              rounded={{ sm: 'lg' }}
             >
-              Login
-            </Button>
-          </Form>
+              <Form>
+                <Stack spacing="6">
+                  <InputField
+                    name="usernameOrEmail"
+                    placeholder="Bob the Builder or example@gmail.com"
+                    label="Username or Email"
+                  />
+                  <PasswordField name="password" placeholder="password" />
+                  <Button
+                    type="submit"
+                    colorScheme="blue"
+                    size="lg"
+                    fontSize="md"
+                    isLoading={isSubmitting}
+                  >
+                    Sign in
+                  </Button>
+                </Stack>
+              </Form>
+            </Box>
+          </Box>
         )}
       </Formik>
-    </Wrapper>
+    </Box>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
-import { InputField } from '../components/InputField';
+import { InputField } from '../components/form-fields/InputField';
 import { Wrapper } from '../components/Wrapper';
 import { useForgotPasswordMutation } from '../generated/graphql';
 import { withApollo } from '../utils/withApollo';
@@ -26,8 +26,8 @@ const ForgotPassword: React.FC<unknown> = ({}) => {
               fontWeight={500}
               lineHeight="20px"
             >
-              Thanks! If your Reddit username and email address match, you will
-              get an email with a link to reset your password shortly.
+              Thanks! If your Reddit email address matches, you will get an
+              email with a link to reset your password shortly.
             </Box>
           ) : (
             <Form>
