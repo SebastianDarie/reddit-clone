@@ -11,14 +11,15 @@ import {
 export type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
+  image?: boolean;
   textarea?: boolean;
 };
 
 export const InputField: React.FC<InputFieldProps> = ({
   label,
   textarea,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  size: _,
+  image,
+  size = 10,
   ...props
 }) => {
   let InputOrTextarea = Input;
@@ -26,10 +27,17 @@ export const InputField: React.FC<InputFieldProps> = ({
     InputOrTextarea = Textarea as typeof Input;
   }
   const [field, { error }] = useField(props);
+  console.log(field, props);
   return (
     <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={field.name}>{label}</FormLabel>
-      <InputOrTextarea {...field} {...props} id={field.name} />
+      <InputOrTextarea
+        {...field}
+        {...props}
+        id={field.name}
+        height={size}
+        padding={image ? '8px 5px' : ''}
+      />
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
   );

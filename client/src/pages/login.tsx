@@ -115,7 +115,11 @@ const Login: React.FC<unknown> = ({}) => {
                     placeholder="Bob the Builder or example@gmail.com"
                     label="Username or Email"
                   />
-                  <PasswordField name="password" placeholder="password" />
+                  <PasswordField
+                    name="password"
+                    placeholder="password"
+                    register={false}
+                  />
                   <Button
                     type="submit"
                     colorScheme="blue"

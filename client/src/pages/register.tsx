@@ -65,7 +65,7 @@ const Register: React.FC<unknown> = ({}) => {
               />
             </Box>
             <Box mt={4}>
-              <PasswordField name="password" placeholder="password" />
+              <PasswordField name="password" placeholder="password" register />
             </Box>
             <Button
               mt={4}

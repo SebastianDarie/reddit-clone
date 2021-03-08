@@ -19,7 +19,9 @@ import NextLink from 'next/link';
 import * as React from 'react';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 
-export const PasswordField = React.forwardRef<HTMLInputElement, InputProps>(
+type PasswordProps = { register: boolean } & InputProps;
+
+export const PasswordField = React.forwardRef<HTMLInputElement, PasswordProps>(
   (props, ref) => {
     const { isOpen, onToggle } = useDisclosure();
     const inputRef = React.useRef<HTMLInputElement>(null);
@@ -38,13 +40,15 @@ export const PasswordField = React.forwardRef<HTMLInputElement, InputProps>(
       }
     };
 
-    const [field, { error }] = useField(props as string);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [field, { error }] = useField(props as any);
 
     return (
-      <FormControl id="password" isInvalid={!!error}>
+      <FormControl id={props.name} isInvalid={!!error}>
         <Flex justify="space-between">
-          <FormLabel>Password</FormLabel>
+          <FormLabel id={props.name}>Password</FormLabel>
           <Box
+            display={props.register ? 'none' : ''}
             color={mode('blue.600', 'blue.200')}
             fontWeight="semibold"
             fontSize="sm"

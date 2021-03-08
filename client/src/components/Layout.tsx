@@ -1,15 +1,22 @@
 import { NavBar } from './NavBar';
-import { Wrapper, WrapperVariant } from './Wrapper';
+import { BackgroundVariant, Wrapper, WrapperVariant } from './Wrapper';
 
 interface LayoutProps {
+  background?: BackgroundVariant;
   variant?: WrapperVariant;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, variant }) => {
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  background,
+  variant,
+}) => {
   return (
     <>
       <NavBar />
-      <Wrapper variant={variant}>{children}</Wrapper>
+      <Wrapper background={background} variant={variant}>
+        {children}
+      </Wrapper>
     </>
   );
 };
