@@ -24,8 +24,16 @@ export class Post extends BaseEntity {
   title!: string;
 
   @Field()
-  @Column()
-  text!: string;
+  @Column({ default: '' })
+  text: string;
+
+  @Field()
+  @Column({ default: '' })
+  image: string;
+
+  @Field()
+  @Column({ default: '' })
+  link: string;
 
   @Field()
   @Column({ type: 'int', default: 0 })

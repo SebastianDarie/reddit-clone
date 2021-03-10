@@ -4,6 +4,9 @@ fragment PostSnippet on Post {
   updatedAt
   title
   textSnippet
+  image
+  link
+  linkSnippet
   points
   voteStatus
   creator {

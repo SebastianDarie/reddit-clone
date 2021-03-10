@@ -5,6 +5,8 @@ mutation CreatePost($input: PostInput!) {
     updatedAt
     title
     text
+    image
+    link
     points
     creatorId
   }

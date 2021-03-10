@@ -3,14 +3,15 @@ import { Form } from 'formik';
 import { FormProps } from '../../shared/form.interface';
 import { InputField } from '../form-fields/InputField';
 
-export const LinkForm = ({ isSubmitting }: FormProps): JSX.Element => {
+export const FormWrapper = ({
+  children,
+  isSubmitting,
+}: FormProps): JSX.Element => {
   return (
-    <Form>
+    <Form encType="multipart/form-data">
       <Stack spacing="6">
         <InputField name="title" placeholder="Bob the Builder" label="Title" />
-        <Box mt={4}>
-          <InputField name="link" placeholder="Url" label="Link" />
-        </Box>
+        <Box mt={4}>{children}</Box>
         <Button
           mt={4}
           type="submit"

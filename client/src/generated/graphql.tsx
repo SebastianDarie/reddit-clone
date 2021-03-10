@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
-
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
@@ -43,6 +42,8 @@ export type Post = {
   id: Scalars['Float'];
   title: Scalars['String'];
   text: Scalars['String'];
+  image: Scalars['String'];
+  link: Scalars['String'];
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
   creatorId: Scalars['Float'];
@@ -50,6 +51,7 @@ export type Post = {
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
+  linkSnippet: Scalars['String'];
 };
 
 export type User = {
@@ -144,7 +146,7 @@ export type UsernamePasswordInput = {
 
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'points' | 'voteStatus'>
+  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'image' | 'link' | 'linkSnippet' | 'points' | 'voteStatus'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -195,7 +197,7 @@ export type CreatePostMutation = (
   { __typename?: 'Mutation' }
   & { createPost: (
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'points' | 'creatorId'>
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'image' | 'link' | 'points' | 'creatorId'>
   ) }
 );
 
@@ -300,7 +302,7 @@ export type PostQuery = (
   { __typename?: 'Query' }
   & { post?: Maybe<(
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'points' | 'voteStatus'>
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'image' | 'link' | 'points' | 'voteStatus'>
     & { creator: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'username'>
@@ -333,6 +335,9 @@ export const PostSnippetFragmentDoc = gql`
   updatedAt
   title
   textSnippet
+  image
+  link
+  linkSnippet
   points
   voteStatus
   creator {
@@ -405,6 +410,8 @@ export const CreatePostDocument = gql`
     updatedAt
     title
     text
+    image
+    link
     points
     creatorId
   }
@@ -697,6 +704,8 @@ export const PostDocument = gql`
     updatedAt
     title
     text
+    image
+    link
     points
     voteStatus
     creator {

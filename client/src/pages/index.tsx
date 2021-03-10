@@ -1,4 +1,5 @@
 import NextLink from 'next/link';
+import Image from 'next/image';
 import {
   Box,
   Button,
@@ -8,6 +9,7 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Layout } from '../components/Layout';
 import { usePostsQuery } from '../generated/graphql';
 import { UpvoteSection } from '../components/UpvoteSection';
@@ -17,7 +19,7 @@ import { withApollo } from '../utils/withApollo';
 const Index = () => {
   const { data, error, loading, fetchMore, variables } = usePostsQuery({
     variables: {
-      limit: 10,
+      limit: 15,
       cursor: null,
     },
     notifyOnNetworkStatusChange: true,
@@ -50,7 +52,23 @@ const Index = () => {
                   </NextLink>
                   <Text>posted by {p.creator.username}</Text>
                   <Flex align="center">
-                    <Text mt={4}>{p.textSnippet}</Text>
+                    {p.textSnippet !== '' ? (
+                      <Text mt={4}>{p.textSnippet}</Text>
+                    ) : p.image !== '' ? (
+                      <Box mt={4}>
+                        <Image
+                          src={`${p.image}`}
+                          alt="post image"
+                          width="auto"
+                          height="auto"
+                        />
+                      </Box>
+                    ) : (
+                      <Link color="blue.400" href={`${p.link}`} isExternal>
+                        {p.linkSnippet} <ExternalLinkIcon />{' '}
+                      </Link>
+                    )}
+
                     <Box ml="auto">
                       <EditDeletePostButtons
                         id={p.id}

@@ -11,14 +11,12 @@ import {
 export type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
-  image?: boolean;
   textarea?: boolean;
 };
 
 export const InputField: React.FC<InputFieldProps> = ({
   label,
   textarea,
-  image,
   size = 10,
   ...props
 }) => {
@@ -26,18 +24,12 @@ export const InputField: React.FC<InputFieldProps> = ({
   if (textarea) {
     InputOrTextarea = Textarea as typeof Input;
   }
+
   const [field, { error }] = useField(props);
-  console.log(field, props);
   return (
     <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={field.name}>{label}</FormLabel>
-      <InputOrTextarea
-        {...field}
-        {...props}
-        id={field.name}
-        height={size}
-        padding={image ? '8px 5px' : ''}
-      />
+      <InputOrTextarea {...field} {...props} id={field.name} h={size} />
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
   );

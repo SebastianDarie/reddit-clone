@@ -25,6 +25,10 @@ class PostInput {
   title: string;
   @Field()
   text: string;
+  @Field()
+  image: string;
+  @Field()
+  link: string;
 }
 
 @ObjectType()
@@ -40,6 +44,18 @@ export class PostResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post): string {
     return root.text.slice(0, 50);
+  }
+
+  @FieldResolver(() => String)
+  linkSnippet(@Root() root: Post): string {
+    if (!root.link) {
+      return '';
+    }
+    let result = root.link.match(
+      /^(?:(?:(([^:\/#\?]+:)?(?:(?:\/\/)(?:(?:(?:([^:@\/#\?]+)(?:\:([^:@\/#\?]*))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((?:\/?(?:[^\/\?#]+\/+)*)(?:[^\?#]*)))?(\?[^#]+)?)(#.*)?/i
+    );
+
+    return result?.[6] + result?.[8]?.slice(0, 8) + '...';
   }
 
   @FieldResolver(() => User)

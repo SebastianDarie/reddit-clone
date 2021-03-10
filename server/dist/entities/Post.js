@@ -28,9 +28,19 @@ __decorate([
 ], Post.prototype, "title", void 0);
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.Column(),
+    typeorm_1.Column({ default: '' }),
     __metadata("design:type", String)
 ], Post.prototype, "text", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ default: '' }),
+    __metadata("design:type", String)
+], Post.prototype, "image", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ default: '' }),
+    __metadata("design:type", String)
+], Post.prototype, "link", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ type: 'int', default: 0 }),

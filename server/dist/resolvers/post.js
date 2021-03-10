@@ -38,6 +38,14 @@ __decorate([
     type_graphql_1.Field(),
     __metadata("design:type", String)
 ], PostInput.prototype, "text", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], PostInput.prototype, "image", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], PostInput.prototype, "link", void 0);
 PostInput = __decorate([
     type_graphql_1.InputType()
 ], PostInput);
@@ -57,6 +65,14 @@ PaginatedPosts = __decorate([
 let PostResolver = class PostResolver {
     textSnippet(root) {
         return root.text.slice(0, 50);
+    }
+    linkSnippet(root) {
+        var _a;
+        if (!root.link) {
+            return '';
+        }
+        let result = root.link.match(/^(?:(?:(([^:\/#\?]+:)?(?:(?:\/\/)(?:(?:(?:([^:@\/#\?]+)(?:\:([^:@\/#\?]*))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((?:\/?(?:[^\/\?#]+\/+)*)(?:[^\?#]*)))?(\?[^#]+)?)(#.*)?/i);
+        return (result === null || result === void 0 ? void 0 : result[6]) + ((_a = result === null || result === void 0 ? void 0 : result[8]) === null || _a === void 0 ? void 0 : _a.slice(0, 8)) + '...';
     }
     creator(post, { userLoader }) {
         return userLoader.load(post.creatorId);
@@ -167,6 +183,13 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post]),
     __metadata("design:returntype", String)
 ], PostResolver.prototype, "textSnippet", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post]),
+    __metadata("design:returntype", String)
+], PostResolver.prototype, "linkSnippet", null);
 __decorate([
     type_graphql_1.FieldResolver(() => User_1.User),
     __param(0, type_graphql_1.Root()), __param(1, type_graphql_1.Ctx()),

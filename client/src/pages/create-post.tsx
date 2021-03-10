@@ -9,63 +9,23 @@ import {
 } from '@chakra-ui/react';
 import { BiImage, BiLink, BiMessageDetail } from 'react-icons/bi';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
-//import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
-//import { useCreatePostMutation } from '../generated/graphql';
+import { useCreatePostMutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
 import { withApollo } from '../utils/withApollo';
 import { DividerWithText } from '../components/DividerWithText';
-import { TextForm } from '../components/forms/TextForm';
+import { InputField } from '../components/form-fields/InputField';
 import { ImageForm } from '../components/forms/ImageForm';
-import { LinkForm } from '../components/forms/LinkForm';
-
-const Title = Yup.string()
-  .min(3, 'Choose an interesting title!')
-  .max(300, 'Too much already!')
-  .required('Anything works!');
-
-const TextSchema = Yup.object().shape({
-  title: Yup.string().concat(Title),
-  text: Yup.string()
-    .min(3, "There's gotta be more to your content!")
-    .max(10000, 'Create separate posts!')
-    .required('Why did you click create post?'),
-});
-
-const LinkSchema = Yup.object().shape({
-  title: Yup.string().concat(Title),
-  link: Yup.string()
-    .min(9, 'Make sure it is a valid url')
-    .max(2000, 'Too much shorthen it')
-    .required('Add a link to something'),
-});
-
-const ImageSchema = Yup.object().shape({
-  title: Yup.string().concat(Title),
-  image: Yup.mixed().required('Please upload an image'),
-  // .test(
-  //   'fileSize',
-  //   'File too large',
-  //   (value) => value && value.size <= 20000 * 1024
-  // )
-  // .test('fileFormat', 'Unsupported Format', (value) => {
-  //   console.log(value);
-  //   return (
-  //     value &&
-  //     ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'].includes(
-  //       value.type
-  //     )
-  //   );
-  // }),
-});
+import { FormWrapper } from '../components/forms/FormWrapper';
+import { ImageSchema, LinkSchema, TextSchema } from '../validation/yup';
 
 const CreatePost: React.FC<unknown> = ({}) => {
-  //const router = useRouter();
+  const router = useRouter();
   useIsAuth();
   const [postType, setPostType] = useState('text');
-  //const [createPost] = useCreatePostMutation();
+  const [createPost] = useCreatePostMutation();
 
   return (
     <Layout variant="regular">
@@ -77,7 +37,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
           <Divider />
         </Box>
         <Formik
-          initialValues={{ title: '', text: '', link: '', image: null }}
+          initialValues={{ title: '', text: '', link: '', image: '' }}
           validationSchema={
             postType === 'link'
               ? LinkSchema
@@ -86,19 +46,18 @@ const CreatePost: React.FC<unknown> = ({}) => {
               : TextSchema
           }
           onSubmit={async (values) => {
-            // const { errors } = await createPost({
-            //   variables: { input: values },
-            //   update: (cache) => {
-            //     cache.evict({ fieldName: 'posts:{}' });
-            //   },
-            // });
-            // if (!errors) {
-            //   router.push('/');
-            // }
-            console.log(values);
+            const { errors } = await createPost({
+              variables: { input: values },
+              update: (cache) => {
+                cache.evict({ fieldName: 'posts:{}' });
+              },
+            });
+            if (!errors) {
+              router.push('/');
+            }
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, setFieldValue, resetForm }) => (
             <Box
               maxW={{ sm: 'md' }}
               mx={{ sm: 'auto' }}
@@ -122,7 +81,10 @@ const CreatePost: React.FC<unknown> = ({}) => {
                     }
                     color="currentColor"
                     variant="outline"
-                    onClick={() => setPostType('text')}
+                    onClick={() => {
+                      setPostType('text');
+                      resetForm();
+                    }}
                   >
                     <VisuallyHidden>Text Post</VisuallyHidden>
                     <BiMessageDetail
@@ -137,7 +99,10 @@ const CreatePost: React.FC<unknown> = ({}) => {
                     }
                     color="currentColor"
                     variant="outline"
-                    onClick={() => setPostType('image')}
+                    onClick={() => {
+                      setPostType('image');
+                      resetForm();
+                    }}
                   >
                     <VisuallyHidden>Image Post</VisuallyHidden>
                     <BiImage color={postType === 'image' ? 'orangered' : ''} />
@@ -150,22 +115,30 @@ const CreatePost: React.FC<unknown> = ({}) => {
                     }
                     color="currentColor"
                     variant="outline"
-                    onClick={() => setPostType('link')}
+                    onClick={() => {
+                      setPostType('link');
+                      resetForm();
+                    }}
                   >
                     <VisuallyHidden>Link Post</VisuallyHidden>
                     <BiLink color={postType === 'link' ? 'orangered' : ''} />
                   </Button>
                 </SimpleGrid>
-                {postType === 'text' ? (
-                  <TextForm isSubmitting={isSubmitting} />
-                ) : postType === 'image' ? (
-                  <ImageForm
-                    isSubmitting={isSubmitting}
-                    //setFieldValue={setFieldValue}
-                  />
-                ) : (
-                  <LinkForm isSubmitting={isSubmitting} />
-                )}
+
+                <FormWrapper isSubmitting={isSubmitting}>
+                  {postType === 'text' ? (
+                    <InputField
+                      textarea
+                      name="text"
+                      placeholder="text"
+                      label="Body"
+                    />
+                  ) : postType === 'link' ? (
+                    <InputField name="link" placeholder="Url" label="Link" />
+                  ) : (
+                    <ImageForm setFieldValue={setFieldValue} />
+                  )}
+                </FormWrapper>
               </Box>
             </Box>
           )}

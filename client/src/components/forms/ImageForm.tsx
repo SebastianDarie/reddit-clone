@@ -1,45 +1,39 @@
-import { Box, Button, Input, Stack } from '@chakra-ui/react';
-import { Form } from 'formik';
-import { FormProps } from '../../shared/form.interface';
-import { InputField } from '../form-fields/InputField';
+import {
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  Input,
+} from '@chakra-ui/react';
+import { useField } from 'formik';
 
-type ImageProps = FormProps;
+interface ImageProps {
+  setFieldValue: (
+    field: string,
+    value: any,
+    shouldValidate?: boolean | undefined
+  ) => void;
+}
 
-export const ImageForm = ({
-  isSubmitting,
-}: //setFieldValue,
-ImageProps): JSX.Element => {
+export const ImageForm = ({ setFieldValue }: ImageProps): JSX.Element => {
+  const [field, { error }] = useField('image');
+
   return (
-    <Form>
-      <Stack spacing="6">
-        <InputField name="title" placeholder="Bob the Builder" label="Title" />
-        <Box mt={4}>
-          {/* <Field
-            name="image"
-            component={ */}
-          <Input
-            type="file"
-            accept="image/png, image/jpg, image/jpeg, image/gif"
-            name="image"
-            label="Image"
-            //size={12}
-            image
-            // onChange={(e) => {
-            //   setFieldValue('image', e.currentTarget.files[0]);
-            // }}
-          />
-          {/* }
-          /> */}
-        </Box>
-        <Button
-          mt={4}
-          type="submit"
-          isLoading={isSubmitting}
-          colorScheme="teal"
-        >
-          Create Post
-        </Button>
-      </Stack>
-    </Form>
+    <FormControl isInvalid={!!error}>
+      <FormLabel htmlFor={field.name}>Image</FormLabel>
+      <Input
+        type="file"
+        accept="image/png, image/jpg, image/jpeg, image/gif"
+        name="image"
+        label="Image"
+        size="lg"
+        padding="6px 5px"
+        onChange={(e) => {
+          if (e.target.files?.[0]) {
+            setFieldValue('image', e.target?.files[0]);
+          }
+        }}
+      />
+      {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
+    </FormControl>
   );
 };
