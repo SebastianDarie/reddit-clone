@@ -1,32 +1,51 @@
 import {
   Box,
-  Button,
   Divider,
-  SimpleGrid,
   Text,
-  VisuallyHidden,
   useColorModeValue as mode,
 } from '@chakra-ui/react';
-import { BiImage, BiLink, BiMessageDetail } from 'react-icons/bi';
 import { Formik } from 'formik';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { useCreatePostMutation } from '../generated/graphql';
+import { useCreatePostMutation, useSignS3Mutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
 import { withApollo } from '../utils/withApollo';
 import { DividerWithText } from '../components/DividerWithText';
 import { InputField } from '../components/form-fields/InputField';
 import { ImageForm } from '../components/forms/ImageForm';
+import { FormContainer } from '../components/forms/FormContainer';
 import { FormWrapper } from '../components/forms/FormWrapper';
 import { ImageSchema, LinkSchema, TextSchema } from '../validation/yup';
+import { formatFilename } from '../utils/formatFilename';
+import { FormValues } from '../shared/interfaces';
+import { OptionsGrid } from '../components/forms/OptionsGrid';
 
 const CreatePost: React.FC<unknown> = ({}) => {
   const router = useRouter();
   useIsAuth();
   const [postType, setPostType] = useState('text');
   const [createPost] = useCreatePostMutation();
+  const [s3Sign] = useSignS3Mutation();
 
+  const uploadToS3 = async (file: File, signedRequest: string) => {
+    const options = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': `${file.type}`,
+      },
+      body: file,
+    };
+
+    await fetch(signedRequest, options);
+  };
+
+  const initialValues: FormValues = {
+    title: '',
+    text: '',
+    link: '',
+    image: ('' as unknown) as File,
+  };
   return (
     <Layout variant="regular">
       <Box bg={mode('white', 'inherit')} py="12" px={{ sm: '6', lg: '8' }}>
@@ -37,7 +56,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
           <Divider />
         </Box>
         <Formik
-          initialValues={{ title: '', text: '', link: '', image: '' }}
+          initialValues={initialValues}
           validationSchema={
             postType === 'link'
               ? LinkSchema
@@ -46,8 +65,21 @@ const CreatePost: React.FC<unknown> = ({}) => {
               : TextSchema
           }
           onSubmit={async (values) => {
+            let image: string = '';
+            if (postType === 'image') {
+              const { data } = await s3Sign({
+                variables: {
+                  filename: formatFilename(values.image.name),
+                  filetype: values.image.type,
+                },
+              });
+              image = data?.signS3.url || image;
+
+              await uploadToS3(values.image, data!.signS3.signedRequest);
+            }
+
             const { errors } = await createPost({
-              variables: { input: values },
+              variables: { input: { ...values, image } },
               update: (cache) => {
                 cache.evict({ fieldName: 'posts:{}' });
               },
@@ -58,89 +90,29 @@ const CreatePost: React.FC<unknown> = ({}) => {
           }}
         >
           {({ isSubmitting, setFieldValue, resetForm }) => (
-            <Box
-              maxW={{ sm: 'md' }}
-              mx={{ sm: 'auto' }}
-              mt="8"
-              w={{ sm: 'full' }}
-            >
-              <Box
-                bg={mode('white', 'gray.700')}
-                py="8"
-                px={{ base: '4', md: '10' }}
-                shadow="base"
-                rounded={{ sm: 'lg' }}
-              >
-                <DividerWithText>Options</DividerWithText>
-                <SimpleGrid mt="6" mb="6" columns={3} spacing="3">
-                  <Button
-                    borderBottom={
-                      postType === 'text'
-                        ? `2px solid ${mode('inherit', 'white')}`
-                        : ''
-                    }
-                    color="currentColor"
-                    variant="outline"
-                    onClick={() => {
-                      setPostType('text');
-                      resetForm();
-                    }}
-                  >
-                    <VisuallyHidden>Text Post</VisuallyHidden>
-                    <BiMessageDetail
-                      color={postType === 'text' ? 'orangered' : ''}
-                    />
-                  </Button>
-                  <Button
-                    borderBottom={
-                      postType === 'image'
-                        ? `2px solid ${mode('inherit', 'white')}`
-                        : ''
-                    }
-                    color="currentColor"
-                    variant="outline"
-                    onClick={() => {
-                      setPostType('image');
-                      resetForm();
-                    }}
-                  >
-                    <VisuallyHidden>Image Post</VisuallyHidden>
-                    <BiImage color={postType === 'image' ? 'orangered' : ''} />
-                  </Button>
-                  <Button
-                    borderBottom={
-                      postType === 'link'
-                        ? `2px solid ${mode('inherit', 'white')}`
-                        : ''
-                    }
-                    color="currentColor"
-                    variant="outline"
-                    onClick={() => {
-                      setPostType('link');
-                      resetForm();
-                    }}
-                  >
-                    <VisuallyHidden>Link Post</VisuallyHidden>
-                    <BiLink color={postType === 'link' ? 'orangered' : ''} />
-                  </Button>
-                </SimpleGrid>
+            <FormContainer>
+              <DividerWithText>Options</DividerWithText>
+              <OptionsGrid
+                postType={postType}
+                resetForm={resetForm}
+                setPostType={setPostType}
+              />
 
-                <FormWrapper isSubmitting={isSubmitting}>
-                  {postType === 'text' ? (
-                    <InputField
-                      textarea
-                      name="text"
-                      placeholder="text"
-                      label="Body"
-                    />
-                  ) : postType === 'link' ? (
-                    <InputField name="link" placeholder="Url" label="Link" />
-                  ) : (
-                    <ImageForm setFieldValue={setFieldValue} />
-                  )}
-                </FormWrapper>
-              </Box>
-            </Box>
+              <FormWrapper isSubmitting={isSubmitting}>
+                {postType === 'text' ? (
+                  <InputField
+                    textarea
+                    name="text"
+                    placeholder="text"
+                    label="Body"
+                  />
+                ) : postType === 'link' ? (
+                  <InputField name="link" placeholder="Url" label="Link" />
+                ) : (
+                  <ImageForm setFieldValue={setFieldValue} />
+                )}
+              </FormWrapper>
+            </FormContainer>
           )}
         </Formik>
       </Box>

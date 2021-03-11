@@ -13,6 +13,7 @@ import {
   UseMiddleware,
 } from 'type-graphql';
 import { getConnection } from 'typeorm';
+import S3 from 'aws-sdk/clients/s3';
 import { Post } from '../entities/Post';
 import { Upvote } from '../entities/Upvote';
 import { User } from '../entities/User';
@@ -37,6 +38,14 @@ class PaginatedPosts {
   posts: Post[];
   @Field()
   hasMore: boolean;
+}
+
+@ObjectType()
+class S3Payload {
+  @Field()
+  signedRequest: string;
+  @Field()
+  url: string;
 }
 
 @Resolver(Post)
@@ -171,6 +180,34 @@ export class PostResolver {
   @Query(() => Post, { nullable: true })
   post(@Arg('id', () => Int) id: number): Promise<Post | undefined> {
     return Post.findOne(id);
+  }
+
+  @Mutation(() => S3Payload)
+  @UseMiddleware(isAuth)
+  async signS3(
+    @Arg('filename') filename: string,
+    @Arg('filetype') filetype: string
+  ): Promise<S3Payload> {
+    const s3 = new S3({
+      signatureVersion: 'v4',
+      region: 'us-east-1',
+    });
+
+    const s3Params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: filename,
+      Expires: 60,
+      ContentType: filetype,
+      ACL: 'public-read',
+    };
+
+    const signedRequest = await s3.getSignedUrl('putObject', s3Params);
+    const url = `https://${process.env.CF_DOMAIN_NAME}/${filename}`;
+
+    return {
+      signedRequest,
+      url,
+    };
   }
 
   @Mutation(() => Post)

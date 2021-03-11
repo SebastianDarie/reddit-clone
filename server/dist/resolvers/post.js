@@ -20,10 +20,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const s3_1 = __importDefault(require("aws-sdk/clients/s3"));
 const Post_1 = require("../entities/Post");
 const Upvote_1 = require("../entities/Upvote");
 const User_1 = require("../entities/User");
@@ -62,6 +66,19 @@ __decorate([
 PaginatedPosts = __decorate([
     type_graphql_1.ObjectType()
 ], PaginatedPosts);
+let S3Payload = class S3Payload {
+};
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], S3Payload.prototype, "signedRequest", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], S3Payload.prototype, "url", void 0);
+S3Payload = __decorate([
+    type_graphql_1.ObjectType()
+], S3Payload);
 let PostResolver = class PostResolver {
     textSnippet(root) {
         return root.text.slice(0, 50);
@@ -149,6 +166,27 @@ let PostResolver = class PostResolver {
     post(id) {
         return Post_1.Post.findOne(id);
     }
+    signS3(filename, filetype) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const s3 = new s3_1.default({
+                signatureVersion: 'v4',
+                region: 'us-east-1',
+            });
+            const s3Params = {
+                Bucket: process.env.S3_BUCKET_NAME,
+                Key: filename,
+                Expires: 60,
+                ContentType: filetype,
+                ACL: 'public-read',
+            };
+            const signedRequest = yield s3.getSignedUrl('putObject', s3Params);
+            const url = `https://${process.env.CF_DOMAIN_NAME}/${filename}`;
+            return {
+                signedRequest,
+                url,
+            };
+        });
+    }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             return Post_1.Post.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId })).save();
@@ -230,6 +268,15 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
+__decorate([
+    type_graphql_1.Mutation(() => S3Payload),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('filename')),
+    __param(1, type_graphql_1.Arg('filetype')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "signS3", null);
 __decorate([
     type_graphql_1.Mutation(() => Post_1.Post),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),

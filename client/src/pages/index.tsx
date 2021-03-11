@@ -59,8 +59,8 @@ const Index = () => {
                         <Image
                           src={`${p.image}`}
                           alt="post image"
-                          width="auto"
-                          height="auto"
+                          width={500}
+                          height={300}
                         />
                       </Box>
                     ) : (

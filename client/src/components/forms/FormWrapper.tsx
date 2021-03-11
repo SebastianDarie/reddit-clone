@@ -1,12 +1,12 @@
 import { Box, Button, Stack } from '@chakra-ui/react';
 import { Form } from 'formik';
-import { FormProps } from '../../shared/form.interface';
+import { FormProps } from '../../shared/interfaces';
 import { InputField } from '../form-fields/InputField';
 
-export const FormWrapper = ({
+export const FormWrapper: React.FC<FormProps> = ({
   children,
   isSubmitting,
-}: FormProps): JSX.Element => {
+}) => {
   return (
     <Form encType="multipart/form-data">
       <Stack spacing="6">

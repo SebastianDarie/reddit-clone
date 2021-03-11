@@ -17,6 +17,7 @@ import { MeDocument, MeQuery, useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { withApollo } from '../utils/withApollo';
 import { PasswordField } from '../components/form-fields/PasswordField';
+import { FormContainer } from '../components/forms/FormContainer';
 
 const LoginSchema = Yup.object().shape({
   usernameOrEmail: Yup.string()
@@ -95,44 +96,31 @@ const Login: React.FC<unknown> = ({}) => {
         }}
       >
         {({ isSubmitting }) => (
-          <Box
-            maxW={{ sm: 'md' }}
-            mx={{ sm: 'auto' }}
-            mt="8"
-            w={{ sm: 'full' }}
-          >
-            <Box
-              bg={mode('white', 'gray.700')}
-              py="8"
-              px={{ base: '4', md: '10' }}
-              shadow="base"
-              rounded={{ sm: 'lg' }}
-            >
-              <Form>
-                <Stack spacing="6">
-                  <InputField
-                    name="usernameOrEmail"
-                    placeholder="Bob the Builder or example@gmail.com"
-                    label="Username or Email"
-                  />
-                  <PasswordField
-                    name="password"
-                    placeholder="password"
-                    register={false}
-                  />
-                  <Button
-                    type="submit"
-                    colorScheme="blue"
-                    size="lg"
-                    fontSize="md"
-                    isLoading={isSubmitting}
-                  >
-                    Sign in
-                  </Button>
-                </Stack>
-              </Form>
-            </Box>
-          </Box>
+          <FormContainer>
+            <Form>
+              <Stack spacing="6">
+                <InputField
+                  name="usernameOrEmail"
+                  placeholder="Bob the Builder or example@gmail.com"
+                  label="Username or Email"
+                />
+                <PasswordField
+                  name="password"
+                  placeholder="password"
+                  register={false}
+                />
+                <Button
+                  type="submit"
+                  colorScheme="blue"
+                  size="lg"
+                  fontSize="md"
+                  isLoading={isSubmitting}
+                >
+                  Sign in
+                </Button>
+              </Stack>
+            </Form>
+          </FormContainer>
         )}
       </Formik>
     </Box>
