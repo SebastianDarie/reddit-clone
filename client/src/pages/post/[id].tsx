@@ -1,8 +1,9 @@
-import { Box, Heading } from '@chakra-ui/react';
-import { EditDeletePostButtons } from '../../components/EditDeletePostButtons';
+import { Box, Flex, Heading } from '@chakra-ui/react';
+import { EditDeletePostButtons } from '../../components/posts/EditDeletePostButtons';
 import { Layout } from '../../components/Layout';
 import { useGetPostFromUrl } from '../../utils/useGetPostFromUrl';
 import { withApollo } from '../../utils/withApollo';
+import { PostData } from '../../components/posts/PostData';
 
 const Post = ({}) => {
   const { data, error, loading } = useGetPostFromUrl();
@@ -27,12 +28,16 @@ const Post = ({}) => {
 
   return (
     <Layout>
-      <Heading>{data.post.title}</Heading>
-      <Box mb={4}>{data.post.text}</Box>
-      <EditDeletePostButtons
-        id={data.post.id}
-        creatorId={data.post.creator.id}
-      />
+      <Flex justifyContent="space-between">
+        <Heading fontSize={20}>{data.post.title}</Heading>
+        <EditDeletePostButtons
+          id={data.post.id}
+          creatorId={data.post.creator.id}
+          editable={!!data.post.text}
+        />
+      </Flex>
+
+      <PostData post={data.post as any} single />
     </Layout>
   );
 };

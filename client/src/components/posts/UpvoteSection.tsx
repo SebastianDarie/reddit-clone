@@ -7,7 +7,7 @@ import {
   PostSnippetFragment,
   useVoteMutation,
   VoteMutation,
-} from '../generated/graphql';
+} from '../../generated/graphql';
 
 interface UpvoteSectionProps {
   post: PostSnippetFragment;

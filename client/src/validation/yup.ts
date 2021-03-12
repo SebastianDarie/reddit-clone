@@ -10,13 +10,16 @@ export const TextSchema = Yup.object().shape({
   text: Yup.string()
     .min(3, "There's gotta be more to your content!")
     .max(10000, 'Create separate posts!')
-    .required('Why did you click create post?'),
+    .required('Why are you here for?'),
 });
 
 export const LinkSchema = Yup.object().shape({
   title: Yup.string().concat(Title),
   link: Yup.string()
-    .min(9, 'Make sure it is a valid url')
+    .matches(
+      /((https?):\/\/)?(www.)?[a-z0-9-]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#-]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/,
+      'Please enter a valid url!'
+    )
     .max(2000, 'Too much shorthen it')
     .required('Add a link to something'),
 });

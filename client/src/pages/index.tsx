@@ -1,5 +1,4 @@
 import NextLink from 'next/link';
-import Image from 'next/image';
 import {
   Box,
   Button,
@@ -9,12 +8,12 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Layout } from '../components/Layout';
 import { usePostsQuery } from '../generated/graphql';
-import { UpvoteSection } from '../components/UpvoteSection';
-import { EditDeletePostButtons } from '../components/EditDeletePostButtons';
+import { UpvoteSection } from '../components/posts/UpvoteSection';
+import { EditDeletePostButtons } from '../components/posts/EditDeletePostButtons';
 import { withApollo } from '../utils/withApollo';
+import { PostData } from '../components/posts/PostData';
 
 const Index = () => {
   const { data, error, loading, fetchMore, variables } = usePostsQuery({
@@ -45,36 +44,30 @@ const Index = () => {
               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
                 <UpvoteSection post={p} />
                 <Box data-testid="posts" flex={1}>
-                  <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                    <Link>
-                      <Heading fontSize="xl">{p.title}</Heading>
-                    </Link>
-                  </NextLink>
-                  <Text>posted by {p.creator.username}</Text>
-                  <Flex align="center">
-                    {p.textSnippet !== '' ? (
-                      <Text mt={4}>{p.textSnippet}</Text>
-                    ) : p.image !== '' ? (
-                      <Box mt={4}>
-                        <Image
-                          src={`${p.image}`}
-                          alt="post image"
-                          width={500}
-                          height={300}
-                        />
-                      </Box>
-                    ) : (
-                      <Link color="blue.400" href={`${p.link}`} isExternal>
-                        {p.linkSnippet} <ExternalLinkIcon />{' '}
-                      </Link>
-                    )}
+                  <Flex>
+                    <Flex flexDir="column">
+                      <Text color="gray.500" fontSize={12} fontWeight={400}>
+                        Posted by u/{p.creator.username}{' '}
+                      </Text>
 
+                      <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                        <Link>
+                          <Heading fontSize={18} mt={2}>
+                            {p.title}
+                          </Heading>
+                        </Link>
+                      </NextLink>
+                    </Flex>
                     <Box ml="auto">
                       <EditDeletePostButtons
                         id={p.id}
                         creatorId={p.creator.id}
+                        editable={!!p.textSnippet}
                       />
                     </Box>
+                  </Flex>
+                  <Flex align="center">
+                    <PostData post={p as any} />
                   </Flex>
                 </Box>
               </Flex>
