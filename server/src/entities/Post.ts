@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Comment } from './Comment';
 import { Upvote } from './Upvote';
 import { User } from './User';
 
@@ -49,6 +50,10 @@ export class Post extends BaseEntity {
   @Field()
   @ManyToOne(() => User, (user) => user.posts)
   creator: User;
+
+  @Field(() => Comment)
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 
   @OneToMany(() => Upvote, (upvote) => upvote.post)
   upvotes: Upvote[];

@@ -17,20 +17,23 @@ import { User } from './entities/User';
 import { Upvote } from './entities/Upvote';
 import { createUserLoader } from './utils/createUserLoader';
 import { createUpvoteLoader } from './utils/createUpvoteLoader';
+import { Comment } from './entities/Comment';
+import { CommentUpvote } from './entities/CommentUpvote';
 
 const main = async () => {
   const conn = await createConnection({
     type: 'postgres',
     url: process.env.DATABASE_URL,
     logging: true,
-    //synchronize: true,
+    synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User, Upvote],
+    entities: [Post, User, Upvote, Comment, CommentUpvote],
   });
 
-  //await conn.runMigrations();
+  await conn.runMigrations();
 
   //await Post.delete({});
+  //await Comment.delete({});
 
   const app = express();
 

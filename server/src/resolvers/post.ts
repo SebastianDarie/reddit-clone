@@ -19,6 +19,7 @@ import { Upvote } from '../entities/Upvote';
 import { User } from '../entities/User';
 import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
+import { Comment } from '../entities/Comment';
 
 @InputType()
 class PostInput {
@@ -89,63 +90,6 @@ export class PostResolver {
     return upvote ? upvote.value : null;
   }
 
-  @Mutation(() => Boolean)
-  @UseMiddleware(isAuth)
-  async vote(
-    @Arg('postId', () => Int) postId: number,
-    @Arg('value', () => Int) value: number,
-    @Ctx() { req }: MyContext
-  ): Promise<boolean> {
-    const isUpvote = value !== -1;
-    const realValue = isUpvote ? 1 : -1;
-    const { userId } = req.session;
-
-    const upvote = await Upvote.findOne({ where: { postId, userId } });
-
-    if (upvote && upvote.value !== realValue) {
-      await getConnection().transaction(async (tm) => {
-        await tm.query(
-          `
-        update upvote 
-        set value = $1
-        where "postId" = $2 and "userId" = $3
-        `,
-          [realValue, postId, userId]
-        );
-
-        await tm.query(
-          `
-        update post 
-        set points = points + $1
-        where id = $2;
-        `,
-          [2 * realValue, postId]
-        );
-      });
-    } else if (!upvote) {
-      await getConnection().transaction(async (tm) => {
-        await tm.query(
-          `
-        insert into upvote ("userId", "postId", value)
-        values($1, $2, $3)
-        `,
-          [userId, postId, realValue]
-        );
-
-        await tm.query(
-          `
-        update post 
-        set points = points + $1
-        where id = $2;
-        `,
-          [realValue, postId]
-        );
-      });
-    }
-
-    return true;
-  }
-
   @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
@@ -160,17 +104,18 @@ export class PostResolver {
       replacements.push(new Date(parseInt(cursor)));
     }
 
-    const posts = await getConnection().query(
-      `
-    select p.*
-    from post p
-    ${cursor ? `where p."createdAt" < $2` : ''}
-    order by p."createdAt" DESC
-    limit $1
-    `,
-      replacements
-    );
-
+    // const posts = await getConnection().query(
+    //   `
+    // select p.*
+    // from post p
+    // ${cursor ? `where p."createdAt" < $2` : ''}
+    // order by p."createdAt" DESC
+    // limit $1
+    // `,
+    //   replacements
+    // );
+    const posts = await Post.find({ relations: ['comments'] });
+    console.log(posts.slice(0, realLimit));
     return {
       posts: posts.slice(0, realLimit),
       hasMore: posts.length === realLimitPlusOne,
@@ -248,5 +193,74 @@ export class PostResolver {
   ): Promise<boolean> {
     await Post.delete({ id, creatorId: req.session.userId });
     return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg('postId', () => Int) postId: number,
+    @Arg('value', () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    const isUpvote = value !== -1;
+    const realValue = isUpvote ? 1 : -1;
+    const { userId } = req.session;
+
+    const upvote = await Upvote.findOne({ where: { postId, userId } });
+
+    if (upvote && upvote.value !== realValue) {
+      await getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
+        update upvote 
+        set value = $1
+        where "postId" = $2 and "userId" = $3
+        `,
+          [realValue, postId, userId]
+        );
+
+        await tm.query(
+          `
+        update post 
+        set points = points + $1
+        where id = $2;
+        `,
+          [2 * realValue, postId]
+        );
+      });
+    } else if (!upvote) {
+      await getConnection().transaction(async (tm) => {
+        await tm.query(
+          `
+        insert into upvote ("userId", "postId", value)
+        values($1, $2, $3)
+        `,
+          [userId, postId, realValue]
+        );
+
+        await tm.query(
+          `
+        update post 
+        set points = points + $1
+        where id = $2;
+        `,
+          [realValue, postId]
+        );
+      });
+    }
+
+    return true;
+  }
+
+  @Mutation(() => Comment)
+  @UseMiddleware(isAuth)
+  async comment(
+    @Arg('postId', () => Int) postId: number,
+    @Arg('text') text: string,
+    @Ctx() { req }: MyContext
+  ): Promise<Comment> {
+    const { userId } = req.session;
+
+    return Comment.create({ userId, postId, text }).save();
   }
 }

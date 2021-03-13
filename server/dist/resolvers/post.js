@@ -32,6 +32,7 @@ const Post_1 = require("../entities/Post");
 const Upvote_1 = require("../entities/Upvote");
 const User_1 = require("../entities/User");
 const isAuth_1 = require("../middleware/isAuth");
+const Comment_1 = require("../entities/Comment");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -106,42 +107,6 @@ let PostResolver = class PostResolver {
             return upvote ? upvote.value : null;
         });
     }
-    vote(postId, value, { req }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const isUpvote = value !== -1;
-            const realValue = isUpvote ? 1 : -1;
-            const { userId } = req.session;
-            const upvote = yield Upvote_1.Upvote.findOne({ where: { postId, userId } });
-            if (upvote && upvote.value !== realValue) {
-                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
-                    yield tm.query(`
-        update upvote 
-        set value = $1
-        where "postId" = $2 and "userId" = $3
-        `, [realValue, postId, userId]);
-                    yield tm.query(`
-        update post 
-        set points = points + $1
-        where id = $2;
-        `, [2 * realValue, postId]);
-                }));
-            }
-            else if (!upvote) {
-                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
-                    yield tm.query(`
-        insert into upvote ("userId", "postId", value)
-        values($1, $2, $3)
-        `, [userId, postId, realValue]);
-                    yield tm.query(`
-        update post 
-        set points = points + $1
-        where id = $2;
-        `, [realValue, postId]);
-                }));
-            }
-            return true;
-        });
-    }
     posts(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
@@ -150,13 +115,8 @@ let PostResolver = class PostResolver {
             if (cursor) {
                 replacements.push(new Date(parseInt(cursor)));
             }
-            const posts = yield typeorm_1.getConnection().query(`
-    select p.*
-    from post p
-    ${cursor ? `where p."createdAt" < $2` : ''}
-    order by p."createdAt" DESC
-    limit $1
-    `, replacements);
+            const posts = yield Post_1.Post.find({ relations: ['comments'] });
+            console.log(posts.slice(0, realLimit));
             return {
                 posts: posts.slice(0, realLimit),
                 hasMore: posts.length === realLimitPlusOne,
@@ -213,6 +173,48 @@ let PostResolver = class PostResolver {
             return true;
         });
     }
+    vote(postId, value, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isUpvote = value !== -1;
+            const realValue = isUpvote ? 1 : -1;
+            const { userId } = req.session;
+            const upvote = yield Upvote_1.Upvote.findOne({ where: { postId, userId } });
+            if (upvote && upvote.value !== realValue) {
+                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+        update upvote 
+        set value = $1
+        where "postId" = $2 and "userId" = $3
+        `, [realValue, postId, userId]);
+                    yield tm.query(`
+        update post 
+        set points = points + $1
+        where id = $2;
+        `, [2 * realValue, postId]);
+                }));
+            }
+            else if (!upvote) {
+                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+        insert into upvote ("userId", "postId", value)
+        values($1, $2, $3)
+        `, [userId, postId, realValue]);
+                    yield tm.query(`
+        update post 
+        set points = points + $1
+        where id = $2;
+        `, [realValue, postId]);
+                }));
+            }
+            return true;
+        });
+    }
+    comment(postId, text, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { userId } = req.session;
+            return Comment_1.Comment.create({ userId, postId, text }).save();
+        });
+    }
 };
 __decorate([
     type_graphql_1.FieldResolver(() => String),
@@ -243,16 +245,6 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "voteStatus", null);
-__decorate([
-    type_graphql_1.Mutation(() => Boolean),
-    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
-    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg('value', () => type_graphql_1.Int)),
-    __param(2, type_graphql_1.Ctx()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "vote", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedPosts),
     __param(0, type_graphql_1.Arg('limit', () => type_graphql_1.Int)),
@@ -305,6 +297,26 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('value', () => type_graphql_1.Int)),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "vote", null);
+__decorate([
+    type_graphql_1.Mutation(() => Comment_1.Comment),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('text')),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "comment", null);
 PostResolver = __decorate([
     type_graphql_1.Resolver(Post_1.Post)
 ], PostResolver);
