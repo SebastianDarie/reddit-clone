@@ -6,5 +6,8 @@
   "password": "2772",
   "database": "reddit3",
   "entities": ["dist/entities/*.js"],
-  "migrations": ["dist/migrations/*.js"]
+  "migrations": ["dist/migrations/*.js"],
+  "cli": {
+    "migrationsDir": "src/migrations/"
+  }
 }

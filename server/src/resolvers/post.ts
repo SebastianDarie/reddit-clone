@@ -90,6 +90,22 @@ export class PostResolver {
     return upvote ? upvote.value : null;
   }
 
+  // @FieldResolver(() => [Comment])
+  // async comments(
+  //   @Root() post: Post,
+  //   @Ctx() { commentLoader }: MyContext
+  // ): Promise<Comment | null> {
+  //   const ids = post.comments?.map((comment) => {
+  //     return comment.id;
+  //   });
+  //   const comment = await commentLoader.load({
+  //     commentId: ids[0],
+  //     postId: post.id,
+  //   });
+
+  //   return comment ? comment : null;
+  // }
+
   @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
@@ -98,24 +114,39 @@ export class PostResolver {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
 
-    const replacements: (Date | number)[] = [realLimitPlusOne];
+    // const replacements: (Date | number)[] = [realLimitPlusOne];
 
-    if (cursor) {
-      replacements.push(new Date(parseInt(cursor)));
-    }
+    // if (cursor) {
+    //   replacements.push(new Date(parseInt(cursor)));
+    // }
 
     // const posts = await getConnection().query(
     //   `
-    // select p.*
+    // select p.*, c.*
     // from post p
+    // left join comment c on c."postId" = p.id
     // ${cursor ? `where p."createdAt" < $2` : ''}
     // order by p."createdAt" DESC
     // limit $1
     // `,
     //   replacements
     // );
-    const posts = await Post.find({ relations: ['comments'] });
-    console.log(posts.slice(0, realLimit));
+
+    const qb = getConnection()
+      .getRepository(Post)
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
+      .orderBy('p.createdAt', 'DESC')
+      .take(realLimit);
+
+    if (cursor) {
+      qb.where('p."createdAt" < :cursor', {
+        cursor: new Date(parseInt(cursor)),
+      });
+    }
+
+    const posts = await qb.getMany();
+
     return {
       posts: posts.slice(0, realLimit),
       hasMore: posts.length === realLimitPlusOne,
@@ -123,8 +154,8 @@ export class PostResolver {
   }
 
   @Query(() => Post, { nullable: true })
-  post(@Arg('id', () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id);
+  async post(@Arg('id', () => Int) id: number): Promise<Post | undefined> {
+    return Post.findOne(id, { relations: ['comments'] });
   }
 
   @Mutation(() => S3Payload)
@@ -261,6 +292,36 @@ export class PostResolver {
   ): Promise<Comment> {
     const { userId } = req.session;
 
-    return Comment.create({ userId, postId, text }).save();
+    return Comment.create({ creatorId: userId, postId, text }).save();
+  }
+
+  @Mutation(() => Comment, { nullable: true })
+  async updateComment(
+    @Arg('id', () => Int) id: number,
+    @Arg('text') text: string,
+    @Ctx() { req }: MyContext
+  ): Promise<Comment | null> {
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(Comment)
+      .set({ text })
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: req.session.userId,
+      })
+      .returning('*')
+      .execute();
+
+    return result.raw[0];
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async deleteComment(
+    @Arg('id', () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    await Comment.delete({ id, creatorId: req.session.userId });
+    return true;
   }
 }

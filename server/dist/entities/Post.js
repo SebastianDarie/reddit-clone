@@ -62,7 +62,7 @@ __decorate([
     __metadata("design:type", User_1.User)
 ], Post.prototype, "creator", void 0);
 __decorate([
-    type_graphql_1.Field(() => Comment_1.Comment),
+    type_graphql_1.Field(() => [Comment_1.Comment]),
     typeorm_1.OneToMany(() => Comment_1.Comment, (comment) => comment.post),
     __metadata("design:type", Array)
 ], Post.prototype, "comments", void 0);

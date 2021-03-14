@@ -111,12 +111,18 @@ let PostResolver = class PostResolver {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlusOne = realLimit + 1;
-            const replacements = [realLimitPlusOne];
+            const qb = typeorm_1.getConnection()
+                .getRepository(Post_1.Post)
+                .createQueryBuilder('p')
+                .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
+                .orderBy('p.createdAt', 'DESC')
+                .take(realLimit);
             if (cursor) {
-                replacements.push(new Date(parseInt(cursor)));
+                qb.where('p."createdAt" < :cursor', {
+                    cursor: new Date(parseInt(cursor)),
+                });
             }
-            const posts = yield Post_1.Post.find({ relations: ['comments'] });
-            console.log(posts.slice(0, realLimit));
+            const posts = yield qb.getMany();
             return {
                 posts: posts.slice(0, realLimit),
                 hasMore: posts.length === realLimitPlusOne,
@@ -124,7 +130,9 @@ let PostResolver = class PostResolver {
         });
     }
     post(id) {
-        return Post_1.Post.findOne(id);
+        return __awaiter(this, void 0, void 0, function* () {
+            return Post_1.Post.findOne(id, { relations: ['comments'] });
+        });
     }
     signS3(filename, filetype) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -212,7 +220,28 @@ let PostResolver = class PostResolver {
     comment(postId, text, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { userId } = req.session;
-            return Comment_1.Comment.create({ userId, postId, text }).save();
+            return Comment_1.Comment.create({ creatorId: userId, postId, text }).save();
+        });
+    }
+    updateComment(id, text, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield typeorm_1.getConnection()
+                .createQueryBuilder()
+                .update(Comment_1.Comment)
+                .set({ text })
+                .where('id = :id and "creatorId" = :creatorId', {
+                id,
+                creatorId: req.session.userId,
+            })
+                .returning('*')
+                .execute();
+            return result.raw[0];
+        });
+    }
+    deleteComment(id, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Comment_1.Comment.delete({ id, creatorId: req.session.userId });
+            return true;
         });
     }
 };
@@ -317,6 +346,24 @@ __decorate([
     __metadata("design:paramtypes", [Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "comment", null);
+__decorate([
+    type_graphql_1.Mutation(() => Comment_1.Comment, { nullable: true }),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('text')),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "updateComment", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "deleteComment", null);
 PostResolver = __decorate([
     type_graphql_1.Resolver(Post_1.Post)
 ], PostResolver);

@@ -19,6 +19,7 @@ import { createUserLoader } from './utils/createUserLoader';
 import { createUpvoteLoader } from './utils/createUpvoteLoader';
 import { Comment } from './entities/Comment';
 import { CommentUpvote } from './entities/CommentUpvote';
+//import { createCommentLoader } from './utils/createCommentLoader';
 
 const main = async () => {
   const conn = await createConnection({
@@ -71,6 +72,7 @@ const main = async () => {
       redis,
       userLoader: createUserLoader(),
       upvoteLoader: createUpvoteLoader(),
+      //commentLoader: createCommentLoader(),
     }),
   });
 
