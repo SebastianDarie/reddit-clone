@@ -42,7 +42,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "posts", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Comment_1.Comment, (comment) => comment.user),
+    typeorm_1.OneToMany(() => Comment_1.Comment, (comment) => comment.creator),
     __metadata("design:type", Array)
 ], User.prototype, "comments", void 0);
 __decorate([

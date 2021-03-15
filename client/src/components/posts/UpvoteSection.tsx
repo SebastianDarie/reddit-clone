@@ -34,10 +34,13 @@ const updateAfterVote = (
   });
 
   if (data) {
+    let newPoints;
     if (data.voteStatus === value) {
-      return;
+      newPoints = data.points - value;
+      value = 0;
+    } else {
+      newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
     }
-    const newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
     cache.writeFragment({
       id: 'Post:' + postId,
       fragment: gql`
@@ -65,9 +68,6 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({ post }) => {
         icon={<ChevronUpIcon />}
         isLoading={loadingState === 'upvote-loading'}
         onClick={async () => {
-          if (post.voteStatus === 1) {
-            return;
-          }
           setLoadingState('upvote-loading');
           await vote({
             variables: { postId: post.id, value: 1 },
@@ -83,9 +83,6 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({ post }) => {
         icon={<ChevronDownIcon />}
         isLoading={loadingState === 'downvote-loading'}
         onClick={async () => {
-          if (post.voteStatus === -1) {
-            return;
-          }
           setLoadingState('downvote-loading');
           await vote({
             variables: { postId: post.id, value: -1 },

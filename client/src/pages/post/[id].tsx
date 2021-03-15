@@ -34,6 +34,7 @@ const Post = ({}) => {
           id={data.post.id}
           creatorId={data.post.creator.id}
           editable={!!data.post.text}
+          image={data.post.image}
         />
       </Flex>
 

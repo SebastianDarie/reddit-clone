@@ -15,11 +15,10 @@ import {
 import { getConnection } from 'typeorm';
 import S3 from 'aws-sdk/clients/s3';
 import { Post } from '../entities/Post';
-import { Upvote } from '../entities/Upvote';
 import { User } from '../entities/User';
 import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
-import { Comment } from '../entities/Comment';
+import { submitVote } from './vote';
 
 @InputType()
 class PostInput {
@@ -137,7 +136,7 @@ export class PostResolver {
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
       .orderBy('p.createdAt', 'DESC')
-      .take(realLimit);
+      .take(realLimitPlusOne);
 
     if (cursor) {
       qb.where('p."createdAt" < :cursor', {
@@ -220,8 +219,24 @@ export class PostResolver {
   @UseMiddleware(isAuth)
   async deletePost(
     @Arg('id', () => Int) id: number,
+    @Arg('image') image: string,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
+    if (image !== '') {
+      const path = image.slice(37, image.length);
+
+      const s3 = new S3({
+        signatureVersion: 'v4',
+        region: 'us-east-1',
+      });
+
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: path,
+      };
+
+      await s3.deleteObject(s3Params).promise();
+    }
     await Post.delete({ id, creatorId: req.session.userId });
     return true;
   }
@@ -229,7 +244,8 @@ export class PostResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async vote(
-    @Arg('postId', () => Int) postId: number,
+    @Arg('postId', () => Int, { nullable: true }) postId: number | null,
+    @Arg('commentId', () => Int, { nullable: true }) commentId: number | null,
     @Arg('value', () => Int) value: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
@@ -237,91 +253,6 @@ export class PostResolver {
     const realValue = isUpvote ? 1 : -1;
     const { userId } = req.session;
 
-    const upvote = await Upvote.findOne({ where: { postId, userId } });
-
-    if (upvote && upvote.value !== realValue) {
-      await getConnection().transaction(async (tm) => {
-        await tm.query(
-          `
-        update upvote 
-        set value = $1
-        where "postId" = $2 and "userId" = $3
-        `,
-          [realValue, postId, userId]
-        );
-
-        await tm.query(
-          `
-        update post 
-        set points = points + $1
-        where id = $2;
-        `,
-          [2 * realValue, postId]
-        );
-      });
-    } else if (!upvote) {
-      await getConnection().transaction(async (tm) => {
-        await tm.query(
-          `
-        insert into upvote ("userId", "postId", value)
-        values($1, $2, $3)
-        `,
-          [userId, postId, realValue]
-        );
-
-        await tm.query(
-          `
-        update post 
-        set points = points + $1
-        where id = $2;
-        `,
-          [realValue, postId]
-        );
-      });
-    }
-
-    return true;
-  }
-
-  @Mutation(() => Comment)
-  @UseMiddleware(isAuth)
-  async comment(
-    @Arg('postId', () => Int) postId: number,
-    @Arg('text') text: string,
-    @Ctx() { req }: MyContext
-  ): Promise<Comment> {
-    const { userId } = req.session;
-
-    return Comment.create({ creatorId: userId, postId, text }).save();
-  }
-
-  @Mutation(() => Comment, { nullable: true })
-  async updateComment(
-    @Arg('id', () => Int) id: number,
-    @Arg('text') text: string,
-    @Ctx() { req }: MyContext
-  ): Promise<Comment | null> {
-    const result = await getConnection()
-      .createQueryBuilder()
-      .update(Comment)
-      .set({ text })
-      .where('id = :id and "creatorId" = :creatorId', {
-        id,
-        creatorId: req.session.userId,
-      })
-      .returning('*')
-      .execute();
-
-    return result.raw[0];
-  }
-
-  @Mutation(() => Boolean)
-  @UseMiddleware(isAuth)
-  async deleteComment(
-    @Arg('id', () => Int) id: number,
-    @Ctx() { req }: MyContext
-  ): Promise<boolean> {
-    await Comment.delete({ id, creatorId: req.session.userId });
-    return true;
+    return submitVote(postId, commentId, userId, realValue);
   }
 }

@@ -29,10 +29,9 @@ const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const s3_1 = __importDefault(require("aws-sdk/clients/s3"));
 const Post_1 = require("../entities/Post");
-const Upvote_1 = require("../entities/Upvote");
 const User_1 = require("../entities/User");
 const isAuth_1 = require("../middleware/isAuth");
-const Comment_1 = require("../entities/Comment");
+const vote_1 = require("./vote");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -116,7 +115,7 @@ let PostResolver = class PostResolver {
                 .createQueryBuilder('p')
                 .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
                 .orderBy('p.createdAt', 'DESC')
-                .take(realLimit);
+                .take(realLimitPlusOne);
             if (cursor) {
                 qb.where('p."createdAt" < :cursor', {
                     cursor: new Date(parseInt(cursor)),
@@ -175,73 +174,30 @@ let PostResolver = class PostResolver {
             return result.raw[0];
         });
     }
-    deletePost(id, { req }) {
+    deletePost(id, image, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (image !== '') {
+                const path = image.slice(37, image.length);
+                const s3 = new s3_1.default({
+                    signatureVersion: 'v4',
+                    region: 'us-east-1',
+                });
+                const s3Params = {
+                    Bucket: process.env.S3_BUCKET_NAME,
+                    Key: path,
+                };
+                yield s3.deleteObject(s3Params).promise();
+            }
             yield Post_1.Post.delete({ id, creatorId: req.session.userId });
             return true;
         });
     }
-    vote(postId, value, { req }) {
+    vote(postId, commentId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpvote = value !== -1;
             const realValue = isUpvote ? 1 : -1;
             const { userId } = req.session;
-            const upvote = yield Upvote_1.Upvote.findOne({ where: { postId, userId } });
-            if (upvote && upvote.value !== realValue) {
-                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
-                    yield tm.query(`
-        update upvote 
-        set value = $1
-        where "postId" = $2 and "userId" = $3
-        `, [realValue, postId, userId]);
-                    yield tm.query(`
-        update post 
-        set points = points + $1
-        where id = $2;
-        `, [2 * realValue, postId]);
-                }));
-            }
-            else if (!upvote) {
-                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
-                    yield tm.query(`
-        insert into upvote ("userId", "postId", value)
-        values($1, $2, $3)
-        `, [userId, postId, realValue]);
-                    yield tm.query(`
-        update post 
-        set points = points + $1
-        where id = $2;
-        `, [realValue, postId]);
-                }));
-            }
-            return true;
-        });
-    }
-    comment(postId, text, { req }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { userId } = req.session;
-            return Comment_1.Comment.create({ creatorId: userId, postId, text }).save();
-        });
-    }
-    updateComment(id, text, { req }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield typeorm_1.getConnection()
-                .createQueryBuilder()
-                .update(Comment_1.Comment)
-                .set({ text })
-                .where('id = :id and "creatorId" = :creatorId', {
-                id,
-                creatorId: req.session.userId,
-            })
-                .returning('*')
-                .execute();
-            return result.raw[0];
-        });
-    }
-    deleteComment(id, { req }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield Comment_1.Comment.delete({ id, creatorId: req.session.userId });
-            return true;
+            return vote_1.submitVote(postId, commentId, userId, realValue);
         });
     }
 };
@@ -321,49 +277,23 @@ __decorate([
     type_graphql_1.Mutation(() => Boolean),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Ctx()),
+    __param(1, type_graphql_1.Arg('image')),
+    __param(2, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
-    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg('value', () => type_graphql_1.Int)),
-    __param(2, type_graphql_1.Ctx()),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int, { nullable: true })),
+    __param(1, type_graphql_1.Arg('commentId', () => type_graphql_1.Int, { nullable: true })),
+    __param(2, type_graphql_1.Arg('value', () => type_graphql_1.Int)),
+    __param(3, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:paramtypes", [Object, Object, Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "vote", null);
-__decorate([
-    type_graphql_1.Mutation(() => Comment_1.Comment),
-    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
-    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg('text')),
-    __param(2, type_graphql_1.Ctx()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "comment", null);
-__decorate([
-    type_graphql_1.Mutation(() => Comment_1.Comment, { nullable: true }),
-    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg('text')),
-    __param(2, type_graphql_1.Ctx()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "updateComment", null);
-__decorate([
-    type_graphql_1.Mutation(() => Boolean),
-    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
-    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Ctx()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "deleteComment", null);
 PostResolver = __decorate([
     type_graphql_1.Resolver(Post_1.Post)
 ], PostResolver);

@@ -4,10 +4,12 @@ import {
   Button,
   Flex,
   Heading,
+  IconButton,
   Link,
   Stack,
   Text,
 } from '@chakra-ui/react';
+//import { FaRegCommentAlt } from 'react-icons/fa';
 import { Layout } from '../components/Layout';
 import { usePostsQuery } from '../generated/graphql';
 import { UpvoteSection } from '../components/posts/UpvoteSection';
@@ -18,7 +20,7 @@ import { PostData } from '../components/posts/PostData';
 const Index = () => {
   const { data, error, loading, fetchMore, variables } = usePostsQuery({
     variables: {
-      limit: 15,
+      limit: 20,
       cursor: null,
     },
     notifyOnNetworkStatusChange: true,
@@ -63,6 +65,7 @@ const Index = () => {
                         id={p.id}
                         creatorId={p.creator.id}
                         editable={!!p.textSnippet}
+                        image={p.image}
                       />
                     </Box>
                   </Flex>

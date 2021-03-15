@@ -9,6 +9,11 @@ fragment PostSnippet on Post {
   linkSnippet
   points
   voteStatus
+  comments {
+    id
+    text
+    points
+  }
   creator {
     id
     username

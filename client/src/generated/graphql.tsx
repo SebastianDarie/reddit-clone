@@ -48,6 +48,7 @@ export type Post = {
   voteStatus?: Maybe<Scalars['Int']>;
   creatorId: Scalars['Float'];
   creator: User;
+  comments: Array<Comment>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
@@ -63,24 +64,34 @@ export type User = {
   updatedAt: Scalars['String'];
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  id: Scalars['Float'];
+  text: Scalars['String'];
+  parentCommentId?: Maybe<Scalars['Int']>;
+  points: Scalars['Float'];
+  voteStatus?: Maybe<Scalars['Int']>;
+  creatorId: Scalars['Float'];
+  creator: User;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
-  vote: Scalars['Boolean'];
   signS3: S3Payload;
   createPost: Post;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
+  vote: Scalars['Boolean'];
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
-};
-
-
-export type MutationVoteArgs = {
-  value: Scalars['Int'];
-  postId: Scalars['Int'];
+  comment: Comment;
+  updateComment?: Maybe<Comment>;
+  deleteComment: Scalars['Boolean'];
 };
 
 
@@ -103,7 +114,15 @@ export type MutationUpdatePostArgs = {
 
 
 export type MutationDeletePostArgs = {
+  image: Scalars['String'];
   id: Scalars['Int'];
+};
+
+
+export type MutationVoteArgs = {
+  value: Scalars['Int'];
+  commentId?: Maybe<Scalars['Int']>;
+  postId?: Maybe<Scalars['Int']>;
 };
 
 
@@ -126,6 +145,23 @@ export type MutationRegisterArgs = {
 export type MutationLoginArgs = {
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
+};
+
+
+export type MutationCommentArgs = {
+  text: Scalars['String'];
+  postId: Scalars['Int'];
+};
+
+
+export type MutationUpdateCommentArgs = {
+  text: Scalars['String'];
+  id: Scalars['Int'];
+};
+
+
+export type MutationDeleteCommentArgs = {
+  id: Scalars['Int'];
 };
 
 export type S3Payload = {
@@ -162,7 +198,10 @@ export type UsernamePasswordInput = {
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
   & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'image' | 'link' | 'linkSnippet' | 'points' | 'voteStatus'>
-  & { creator: (
+  & { comments: Array<(
+    { __typename?: 'Comment' }
+    & Pick<Comment, 'id' | 'text' | 'points'>
+  )>, creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
   ) }
@@ -218,6 +257,7 @@ export type CreatePostMutation = (
 
 export type DeletePostMutationVariables = Exact<{
   id: Scalars['Int'];
+  image: Scalars['String'];
 }>;
 
 
@@ -302,7 +342,8 @@ export type UpdatePostMutation = (
 
 export type VoteMutationVariables = Exact<{
   value: Scalars['Int'];
-  postId: Scalars['Int'];
+  postId?: Maybe<Scalars['Int']>;
+  commentId?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -369,6 +410,11 @@ export const PostSnippetFragmentDoc = gql`
   linkSnippet
   points
   voteStatus
+  comments {
+    id
+    text
+    points
+  }
   creator {
     id
     username
@@ -472,8 +518,8 @@ export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutati
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
 export const DeletePostDocument = gql`
-    mutation DeletePost($id: Int!) {
-  deletePost(id: $id)
+    mutation DeletePost($id: Int!, $image: String!) {
+  deletePost(id: $id, image: $image)
 }
     `;
 export type DeletePostMutationFn = Apollo.MutationFunction<DeletePostMutation, DeletePostMutationVariables>;
@@ -492,6 +538,7 @@ export type DeletePostMutationFn = Apollo.MutationFunction<DeletePostMutation, D
  * const [deletePostMutation, { data, loading, error }] = useDeletePostMutation({
  *   variables: {
  *      id: // value for 'id'
+ *      image: // value for 'image'
  *   },
  * });
  */
@@ -697,8 +744,8 @@ export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutati
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
 export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
 export const VoteDocument = gql`
-    mutation Vote($value: Int!, $postId: Int!) {
-  vote(value: $value, postId: $postId)
+    mutation Vote($value: Int!, $postId: Int, $commentId: Int) {
+  vote(value: $value, postId: $postId, commentId: $commentId)
 }
     `;
 export type VoteMutationFn = Apollo.MutationFunction<VoteMutation, VoteMutationVariables>;
@@ -718,6 +765,7 @@ export type VoteMutationFn = Apollo.MutationFunction<VoteMutation, VoteMutationV
  *   variables: {
  *      value: // value for 'value'
  *      postId: // value for 'postId'
+ *      commentId: // value for 'commentId'
  *   },
  * });
  */
