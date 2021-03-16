@@ -195,13 +195,15 @@ export type UsernamePasswordInput = {
   password: Scalars['String'];
 };
 
+export type CommentSnippetFragment = (
+  { __typename?: 'Comment' }
+  & Pick<Comment, 'id' | 'text' | 'points' | 'voteStatus' | 'createdAt'>
+);
+
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
   & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'image' | 'link' | 'linkSnippet' | 'points' | 'voteStatus'>
-  & { comments: Array<(
-    { __typename?: 'Comment' }
-    & Pick<Comment, 'id' | 'text' | 'points'>
-  )>, creator: (
+  & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
   ) }
@@ -376,7 +378,10 @@ export type PostQuery = (
     & { creator: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'username'>
-    ) }
+    ), comments: Array<(
+      { __typename?: 'Comment' }
+      & CommentSnippetFragment
+    )> }
   )> }
 );
 
@@ -393,11 +398,24 @@ export type PostsQuery = (
     & Pick<PaginatedPosts, 'hasMore'>
     & { posts: Array<(
       { __typename?: 'Post' }
+      & { comments: Array<(
+        { __typename?: 'Comment' }
+        & CommentSnippetFragment
+      )> }
       & PostSnippetFragment
     )> }
   ) }
 );
 
+export const CommentSnippetFragmentDoc = gql`
+    fragment CommentSnippet on Comment {
+  id
+  text
+  points
+  voteStatus
+  createdAt
+}
+    `;
 export const PostSnippetFragmentDoc = gql`
     fragment PostSnippet on Post {
   id
@@ -410,11 +428,6 @@ export const PostSnippetFragmentDoc = gql`
   linkSnippet
   points
   voteStatus
-  comments {
-    id
-    text
-    points
-  }
   creator {
     id
     username
@@ -823,9 +836,12 @@ export const PostDocument = gql`
       id
       username
     }
+    comments {
+      ...CommentSnippet
+    }
   }
 }
-    `;
+    ${CommentSnippetFragmentDoc}`;
 
 /**
  * __usePostQuery__
@@ -857,11 +873,15 @@ export const PostsDocument = gql`
   posts(limit: $limit, cursor: $cursor) {
     hasMore
     posts {
+      comments {
+        ...CommentSnippet
+      }
       ...PostSnippet
     }
   }
 }
-    ${PostSnippetFragmentDoc}`;
+    ${CommentSnippetFragmentDoc}
+${PostSnippetFragmentDoc}`;
 
 /**
  * __usePostsQuery__

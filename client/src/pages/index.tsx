@@ -9,13 +9,14 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-//import { FaRegCommentAlt } from 'react-icons/fa';
+import { FaRegCommentAlt } from 'react-icons/fa';
 import { Layout } from '../components/Layout';
 import { usePostsQuery } from '../generated/graphql';
 import { UpvoteSection } from '../components/posts/UpvoteSection';
 import { EditDeletePostButtons } from '../components/posts/EditDeletePostButtons';
 import { withApollo } from '../utils/withApollo';
 import { PostData } from '../components/posts/PostData';
+import { formatTimestamp } from '../utils/formatTimestamp';
 
 const Index = () => {
   const { data, error, loading, fetchMore, variables } = usePostsQuery({
@@ -50,6 +51,7 @@ const Index = () => {
                     <Flex flexDir="column">
                       <Text color="gray.500" fontSize={12} fontWeight={400}>
                         Posted by u/{p.creator.username}{' '}
+                        {formatTimestamp(new Date(+p.createdAt).getTime())}
                       </Text>
 
                       <NextLink href="/post/[id]" as={`/post/${p.id}`}>
@@ -71,6 +73,22 @@ const Index = () => {
                   </Flex>
                   <Flex align="center">
                     <PostData post={p as any} />
+                  </Flex>
+                  <Flex mt={4}>
+                    <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                      <Link _hover={{ textDecoration: 'none' }}>
+                        <Flex alignItems="center">
+                          <IconButton
+                            aria-label="comments"
+                            size="md"
+                            variant="outline"
+                            icon={<FaRegCommentAlt />}
+                            mr={2}
+                          />
+                          <Text>{p.comments.length} Comments</Text>
+                        </Flex>
+                      </Link>
+                    </NextLink>
                   </Flex>
                 </Box>
               </Flex>

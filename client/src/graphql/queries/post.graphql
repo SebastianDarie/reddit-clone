@@ -13,5 +13,8 @@ query Post($id: Int!) {
       id
       username
     }
+    comments {
+      ...CommentSnippet
+    }
   }
 }

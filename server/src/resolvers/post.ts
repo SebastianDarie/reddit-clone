@@ -60,11 +60,12 @@ export class PostResolver {
     if (!root.link) {
       return '';
     }
+
     let result = root.link.match(
       /^(?:(?:(([^:\/#\?]+:)?(?:(?:\/\/)(?:(?:(?:([^:@\/#\?]+)(?:\:([^:@\/#\?]*))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((?:\/?(?:[^\/\?#]+\/+)*)(?:[^\?#]*)))?(\?[^#]+)?)(#.*)?/i
     );
 
-    return result?.[6] + result?.[8]?.slice(0, 8) + '...';
+    if (result) return result[6] + result[8].slice(0, 8) + '...';
   }
 
   @FieldResolver(() => User)
@@ -89,21 +90,14 @@ export class PostResolver {
     return upvote ? upvote.value : null;
   }
 
-  // @FieldResolver(() => [Comment])
-  // async comments(
-  //   @Root() post: Post,
-  //   @Ctx() { commentLoader }: MyContext
-  // ): Promise<Comment | null> {
-  //   const ids = post.comments?.map((comment) => {
-  //     return comment.id;
-  //   });
-  //   const comment = await commentLoader.load({
-  //     commentId: ids[0],
-  //     postId: post.id,
-  //   });
-
-  //   return comment ? comment : null;
-  // }
+  @FieldResolver(() => [Comment])
+  async comments(
+    @Root() post: Post,
+    @Ctx() { commentLoader }: MyContext
+  ): Promise<Comment | null> {
+    const comment = await commentLoader.load({ postId: post.id });
+    return comment ? comment : null;
+  }
 
   @Query(() => PaginatedPosts)
   async posts(
@@ -113,38 +107,37 @@ export class PostResolver {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
 
-    // const replacements: (Date | number)[] = [realLimitPlusOne];
-
-    // if (cursor) {
-    //   replacements.push(new Date(parseInt(cursor)));
-    // }
-
-    // const posts = await getConnection().query(
-    //   `
-    // select p.*, c.*
-    // from post p
-    // left join comment c on c."postId" = p.id
-    // ${cursor ? `where p."createdAt" < $2` : ''}
-    // order by p."createdAt" DESC
-    // limit $1
-    // `,
-    //   replacements
-    // );
-
-    const qb = getConnection()
-      .getRepository(Post)
-      .createQueryBuilder('p')
-      .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
-      .orderBy('p.createdAt', 'DESC')
-      .take(realLimitPlusOne);
+    const replacements: (Date | number)[] = [realLimitPlusOne];
 
     if (cursor) {
-      qb.where('p."createdAt" < :cursor', {
-        cursor: new Date(parseInt(cursor)),
-      });
+      replacements.push(new Date(parseInt(cursor)));
     }
 
-    const posts = await qb.getMany();
+    const posts = await getConnection().query(
+      `
+    select p.*
+    from post p
+    ${cursor ? `where p."createdAt" < $2` : ''}
+    order by p."createdAt" DESC
+    limit $1
+    `,
+      replacements
+    );
+
+    // const qb = getConnection()
+    //   .getRepository(Post)
+    //   .createQueryBuilder('p')
+    //   .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
+    //   .orderBy('p.createdAt', 'DESC')
+    //   .take(realLimitPlusOne);
+
+    // if (cursor) {
+    //   qb.where('p."createdAt" < :cursor', {
+    //     cursor: new Date(parseInt(cursor)),
+    //   });
+    // }
+
+    // const posts = await qb.getMany();
 
     return {
       posts: posts.slice(0, realLimit),

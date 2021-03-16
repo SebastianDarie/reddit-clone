@@ -1,9 +1,14 @@
-import { Box, Flex, Heading } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
+import { FaRegCommentAlt } from 'react-icons/fa';
+import { Formik, Form } from 'formik';
 import { EditDeletePostButtons } from '../../components/posts/EditDeletePostButtons';
 import { Layout } from '../../components/Layout';
 import { useGetPostFromUrl } from '../../utils/useGetPostFromUrl';
 import { withApollo } from '../../utils/withApollo';
 import { PostData } from '../../components/posts/PostData';
+import { InputField } from '../../components/form-fields/InputField';
+import { UpvoteSection } from '../../components/posts/UpvoteSection';
+import { CommentTemplate } from '../../components/comments/CommentTemplate';
 
 const Post = ({}) => {
   const { data, error, loading } = useGetPostFromUrl();
@@ -28,6 +33,8 @@ const Post = ({}) => {
 
   return (
     <Layout>
+      <UpvoteSection post={data.post as any} />
+
       <Flex justifyContent="space-between">
         <Heading fontSize={20}>{data.post.title}</Heading>
         <EditDeletePostButtons
@@ -39,6 +46,62 @@ const Post = ({}) => {
       </Flex>
 
       <PostData post={data.post as any} single />
+
+      <Flex alignItems="center" mt={2}>
+        <IconButton
+          aria-label="comments"
+          size="md"
+          variant="outline"
+          icon={<FaRegCommentAlt />}
+          mr={2}
+        />
+        <Text>{data.post.comments.length} Comments</Text>
+      </Flex>
+
+      <Flex mt={2}>
+        <Formik
+          initialValues={{ comment: '' }}
+          //validationSchema={TextSchema}
+          onSubmit={async (values) => {
+            console.log(values);
+          }}
+        >
+          {({ values, isSubmitting }) => (
+            <Form
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%',
+              }}
+            >
+              <InputField
+                textarea
+                name="comment"
+                placeholder="What are your thoughts?"
+                label={`Comment as ${data.post?.creator.username}`}
+              />
+              <Button
+                alignSelf="flex-end"
+                mt={2}
+                mb={4}
+                type="submit"
+                isDisabled={!!values.comment}
+                isLoading={isSubmitting}
+                colorScheme="teal"
+              >
+                Comment
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      </Flex>
+
+      <Flex flexDir="column">
+        {data.post.comments.map((comment) => (
+          <CommentTemplate comment={comment} />
+        ))}
+      </Flex>
     </Layout>
   );
 };

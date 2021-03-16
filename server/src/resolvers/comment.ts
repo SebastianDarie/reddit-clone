@@ -1,11 +1,29 @@
-import { Arg, Ctx, Int, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  FieldResolver,
+  Int,
+  Mutation,
+  Resolver,
+  Root,
+  UseMiddleware,
+} from 'type-graphql';
 import { getConnection } from 'typeorm';
 import { Comment } from '../entities/Comment';
+import { User } from '../entities/User';
 import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
 
 @Resolver(Comment)
 export class CommentResolver {
+  // @FieldResolver(() => User)
+  // creator(
+  //   @Root() comment: Comment,
+  //   @Ctx() { userLoader }: MyContext
+  // ): Promise<User> {
+  //   return userLoader.load(comment.creatorId);
+  // }
+
   @Mutation(() => Comment)
   @UseMiddleware(isAuth)
   async comment(
