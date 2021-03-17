@@ -21,6 +21,7 @@ import { Comment } from './entities/Comment';
 import { CommentUpvote } from './entities/CommentUpvote';
 import { CommentResolver } from './resolvers/comment';
 import { createCommentLoader } from './utils/createCommentLoader';
+import { createCommentUpvoteLoader } from './utils/createCommentUpvoteLoader';
 
 const main = async () => {
   const conn = await createConnection({
@@ -74,6 +75,7 @@ const main = async () => {
       userLoader: createUserLoader(),
       upvoteLoader: createUpvoteLoader(),
       commentLoader: createCommentLoader(),
+      commentUpvoteLoader: createCommentUpvoteLoader(),
     }),
   });
 

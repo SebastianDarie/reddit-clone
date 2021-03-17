@@ -1,77 +1,36 @@
-import { ApolloCache } from '@apollo/client';
-import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { Flex, IconButton } from '@chakra-ui/react';
-import gql from 'graphql-tag';
 import { useState } from 'react';
-import {
-  PostSnippetFragment,
-  useVoteMutation,
-  VoteMutation,
-} from '../../generated/graphql';
+import { PostSnippetFragment, useVoteMutation } from '../../generated/graphql';
+import { updateAfterVote } from '../../utils/updateAfterVote';
 
 interface UpvoteSectionProps {
   post: PostSnippetFragment;
+  row?: boolean;
 }
 
-const updateAfterVote = (
-  value: number,
-  postId: number,
-  cache: ApolloCache<VoteMutation>
-) => {
-  const data = cache.readFragment<{
-    id: number;
-    points: number;
-    voteStatus: number | null;
-  }>({
-    id: 'Post:' + postId,
-    fragment: gql`
-      fragment _ on Post {
-        id
-        points
-        voteStatus
-      }
-    `,
-  });
-
-  if (data) {
-    let newPoints;
-    if (data.voteStatus === value) {
-      newPoints = data.points - value;
-      value = 0;
-    } else {
-      newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
-    }
-    cache.writeFragment({
-      id: 'Post:' + postId,
-      fragment: gql`
-        fragment __ on Post {
-          points
-          voteStatus
-        }
-      `,
-      data: { points: newPoints, voteStatus: value },
-    });
-  }
-};
-
-export const UpvoteSection: React.FC<UpvoteSectionProps> = ({ post }) => {
+export const UpvoteSection: React.FC<UpvoteSectionProps> = ({
+  post,
+  row = false,
+}) => {
   const [loadingState, setLoadingState] = useState<
     'upvote-loading' | 'downvote-loading' | 'not-loading'
   >('not-loading');
   const [vote] = useVoteMutation();
 
   return (
-    <Flex direction="column" alignItems="center" mr={4}>
+    <Flex direction={row ? 'row' : 'column'} alignItems="center" mr={4}>
       <IconButton
         aria-label="upvote"
         colorScheme={post.voteStatus === 1 ? 'orange' : undefined}
+        mr={row ? '8px' : undefined}
         icon={<ChevronUpIcon />}
         isLoading={loadingState === 'upvote-loading'}
         onClick={async () => {
           setLoadingState('upvote-loading');
           await vote({
             variables: { postId: post.id, value: 1 },
-            update: (cache) => updateAfterVote(1, post.id, cache),
+            update: (cache) => updateAfterVote(1, cache, post.id),
           });
           setLoadingState('not-loading');
         }}
@@ -80,13 +39,14 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({ post }) => {
       <IconButton
         aria-label="downvote"
         colorScheme={post.voteStatus === -1 ? 'blue' : undefined}
+        ml={row ? '8px' : undefined}
         icon={<ChevronDownIcon />}
         isLoading={loadingState === 'downvote-loading'}
         onClick={async () => {
           setLoadingState('downvote-loading');
           await vote({
             variables: { postId: post.id, value: -1 },
-            update: (cache) => updateAfterVote(-1, post.id, cache),
+            update: (cache) => updateAfterVote(-1, cache, post.id),
           });
           setLoadingState('not-loading');
         }}

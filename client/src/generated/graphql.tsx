@@ -198,6 +198,10 @@ export type UsernamePasswordInput = {
 export type CommentSnippetFragment = (
   { __typename?: 'Comment' }
   & Pick<Comment, 'id' | 'text' | 'points' | 'voteStatus' | 'createdAt'>
+  & { creator: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username'>
+  ) }
 );
 
 export type PostSnippetFragment = (
@@ -414,6 +418,10 @@ export const CommentSnippetFragmentDoc = gql`
   points
   voteStatus
   createdAt
+  creator {
+    id
+    username
+  }
 }
     `;
 export const PostSnippetFragmentDoc = gql`

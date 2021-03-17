@@ -4,8 +4,8 @@ fragment CommentSnippet on Comment {
   points
   voteStatus
   createdAt
-  # creator {
-  #   id
-  #   username
-  # }
+  creator {
+    id
+    username
+  }
 }

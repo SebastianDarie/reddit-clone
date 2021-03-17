@@ -16,13 +16,30 @@ import { MyContext } from '../types';
 
 @Resolver(Comment)
 export class CommentResolver {
-  // @FieldResolver(() => User)
-  // creator(
-  //   @Root() comment: Comment,
-  //   @Ctx() { userLoader }: MyContext
-  // ): Promise<User> {
-  //   return userLoader.load(comment.creatorId);
-  // }
+  @FieldResolver(() => User)
+  creator(
+    @Root() comment: Comment,
+    @Ctx() { userLoader }: MyContext
+  ): Promise<User> {
+    return userLoader.load(comment.creatorId);
+  }
+
+  @FieldResolver(() => Int, { nullable: true })
+  async voteStatus(
+    @Root() comment: Comment,
+    @Ctx() { req, commentUpvoteLoader }: MyContext
+  ): Promise<number | null> {
+    if (!req.session.userId) {
+      return null;
+    }
+
+    const commentUpvote = await commentUpvoteLoader.load({
+      commentId: comment.id,
+      userId: req.session.userId,
+    });
+
+    return commentUpvote ? commentUpvote.value : null;
+  }
 
   @Mutation(() => Comment)
   @UseMiddleware(isAuth)

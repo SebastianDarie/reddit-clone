@@ -33,10 +33,10 @@ const Post = ({}) => {
 
   return (
     <Layout>
-      <UpvoteSection post={data.post as any} />
-
       <Flex justifyContent="space-between">
         <Heading fontSize={20}>{data.post.title}</Heading>
+        <UpvoteSection post={data.post as any} row />
+
         <EditDeletePostButtons
           id={data.post.id}
           creatorId={data.post.creator.id}
@@ -86,7 +86,7 @@ const Post = ({}) => {
                 mt={2}
                 mb={4}
                 type="submit"
-                isDisabled={!!values.comment}
+                isDisabled={!!!values.comment}
                 isLoading={isSubmitting}
                 colorScheme="teal"
               >
@@ -99,7 +99,7 @@ const Post = ({}) => {
 
       <Flex flexDir="column">
         {data.post.comments.map((comment) => (
-          <CommentTemplate comment={comment} />
+          <CommentTemplate key={comment.id} comment={comment} />
         ))}
       </Flex>
     </Layout>
