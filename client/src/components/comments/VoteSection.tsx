@@ -1,20 +1,60 @@
-//import {useState} from 'react'
+import { ApolloCache } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
+import gql from 'graphql-tag';
 import { BiUpvote } from 'react-icons/bi';
 import {
   CommentSnippetFragment,
   useVoteMutation,
+  VoteMutation,
 } from '../../generated/graphql';
-import { updateAfterVote } from '../../utils/updateAfterVote';
+//import { updateAfterVote } from '../../utils/updateAfterVote';
 
 interface VoteSectionProps {
   comment: CommentSnippetFragment;
 }
 
+export const updateAfterVote = (
+  value: number,
+  commentId: number,
+  cache: ApolloCache<VoteMutation>
+) => {
+  const data = cache.readFragment<{
+    id: number;
+    points: number;
+    voteStatus: number | null;
+  }>({
+    id: 'Comment:' + commentId,
+    fragment: gql`
+      fragment _ on Comment {
+        id
+        points
+        voteStatus
+      }
+    `,
+  });
+
+  if (data) {
+    let newPoints;
+    if (data.voteStatus === value) {
+      newPoints = data.points - value;
+      value = 0;
+    } else {
+      newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
+    }
+    cache.writeFragment({
+      id: 'Comment:' + commentId,
+      fragment: gql`
+        fragment __ on Comment {
+          points
+          voteStatus
+        }
+      `,
+      data: { points: newPoints, voteStatus: value },
+    });
+  }
+};
+
 export const VoteSection: React.FC<VoteSectionProps> = ({ comment }) => {
-  // const [loadingState, setLoadingState] = useState<
-  //   'upvote-loading' | 'downvote-loading' | 'not-loading'
-  // >('not-loading');
   const [vote] = useVoteMutation();
 
   return (
@@ -22,14 +62,11 @@ export const VoteSection: React.FC<VoteSectionProps> = ({ comment }) => {
       <BiUpvote
         color={comment.voteStatus === 1 ? 'orangered' : undefined}
         style={{ margin: '4px', cursor: 'pointer' }}
-        //isLoading={loadingState === 'upvote-loading'}
         onClick={async () => {
-          //setLoadingState('upvote-loading');
           await vote({
             variables: { commentId: comment.id, value: 1 },
-            update: (cache) => updateAfterVote(1, cache, comment.id),
+            update: (cache) => updateAfterVote(1, comment.id, cache),
           });
-          // setLoadingState('not-loading');
         }}
       />
       {comment.points}
@@ -41,12 +78,10 @@ export const VoteSection: React.FC<VoteSectionProps> = ({ comment }) => {
           cursor: 'pointer',
         }}
         onClick={async () => {
-          //setLoadingState('downvote-loading');
           await vote({
             variables: { commentId: comment.id, value: -1 },
-            update: (cache) => updateAfterVote(-1, cache, comment.id),
+            update: (cache) => updateAfterVote(-1, comment.id, cache),
           });
-          // setLoadingState('not-loading');
         }}
       />
     </Flex>

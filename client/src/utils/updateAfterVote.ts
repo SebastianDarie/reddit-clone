@@ -57,5 +57,4 @@ export const updateAfterVote = (
       data: { points: newPoints, voteStatus: value },
     });
   }
-  console.log(data?.points, data?.voteStatus);
 };

@@ -1,19 +1,21 @@
-import { Button, Flex, IconButton, Text } from '@chakra-ui/react';
+import { Flex, IconButton, Text } from '@chakra-ui/react';
 import { FaRegCommentAlt } from 'react-icons/fa';
-import { MdDelete } from 'react-icons/md';
-import { CommentSnippetFragment } from '../../generated/graphql';
+import { CommentSnippetFragment, MeQuery } from '../../generated/graphql';
 import { formatTimestamp } from '../../utils/formatTimestamp';
+import { EditDeleteCommentButtons } from './EditDeleteCommentButtons';
 import { VoteSection } from './VoteSection';
 
 interface CommentTemplateProps {
   comment: CommentSnippetFragment;
+  meData: MeQuery | undefined;
 }
 
 export const CommentTemplate: React.FC<CommentTemplateProps> = ({
   comment,
+  meData,
 }) => {
   return (
-    <Flex flexDir="column">
+    <Flex flexDir="column" m="5px 0px">
       <Flex fontSize={12} fontWeight={400}>
         <Text mr={2}>{comment.creator.username} </Text>
         <Text color="gray.500">
@@ -26,7 +28,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
       </Text>
       <Flex alignItems="center">
         <VoteSection comment={comment} />
-        <Flex alignItems="center">
+        <Flex alignItems="center" mr={2}>
           <IconButton
             aria-label="reply"
             size="sm"
@@ -36,10 +38,12 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
           />
           <Text>Reply</Text>
         </Flex>
-        <Button size="sm" ml={2} mr={2}>
-          Edit
-        </Button>
-        <IconButton aria-label="delete" size="sm" icon={<MdDelete />} />
+        <EditDeleteCommentButtons
+          id={comment.id}
+          creatorId={comment.creator.id}
+          comment={comment}
+          meData={meData}
+        />
       </Flex>
     </Flex>
   );

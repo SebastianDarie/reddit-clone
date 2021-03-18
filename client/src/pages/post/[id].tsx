@@ -9,9 +9,18 @@ import { PostData } from '../../components/posts/PostData';
 import { InputField } from '../../components/form-fields/InputField';
 import { UpvoteSection } from '../../components/posts/UpvoteSection';
 import { CommentTemplate } from '../../components/comments/CommentTemplate';
+import {
+  useMeQuery,
+  useCommentMutation,
+  PostDocument,
+  PostQuery,
+} from '../../generated/graphql';
+import { CommentSchema } from '../../validation/yup';
 
 const Post = ({}) => {
   const { data, error, loading } = useGetPostFromUrl();
+  const { data: meData } = useMeQuery();
+  const [comment] = useCommentMutation();
 
   if (loading) {
     <Layout>
@@ -61,12 +70,57 @@ const Post = ({}) => {
       <Flex mt={2}>
         <Formik
           initialValues={{ comment: '' }}
-          //validationSchema={TextSchema}
-          onSubmit={async (values) => {
-            console.log(values);
+          validationSchema={CommentSchema}
+          onSubmit={async (values, { resetForm }) => {
+            comment({
+              variables: { postId: data.post!.id, text: values.comment },
+              update: (cache, { data: commentData }) => {
+                const newComment = commentData?.comment;
+                const currComments = cache.readQuery<PostQuery>({
+                  query: PostDocument,
+                  variables: { id: data.post?.id },
+                });
+
+                cache.writeQuery({
+                  query: PostDocument,
+                  data: {
+                    post: {
+                      ...currComments?.post,
+                      comments: [...currComments!.post?.comments, newComment],
+                    },
+                  },
+                });
+              },
+              // update(cache, { data: commentData }) {
+              //   cache.modify({
+              //     id: cache.identify(data.post!),
+              //     fields: {
+              //       comments(existingCommentRefs = [], { readField }) {
+              //         const newCommentRef = cache.writeFragment({
+              //           data: commentData,
+              //           fragment: gql`
+              //             fragment _ on Comment {
+              //               id
+              //               text
+              //               points
+              //               voteStatus
+              //               creator {
+              //                 id
+              //                 username
+              //               }
+              //             }
+              //           `,
+              //         });
+              //         return [...existingCommentRefs, newCommentRef];
+              //       },
+              //     },
+              //   });
+              // },
+            });
+            resetForm();
           }}
         >
-          {({ values, isSubmitting }) => (
+          {({ values }) => (
             <Form
               style={{
                 display: 'flex',
@@ -79,7 +133,7 @@ const Post = ({}) => {
                 textarea
                 name="comment"
                 placeholder="What are your thoughts?"
-                label={`Comment as ${data.post?.creator.username}`}
+                label={`Comment as ${meData?.me?.username}`}
               />
               <Button
                 alignSelf="flex-end"
@@ -87,7 +141,6 @@ const Post = ({}) => {
                 mb={4}
                 type="submit"
                 isDisabled={!!!values.comment}
-                isLoading={isSubmitting}
                 colorScheme="teal"
               >
                 Comment
@@ -98,9 +151,16 @@ const Post = ({}) => {
       </Flex>
 
       <Flex flexDir="column">
-        {data.post.comments.map((comment) => (
-          <CommentTemplate key={comment.id} comment={comment} />
-        ))}
+        {data.post.comments
+          .slice()
+          .sort((a, b) => b.points - a.points)
+          .map((comment) => (
+            <CommentTemplate
+              key={comment.id}
+              comment={comment}
+              meData={meData}
+            />
+          ))}
       </Flex>
     </Layout>
   );

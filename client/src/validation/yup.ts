@@ -43,3 +43,7 @@ export const ImageSchema = Yup.object().shape({
         )
     ),
 });
+
+export const CommentSchema = Yup.object().shape({
+  comment: Yup.string().max(10000, 'Stop or I call the police!').required(),
+});
