@@ -26,8 +26,12 @@ export class Comment extends BaseEntity {
   text!: string;
 
   @Field(() => Int, { nullable: true })
-  @Column({ nullable: true })
-  parentCommentId: number;
+  @Column({ nullable: true, type: 'integer' })
+  parentCommentId: number | null;
+
+  @Field()
+  @Column({ type: 'int', default: 0 })
+  depth!: number;
 
   @Field()
   @Column({ type: 'int', default: 0 })

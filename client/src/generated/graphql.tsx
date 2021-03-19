@@ -69,6 +69,7 @@ export type Comment = {
   id: Scalars['Float'];
   text: Scalars['String'];
   parentCommentId?: Maybe<Scalars['Int']>;
+  depth: Scalars['Float'];
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
   creatorId: Scalars['Float'];
@@ -149,6 +150,8 @@ export type MutationLoginArgs = {
 
 
 export type MutationCommentArgs = {
+  parentCommentId?: Maybe<Scalars['Int']>;
+  depth: Scalars['Int'];
   text: Scalars['String'];
   postId: Scalars['Int'];
 };
@@ -197,7 +200,7 @@ export type UsernamePasswordInput = {
 
 export type CommentSnippetFragment = (
   { __typename?: 'Comment' }
-  & Pick<Comment, 'id' | 'text' | 'points' | 'voteStatus' | 'createdAt'>
+  & Pick<Comment, 'id' | 'text' | 'parentCommentId' | 'depth' | 'points' | 'voteStatus' | 'createdAt' | 'updatedAt'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -251,6 +254,8 @@ export type ChangePasswordMutation = (
 export type CommentMutationVariables = Exact<{
   postId: Scalars['Int'];
   text: Scalars['String'];
+  depth: Scalars['Int'];
+  parentCommentId?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -453,9 +458,12 @@ export const CommentSnippetFragmentDoc = gql`
     fragment CommentSnippet on Comment {
   id
   text
+  parentCommentId
+  depth
   points
   voteStatus
   createdAt
+  updatedAt
   creator {
     id
     username
@@ -537,8 +545,13 @@ export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswo
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
 export const CommentDocument = gql`
-    mutation Comment($postId: Int!, $text: String!) {
-  comment(postId: $postId, text: $text) {
+    mutation Comment($postId: Int!, $text: String!, $depth: Int!, $parentCommentId: Int) {
+  comment(
+    postId: $postId
+    text: $text
+    depth: $depth
+    parentCommentId: $parentCommentId
+  ) {
     ...CommentSnippet
   }
 }
@@ -560,6 +573,8 @@ export type CommentMutationFn = Apollo.MutationFunction<CommentMutation, Comment
  *   variables: {
  *      postId: // value for 'postId'
  *      text: // value for 'text'
+ *      depth: // value for 'depth'
+ *      parentCommentId: // value for 'parentCommentId'
  *   },
  * });
  */

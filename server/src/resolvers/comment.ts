@@ -44,13 +44,22 @@ export class CommentResolver {
   @Mutation(() => Comment)
   @UseMiddleware(isAuth)
   async comment(
+    @Ctx() { req }: MyContext,
     @Arg('postId', () => Int) postId: number,
     @Arg('text') text: string,
-    @Ctx() { req }: MyContext
+    @Arg('depth', () => Int) depth: number,
+    @Arg('parentCommentId', () => Int, { nullable: true })
+    parentCommentId: number | null
   ): Promise<Comment> {
     const { userId } = req.session;
 
-    return Comment.create({ creatorId: userId, postId, text }).save();
+    return Comment.create({
+      creatorId: userId,
+      postId,
+      text,
+      depth,
+      parentCommentId,
+    }).save();
   }
 
   @Mutation(() => Comment, { nullable: true })

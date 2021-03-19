@@ -1,9 +1,12 @@
 fragment CommentSnippet on Comment {
   id
   text
+  parentCommentId
+  depth
   points
   voteStatus
   createdAt
+  updatedAt
   creator {
     id
     username

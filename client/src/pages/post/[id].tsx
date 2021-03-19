@@ -73,7 +73,11 @@ const Post = ({}) => {
           validationSchema={CommentSchema}
           onSubmit={async (values, { resetForm }) => {
             comment({
-              variables: { postId: data.post!.id, text: values.comment },
+              variables: {
+                postId: data.post!.id,
+                text: values.comment,
+                depth: 0,
+              },
               update: (cache, { data: commentData }) => {
                 const newComment = commentData?.comment;
                 const currComments = cache.readQuery<PostQuery>({
@@ -91,31 +95,6 @@ const Post = ({}) => {
                   },
                 });
               },
-              // update(cache, { data: commentData }) {
-              //   cache.modify({
-              //     id: cache.identify(data.post!),
-              //     fields: {
-              //       comments(existingCommentRefs = [], { readField }) {
-              //         const newCommentRef = cache.writeFragment({
-              //           data: commentData,
-              //           fragment: gql`
-              //             fragment _ on Comment {
-              //               id
-              //               text
-              //               points
-              //               voteStatus
-              //               creator {
-              //                 id
-              //                 username
-              //               }
-              //             }
-              //           `,
-              //         });
-              //         return [...existingCommentRefs, newCommentRef];
-              //       },
-              //     },
-              //   });
-              // },
             });
             resetForm();
           }}
@@ -159,6 +138,7 @@ const Post = ({}) => {
               key={comment.id}
               comment={comment}
               meData={meData}
+              post={data.post as any}
             />
           ))}
       </Flex>

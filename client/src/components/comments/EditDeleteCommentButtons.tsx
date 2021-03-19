@@ -8,15 +8,16 @@ import {
   PopoverCloseButton,
   PopoverContent,
   PopoverTrigger,
-  useDisclosure,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
 import { MdDelete } from 'react-icons/md';
 import { Formik, Form } from 'formik';
+import { useState } from 'react';
 import {
   CommentSnippetFragment,
   MeQuery,
   useDeleteCommentMutation,
+  useUpdateCommentMutation,
 } from '../../generated/graphql';
 import { CommentSchema } from '../../validation/yup';
 import { InputField } from '../form-fields/InputField';
@@ -34,7 +35,8 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
   comment,
   meData,
 }) => {
-  const { onOpen, onClose, isOpen } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
+  const [updateComment] = useUpdateCommentMutation();
   const [deleteComment] = useDeleteCommentMutation();
 
   if (meData?.me?.id !== creatorId) {
@@ -43,18 +45,21 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
 
   return (
     <Flex>
-      {/* <Button size="sm" ml={2} mr={2}>
-        Edit
-      </Button> */}
       <Popover
+        isLazy
         isOpen={isOpen}
-        onOpen={onOpen}
-        onClose={onClose}
+        onClose={() => setIsOpen(false)}
         placement="right"
         closeOnBlur={false}
       >
         <PopoverTrigger>
-          <IconButton aria-label="edit" size="sm" icon={<EditIcon />} />
+          <IconButton
+            aria-label="edit"
+            size="sm"
+            ml={2}
+            icon={<EditIcon />}
+            onClick={() => setIsOpen(!isOpen)}
+          />
         </PopoverTrigger>
         <PopoverContent p={5}>
           <PopoverArrow />
@@ -63,7 +68,8 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
             initialValues={{ comment: comment.text }}
             validationSchema={CommentSchema}
             onSubmit={async (values) => {
-              console.log(values);
+              updateComment({ variables: { id, text: values.comment } });
+              setIsOpen(false);
             }}
           >
             {({ values }) => (
@@ -77,7 +83,7 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
               >
                 <InputField textarea name="comment" label="Edit" />
                 <ButtonGroup d="flex" justifyContent="flex-end">
-                  <Button variant="outline" onClick={onClose}>
+                  <Button variant="outline" onClick={() => setIsOpen(false)}>
                     Cancel
                   </Button>
                   <Button
