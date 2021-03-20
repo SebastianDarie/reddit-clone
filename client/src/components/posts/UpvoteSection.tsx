@@ -1,16 +1,22 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { Flex, IconButton } from '@chakra-ui/react';
 import { useState } from 'react';
-import { PostSnippetFragment, useVoteMutation } from '../../generated/graphql';
+import {
+  MeQuery,
+  PostSnippetFragment,
+  useVoteMutation,
+} from '../../generated/graphql';
 import { updateAfterVote } from '../../utils/updateAfterVote';
 
 interface UpvoteSectionProps {
   post: PostSnippetFragment;
+  meData?: MeQuery | undefined;
   row?: boolean;
 }
 
 export const UpvoteSection: React.FC<UpvoteSectionProps> = ({
   post,
+  meData,
   row = false,
 }) => {
   const [loadingState, setLoadingState] = useState<
@@ -25,6 +31,7 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({
         colorScheme={post.voteStatus === 1 ? 'orange' : undefined}
         mr={row ? '8px' : undefined}
         icon={<ChevronUpIcon />}
+        isDisabled={!meData?.me}
         isLoading={loadingState === 'upvote-loading'}
         onClick={async () => {
           setLoadingState('upvote-loading');
@@ -41,6 +48,7 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({
         colorScheme={post.voteStatus === -1 ? 'blue' : undefined}
         ml={row ? '8px' : undefined}
         icon={<ChevronDownIcon />}
+        isDisabled={!meData?.me}
         isLoading={loadingState === 'downvote-loading'}
         onClick={async () => {
           setLoadingState('downvote-loading');

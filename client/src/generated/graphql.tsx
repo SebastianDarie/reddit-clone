@@ -18,6 +18,7 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
+  getComments: Array<Comment>;
 };
 
 
@@ -68,8 +69,6 @@ export type Comment = {
   __typename?: 'Comment';
   id: Scalars['Float'];
   text: Scalars['String'];
-  parentCommentId?: Maybe<Scalars['Int']>;
-  depth: Scalars['Float'];
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
   creatorId: Scalars['Float'];
@@ -150,8 +149,7 @@ export type MutationLoginArgs = {
 
 
 export type MutationCommentArgs = {
-  parentCommentId?: Maybe<Scalars['Int']>;
-  depth: Scalars['Int'];
+  parent?: Maybe<Scalars['Int']>;
   text: Scalars['String'];
   postId: Scalars['Int'];
 };
@@ -200,7 +198,7 @@ export type UsernamePasswordInput = {
 
 export type CommentSnippetFragment = (
   { __typename?: 'Comment' }
-  & Pick<Comment, 'id' | 'text' | 'parentCommentId' | 'depth' | 'points' | 'voteStatus' | 'createdAt' | 'updatedAt'>
+  & Pick<Comment, 'id' | 'text' | 'points' | 'voteStatus' | 'createdAt' | 'updatedAt'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -254,8 +252,7 @@ export type ChangePasswordMutation = (
 export type CommentMutationVariables = Exact<{
   postId: Scalars['Int'];
   text: Scalars['String'];
-  depth: Scalars['Int'];
-  parentCommentId?: Maybe<Scalars['Int']>;
+  parent?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -458,8 +455,6 @@ export const CommentSnippetFragmentDoc = gql`
     fragment CommentSnippet on Comment {
   id
   text
-  parentCommentId
-  depth
   points
   voteStatus
   createdAt
@@ -545,13 +540,8 @@ export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswo
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
 export const CommentDocument = gql`
-    mutation Comment($postId: Int!, $text: String!, $depth: Int!, $parentCommentId: Int) {
-  comment(
-    postId: $postId
-    text: $text
-    depth: $depth
-    parentCommentId: $parentCommentId
-  ) {
+    mutation Comment($postId: Int!, $text: String!, $parent: Int) {
+  comment(postId: $postId, text: $text, parent: $parent) {
     ...CommentSnippet
   }
 }
@@ -573,8 +563,7 @@ export type CommentMutationFn = Apollo.MutationFunction<CommentMutation, Comment
  *   variables: {
  *      postId: // value for 'postId'
  *      text: // value for 'text'
- *      depth: // value for 'depth'
- *      parentCommentId: // value for 'parentCommentId'
+ *      parent: // value for 'parent'
  *   },
  * });
  */

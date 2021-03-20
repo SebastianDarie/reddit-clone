@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import NextLink from 'next/link';
-import { InputField } from '../../components/form-fields/InputField';
+import { PasswordField } from '../../components/form-fields/PasswordField';
 import { Wrapper } from '../../components/Wrapper';
 import { toErrorMap } from '../../utils/toErrorMap';
 import {
@@ -64,11 +64,10 @@ const ChangePassword: NextPage = () => {
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField
-              name="newPassword"
-              placeholder="new password"
-              label="New Password"
-              type="password"
+            <PasswordField
+              name="password"
+              placeholder="password"
+              register={false}
             />
             {tokenError ? (
               <Box>

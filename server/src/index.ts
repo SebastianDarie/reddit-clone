@@ -37,6 +37,7 @@ const main = async () => {
 
   //await Post.delete({});
   //await Comment.delete({});
+  //await CommentUpvote.delete({});
 
   const app = express();
 

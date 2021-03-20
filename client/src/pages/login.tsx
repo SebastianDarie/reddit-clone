@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   useColorModeValue as mode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -33,6 +34,11 @@ const LoginSchema = Yup.object().shape({
 const Login: React.FC<unknown> = ({}) => {
   const router = useRouter();
   const [login] = useLoginMutation();
+  const src = useColorModeValue(
+    '/assets/reddit-logo.svg',
+    '/assets/reddit-logo-black.svg'
+  );
+
   return (
     <Box
       bg={mode('gray.50', 'inherit')}
@@ -42,12 +48,7 @@ const Login: React.FC<unknown> = ({}) => {
     >
       <Box maxW={{ sm: 'md' }} mx={{ sm: 'auto' }} w={{ sm: 'full' }}>
         <Box display="flex" justifyContent="center">
-          <Image
-            src="/assets/reddit-logo.svg"
-            alt="reddit logo"
-            height={128}
-            width={128}
-          />
+          <Image src={src} alt="reddit logo" height={128} width={128} />
         </Box>
         <Heading mt="6" textAlign="center" size="xl" fontWeight="extrabold">
           Sign in to your account

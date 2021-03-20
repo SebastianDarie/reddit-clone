@@ -1,15 +1,5 @@
-mutation Comment(
-  $postId: Int!
-  $text: String!
-  $depth: Int!
-  $parentCommentId: Int
-) {
-  comment(
-    postId: $postId
-    text: $text
-    depth: $depth
-    parentCommentId: $parentCommentId
-  ) {
+mutation Comment($postId: Int!, $text: String!, $parent: Int) {
+  comment(postId: $postId, text: $text, parent: $parent) {
     ...CommentSnippet
   }
 }

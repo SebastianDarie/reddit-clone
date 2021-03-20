@@ -16,6 +16,7 @@ import { Formik, Form } from 'formik';
 import {
   CommentSnippetFragment,
   MeQuery,
+  PostDocument,
   PostQuery,
   PostSnippetFragment,
   useCommentMutation,
@@ -64,87 +65,100 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
         {comment.text}
       </Text>
       <Flex alignItems="center">
-        <VoteSection comment={comment} />
-        <Popover
-          isLazy
-          isOpen={isReply}
-          onClose={() => setIsReply(false)}
-          placement="bottom"
-          closeOnBlur={false}
-        >
-          <PopoverTrigger>
-            <IconButton
-              aria-label="reply"
-              size="sm"
-              ml={2}
-              icon={<FaRegCommentAlt />}
-              onClick={() => setIsReply(true)}
-            />
-          </PopoverTrigger>
-          <PopoverContent p={5}>
-            <PopoverArrow />
-            <PopoverCloseButton />
+        <VoteSection comment={comment} meData={meData} />
 
-            <Formik
-              initialValues={{ reply: '' }}
-              validationSchema={CommentSchema}
-              onSubmit={async (values, { resetForm }) => {
-                // reply({
-                //   variables: { postId: post.id, text: values.reply, depth: comment.depth + 1, parentCommentId: comment.id },
-                //   update: (cache, { data: commentData }) => {
-                //     const newComment = commentData?.comment;
-                //     const currComments = cache.readQuery<PostQuery>({
-                //       query: PostDocument,
-                //       variables: { id: post.id },
-                //     });
+        {meData?.me?.id === comment.creator.id ? (
+          <Popover
+            isLazy
+            isOpen={isReply}
+            onClose={() => setIsReply(false)}
+            placement="bottom"
+            closeOnBlur={false}
+          >
+            <PopoverTrigger>
+              <IconButton
+                aria-label="reply"
+                size="sm"
+                ml={2}
+                icon={<FaRegCommentAlt />}
+                onClick={() => setIsReply(true)}
+              />
+            </PopoverTrigger>
+            <PopoverContent p={5}>
+              <PopoverArrow />
+              <PopoverCloseButton />
 
-                //     cache.writeQuery({
-                //       query: PostDocument,
-                //       data: {
-                //         post: {
-                //           ...currComments?.post,
-                //           comments: [...currComments!.post?.comments, newComment],
-                //         },
-                //       },
-                //     });
-                //   },
-                // });
-                resetForm();
-              }}
-            >
-              {({ values }) => (
-                <Form
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    width: '100%',
-                  }}
-                >
-                  <InputField
-                    textarea
-                    name="reply"
-                    placeholder="What are your thoughts?"
-                    label={`Reply as ${meData?.me?.username}`}
-                  />
-                  <ButtonGroup d="flex" justifyContent="flex-end">
-                    <Button variant="outline" onClick={() => setIsReply(false)}>
-                      Cancel
-                    </Button>
-                    <Button
-                      alignSelf="flex-end"
-                      type="submit"
-                      isDisabled={!!!values.reply}
-                      colorScheme="teal"
-                    >
-                      Reply
-                    </Button>
-                  </ButtonGroup>
-                </Form>
-              )}
-            </Formik>
-          </PopoverContent>
-        </Popover>
+              <Formik
+                initialValues={{ reply: '' }}
+                validationSchema={CommentSchema}
+                onSubmit={async (values, { resetForm }) => {
+                  reply({
+                    variables: {
+                      postId: post.id,
+                      text: values.reply,
+                      parent: post.id,
+                    },
+                    update: (cache, { data: commentData }) => {
+                      const newComment = commentData?.comment;
+                      const currComments = cache.readQuery<PostQuery>({
+                        query: PostDocument,
+                        variables: { id: post.id },
+                      });
+
+                      cache.writeQuery({
+                        query: PostDocument,
+                        data: {
+                          post: {
+                            ...currComments?.post,
+                            comments: [
+                              ...currComments!.post?.comments,
+                              newComment,
+                            ],
+                          },
+                        },
+                      });
+                    },
+                  });
+                  resetForm();
+                }}
+              >
+                {({ values }) => (
+                  <Form
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    <InputField
+                      textarea
+                      name="reply"
+                      placeholder="What are your thoughts?"
+                      label={`Reply as ${meData?.me?.username}`}
+                    />
+                    <ButtonGroup d="flex" justifyContent="flex-end">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsReply(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        alignSelf="flex-end"
+                        type="submit"
+                        isDisabled={!!!values.reply}
+                        colorScheme="teal"
+                      >
+                        Reply
+                      </Button>
+                    </ButtonGroup>
+                  </Form>
+                )}
+              </Formik>
+            </PopoverContent>
+          </Popover>
+        ) : null}
 
         <EditDeleteCommentButtons
           id={comment.id}

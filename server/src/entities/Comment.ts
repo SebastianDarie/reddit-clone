@@ -6,8 +6,10 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
+  Tree,
+  TreeChildren,
+  TreeParent,
   UpdateDateColumn,
 } from 'typeorm';
 import { CommentUpvote } from './CommentUpvote';
@@ -16,6 +18,7 @@ import { User } from './User';
 
 @ObjectType()
 @Entity()
+@Tree('closure-table')
 export class Comment extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
@@ -25,13 +28,19 @@ export class Comment extends BaseEntity {
   @Column()
   text!: string;
 
-  @Field(() => Int, { nullable: true })
-  @Column({ nullable: true, type: 'integer' })
-  parentCommentId: number | null;
+  // @Field()
+  // @Column({ type: 'int', default: 0 })
+  // depth!: number;
 
-  @Field()
-  @Column({ type: 'int', default: 0 })
-  depth!: number;
+  // @Field(() => Int, { nullable: true })
+  // @Column({ nullable: true, type: 'integer' })
+  // parentCommentId: number | null;
+
+  @TreeParent()
+  parent: Comment;
+
+  @TreeChildren()
+  children: Comment[];
 
   @Field()
   @Column({ type: 'int', default: 0 })
@@ -43,7 +52,7 @@ export class Comment extends BaseEntity {
   @OneToMany(() => CommentUpvote, (upvote) => upvote.comment)
   upvotes: CommentUpvote[];
 
-  @PrimaryColumn()
+  @Column()
   postId: number;
 
   @ManyToOne(() => Post, (post) => post.comments, {
@@ -52,7 +61,7 @@ export class Comment extends BaseEntity {
   post: Post;
 
   @Field()
-  @PrimaryColumn()
+  @Column()
   creatorId: number;
 
   @Field()

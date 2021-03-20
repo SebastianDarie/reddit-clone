@@ -128,6 +128,7 @@ export class PostResolver {
       .getRepository(Post)
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
+      //.leftJoinAndSelect('c.creator', 'creator')
       .orderBy('p.createdAt', 'DESC')
       .take(realLimitPlusOne);
 

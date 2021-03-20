@@ -44,7 +44,7 @@ const Post = ({}) => {
     <Layout>
       <Flex justifyContent="space-between">
         <Heading fontSize={20}>{data.post.title}</Heading>
-        <UpvoteSection post={data.post as any} row />
+        <UpvoteSection post={data.post as any} meData={meData} row />
 
         <EditDeletePostButtons
           id={data.post.id}
@@ -76,7 +76,6 @@ const Post = ({}) => {
               variables: {
                 postId: data.post!.id,
                 text: values.comment,
-                depth: 0,
               },
               update: (cache, { data: commentData }) => {
                 const newComment = commentData?.comment;
@@ -112,14 +111,14 @@ const Post = ({}) => {
                 textarea
                 name="comment"
                 placeholder="What are your thoughts?"
-                label={`Comment as ${meData?.me?.username}`}
+                label={`Comment as ${meData?.me?.username || ''}`}
               />
               <Button
                 alignSelf="flex-end"
                 mt={2}
                 mb={4}
                 type="submit"
-                isDisabled={!!!values.comment}
+                isDisabled={!!!values.comment || !meData?.me}
                 colorScheme="teal"
               >
                 Comment
