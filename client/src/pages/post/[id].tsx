@@ -16,13 +16,16 @@ import {
   PostQuery,
 } from '../../generated/graphql';
 import { CommentSchema } from '../../validation/yup';
+import { isServer } from '../../utils/isServer';
 
 const Post = ({}) => {
   const { data, error, loading } = useGetPostFromUrl();
-  const { data: meData } = useMeQuery();
+  const { data: meData } = useMeQuery({
+    skip: isServer(),
+  });
   const [comment] = useCommentMutation();
 
-  if (loading) {
+  if (!data && loading) {
     <Layout>
       <Box>loading...</Box>
     </Layout>;
@@ -43,18 +46,18 @@ const Post = ({}) => {
   return (
     <Layout>
       <Flex justifyContent="space-between">
-        <Heading fontSize={20}>{data.post.title}</Heading>
-        <UpvoteSection post={data.post as any} meData={meData} row />
+        <Heading fontSize={20}>{data.post.content.title}</Heading>
+        <UpvoteSection post={data.post.content as any} meData={meData} row />
 
         <EditDeletePostButtons
-          id={data.post.id}
-          creatorId={data.post.creator.id}
-          editable={!!data.post.text}
-          image={data.post.image}
+          id={data.post.content.id}
+          creatorId={data.post.content.creator.id}
+          editable={!!data.post.content.text}
+          image={data.post.content.image}
         />
       </Flex>
 
-      <PostData post={data.post as any} single />
+      <PostData post={data.post.content as any} single />
 
       <Flex alignItems="center" mt={2}>
         <IconButton
@@ -64,7 +67,7 @@ const Post = ({}) => {
           icon={<FaRegCommentAlt />}
           mr={2}
         />
-        <Text>{data.post.comments.length} Comments</Text>
+        <Text>{data.post.length} Comments</Text>
       </Flex>
 
       <Flex mt={2}>
@@ -74,22 +77,22 @@ const Post = ({}) => {
           onSubmit={async (values, { resetForm }) => {
             comment({
               variables: {
-                postId: data.post!.id,
+                postId: data.post!.content.id,
                 text: values.comment,
               },
               update: (cache, { data: commentData }) => {
                 const newComment = commentData?.comment;
                 const currComments = cache.readQuery<PostQuery>({
                   query: PostDocument,
-                  variables: { id: data.post?.id },
+                  variables: { id: data.post?.content.id },
                 });
 
                 cache.writeQuery({
                   query: PostDocument,
                   data: {
                     post: {
-                      ...currComments?.post,
-                      comments: [...currComments!.post?.comments, newComment],
+                      ...currComments?.post?.content,
+                      comments: [...currComments!.post?.comments!, newComment],
                     },
                   },
                 });

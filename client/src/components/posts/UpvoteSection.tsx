@@ -31,7 +31,7 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({
         colorScheme={post.voteStatus === 1 ? 'orange' : undefined}
         mr={row ? '8px' : undefined}
         icon={<ChevronUpIcon />}
-        isDisabled={!meData?.me}
+        //isDisabled={!meData?.me || false}
         isLoading={loadingState === 'upvote-loading'}
         onClick={async () => {
           setLoadingState('upvote-loading');
@@ -48,7 +48,7 @@ export const UpvoteSection: React.FC<UpvoteSectionProps> = ({
         colorScheme={post.voteStatus === -1 ? 'blue' : undefined}
         ml={row ? '8px' : undefined}
         icon={<ChevronDownIcon />}
-        isDisabled={!meData?.me}
+        //isDisabled={!meData?.me || false}
         isLoading={loadingState === 'downvote-loading'}
         onClick={async () => {
           setLoadingState('downvote-loading');

@@ -30,6 +30,7 @@ const typeorm_1 = require("typeorm");
 const s3_1 = __importDefault(require("aws-sdk/clients/s3"));
 const Post_1 = require("../entities/Post");
 const User_1 = require("../entities/User");
+const Comment_1 = require("../entities/Comment");
 const isAuth_1 = require("../middleware/isAuth");
 const vote_1 = require("./vote");
 let PostInput = class PostInput {
@@ -66,6 +67,23 @@ __decorate([
 PaginatedPosts = __decorate([
     type_graphql_1.ObjectType()
 ], PaginatedPosts);
+let CommentsPost = class CommentsPost {
+};
+__decorate([
+    type_graphql_1.Field(() => Post_1.Post),
+    __metadata("design:type", Object)
+], CommentsPost.prototype, "content", void 0);
+__decorate([
+    type_graphql_1.Field(() => [Comment_1.Comment]),
+    __metadata("design:type", Array)
+], CommentsPost.prototype, "comments", void 0);
+__decorate([
+    type_graphql_1.Field(() => type_graphql_1.Int),
+    __metadata("design:type", Number)
+], CommentsPost.prototype, "length", void 0);
+CommentsPost = __decorate([
+    type_graphql_1.ObjectType()
+], CommentsPost);
 let S3Payload = class S3Payload {
 };
 __decorate([
@@ -90,6 +108,8 @@ let PostResolver = class PostResolver {
         let result = root.link.match(/^(?:(?:(([^:\/#\?]+:)?(?:(?:\/\/)(?:(?:(?:([^:@\/#\?]+)(?:\:([^:@\/#\?]*))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((?:\/?(?:[^\/\?#]+\/+)*)(?:[^\?#]*)))?(\?[^#]+)?)(#.*)?/i);
         if (result)
             return result[6] + result[8].slice(0, 8) + '...';
+        else
+            return '';
     }
     creator(post, { userLoader }) {
         return userLoader.load(post.creatorId);
@@ -113,7 +133,8 @@ let PostResolver = class PostResolver {
             const qb = typeorm_1.getConnection()
                 .getRepository(Post_1.Post)
                 .createQueryBuilder('p')
-                .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
+                .addSelect('c.id')
+                .leftJoin('p.comments', 'c', 'c."postId" = p.id')
                 .orderBy('p.createdAt', 'DESC')
                 .take(realLimitPlusOne);
             if (cursor) {
@@ -130,7 +151,24 @@ let PostResolver = class PostResolver {
     }
     post(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Post_1.Post.findOne(id, { relations: ['comments'] });
+            const treeRepo = typeorm_1.getManager().getTreeRepository(Comment_1.Comment);
+            const rootComments = yield treeRepo.findRoots();
+            const currRoots = rootComments.filter((root) => root.postId === id);
+            let finalComments = [];
+            let finalCount = 0;
+            currRoots.forEach((root) => __awaiter(this, void 0, void 0, function* () {
+                const currCount = yield treeRepo.countDescendants(root);
+                const childrenObj = yield treeRepo.findDescendantsTree(root);
+                root.children = childrenObj.children;
+                finalComments.push(root);
+                finalCount += currCount;
+            }));
+            const post = yield Post_1.Post.findOne(id);
+            return {
+                content: post,
+                comments: finalComments,
+                length: finalCount,
+            };
         });
     }
     signS3(filename, filetype) {
@@ -213,7 +251,7 @@ __decorate([
     __param(0, type_graphql_1.Root()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Post_1.Post]),
-    __metadata("design:returntype", String)
+    __metadata("design:returntype", Object)
 ], PostResolver.prototype, "linkSnippet", null);
 __decorate([
     type_graphql_1.FieldResolver(() => User_1.User),
@@ -239,7 +277,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([
-    type_graphql_1.Query(() => Post_1.Post, { nullable: true }),
+    type_graphql_1.Query(() => CommentsPost, { nullable: true }),
     __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),

@@ -9,4 +9,9 @@ fragment CommentSnippet on Comment {
     id
     username
   }
+  children {
+    id
+    text
+    points
+  }
 }

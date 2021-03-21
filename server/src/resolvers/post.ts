@@ -12,10 +12,11 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-import { getConnection } from 'typeorm';
+import { getConnection, getManager } from 'typeorm';
 import S3 from 'aws-sdk/clients/s3';
 import { Post } from '../entities/Post';
 import { User } from '../entities/User';
+import { Comment } from '../entities/Comment';
 import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
 import { submitVote } from './vote';
@@ -41,6 +42,16 @@ class PaginatedPosts {
 }
 
 @ObjectType()
+class CommentsPost {
+  @Field(() => Post)
+  content: Post | undefined;
+  @Field(() => [Comment])
+  comments: Comment[];
+  @Field(() => Int)
+  length: number;
+}
+
+@ObjectType()
 class S3Payload {
   @Field()
   signedRequest: string;
@@ -56,7 +67,7 @@ export class PostResolver {
   }
 
   @FieldResolver(() => String)
-  linkSnippet(@Root() root: Post): string {
+  linkSnippet(@Root() root: Post): string | undefined {
     if (!root.link) {
       return '';
     }
@@ -66,6 +77,7 @@ export class PostResolver {
     );
 
     if (result) return result[6] + result[8].slice(0, 8) + '...';
+    else return '';
   }
 
   @FieldResolver(() => User)
@@ -89,15 +101,6 @@ export class PostResolver {
 
     return upvote ? upvote.value : null;
   }
-
-  // @FieldResolver(() => [Comment])
-  // async comments(
-  //   @Root() post: Post,
-  //   @Ctx() { commentLoader }: MyContext
-  // ): Promise<Comment | null> {
-  //   const comment = await commentLoader.load({ postId: post.id });
-  //   return comment ? comment : null;
-  // }
 
   @Query(() => PaginatedPosts)
   async posts(
@@ -127,7 +130,8 @@ export class PostResolver {
     const qb = getConnection()
       .getRepository(Post)
       .createQueryBuilder('p')
-      .leftJoinAndSelect('p.comments', 'c', 'c."postId" = p.id')
+      .addSelect('c.id')
+      .leftJoin('p.comments', 'c', 'c."postId" = p.id')
       //.leftJoinAndSelect('c.creator', 'creator')
       .orderBy('p.createdAt', 'DESC')
       .take(realLimitPlusOne);
@@ -146,9 +150,36 @@ export class PostResolver {
     };
   }
 
-  @Query(() => Post, { nullable: true })
-  async post(@Arg('id', () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id, { relations: ['comments'] });
+  @Query(() => CommentsPost, { nullable: true })
+  async post(@Arg('id', () => Int) id: number): Promise<CommentsPost> {
+    const treeRepo = getManager().getTreeRepository(Comment);
+    //const treeComments = await treeRepo.findTrees();
+    //const currTrees = treeComments.filter((tree) => tree.postId === id);
+    const rootComments = await treeRepo.findRoots();
+    //console.log(rootComments);
+    const currRoots = rootComments.filter((root) => root.postId === id);
+    //console.log(currRoots);
+
+    //const rootsToFind = await Comment.findByIds(currRoots)
+    let finalComments: Comment[] = [];
+    let finalCount: number = 0;
+    currRoots.forEach(async (root) => {
+      const currCount = await treeRepo.countDescendants(root);
+      const childrenObj = await treeRepo.findDescendantsTree(root);
+      root.children = childrenObj.children;
+      finalComments.push(root);
+      finalCount += currCount;
+    });
+    //const orderedComments = await treeRepo.findDescendantsTree(firstComment!);
+    //console.log(orderedComments);
+
+    const post = await Post.findOne(id);
+
+    return {
+      content: post,
+      comments: finalComments,
+      length: finalCount,
+    };
   }
 
   @Mutation(() => S3Payload)

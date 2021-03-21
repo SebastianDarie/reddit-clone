@@ -111,7 +111,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                           post: {
                             ...currComments?.post,
                             comments: [
-                              ...currComments!.post?.comments,
+                              ...currComments!.post?.comments!,
                               newComment,
                             ],
                           },

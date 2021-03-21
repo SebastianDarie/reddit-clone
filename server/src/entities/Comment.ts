@@ -39,6 +39,7 @@ export class Comment extends BaseEntity {
   @TreeParent()
   parent: Comment;
 
+  @Field(() => [Comment])
   @TreeChildren()
   children: Comment[];
 
@@ -52,6 +53,7 @@ export class Comment extends BaseEntity {
   @OneToMany(() => CommentUpvote, (upvote) => upvote.comment)
   upvotes: CommentUpvote[];
 
+  @Field()
   @Column()
   postId: number;
 

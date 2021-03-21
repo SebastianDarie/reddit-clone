@@ -10,7 +10,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { FaRegCommentAlt } from 'react-icons/fa';
-import { gql, useApolloClient } from '@apollo/client';
 import { Layout } from '../components/Layout';
 import { usePostsQuery } from '../generated/graphql';
 import { UpvoteSection } from '../components/posts/UpvoteSection';
@@ -20,7 +19,6 @@ import { PostData } from '../components/posts/PostData';
 import { formatTimestamp } from '../utils/formatTimestamp';
 
 const Index = () => {
-  const apolloClient = useApolloClient();
   const { data, error, loading, fetchMore, variables } = usePostsQuery({
     variables: {
       limit: 20,
@@ -38,17 +36,6 @@ const Index = () => {
     );
   }
 
-  // const { data: meData } = apolloClient.readQuery({
-  //   query: gql`
-  //     query {
-  //       me {
-  //         id
-  //         username
-  //       }
-  //     }
-  //   `,
-  // });
-
   return (
     <Layout>
       {!data && loading ? (
@@ -58,7 +45,7 @@ const Index = () => {
           {data?.posts.posts.map((p) =>
             !p ? null : (
               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                <UpvoteSection post={p} meData={meData} />
+                <UpvoteSection post={p} />
                 <Box data-testid="posts" flex={1}>
                   <Flex>
                     <Flex flexDir="column">

@@ -34,7 +34,6 @@ const createUpvoteLoader_1 = require("./utils/createUpvoteLoader");
 const Comment_1 = require("./entities/Comment");
 const CommentUpvote_1 = require("./entities/CommentUpvote");
 const comment_1 = require("./resolvers/comment");
-const createCommentLoader_1 = require("./utils/createCommentLoader");
 const createCommentUpvoteLoader_1 = require("./utils/createCommentUpvoteLoader");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
@@ -76,7 +75,6 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             redis,
             userLoader: createUserLoader_1.createUserLoader(),
             upvoteLoader: createUpvoteLoader_1.createUpvoteLoader(),
-            commentLoader: createCommentLoader_1.createCommentLoader(),
             commentUpvoteLoader: createCommentUpvoteLoader_1.createCommentUpvoteLoader(),
         }),
     });

@@ -55,7 +55,25 @@ export class CommentResolver {
     //   select * from CommentTree where postId = 639
     // `);
 
-    return getManager().getTreeRepository(Comment).findTrees();
+    const repository = getManager().getTreeRepository(Comment);
+    const parentComment = await Comment.findOne(1);
+
+    //return repository.findTrees();
+    //return repository.findRoots();
+
+    //return repository.findDescendants(parentComment!);
+    //return repository.findDescendantsTree(parentComment!);
+
+    const childrenCount =
+      (await repository.countDescendants(parentComment!)) - 1;
+    //console.log(childrenCount);
+    return repository
+      .createDescendantsQueryBuilder(
+        'comment',
+        'comment_closure',
+        parentComment!
+      )
+      .getMany();
   }
 
   @Mutation(() => Comment)
@@ -68,14 +86,21 @@ export class CommentResolver {
   ): Promise<Comment> {
     const { userId } = req.session;
 
-    const parentComment = await Comment.findOne(parent);
+    const parentComment = parent ? await Comment.findOne(parent) : undefined;
 
-    return Comment.create({
+    const newComment = await Comment.create({
       creatorId: userId,
       postId,
       text,
       parent: parentComment,
     }).save();
+
+    const childrenObj = await getManager()
+      .getTreeRepository(Comment)
+      .findDescendantsTree(newComment);
+
+    newComment.children = childrenObj.children;
+    return newComment;
 
     //return getConnection().createQueryBuilder().insert().into('comment_closure').values({id_ancestor: newComment.id,id_descendant: newComment.id}).execute()
 

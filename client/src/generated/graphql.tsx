@@ -16,7 +16,7 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   posts: PaginatedPosts;
-  post?: Maybe<Post>;
+  post?: Maybe<CommentsPost>;
   me?: Maybe<User>;
   getComments: Array<Comment>;
 };
@@ -69,12 +69,21 @@ export type Comment = {
   __typename?: 'Comment';
   id: Scalars['Float'];
   text: Scalars['String'];
+  children: Array<Comment>;
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
+  postId: Scalars['Float'];
   creatorId: Scalars['Float'];
   creator: User;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
+};
+
+export type CommentsPost = {
+  __typename?: 'CommentsPost';
+  content: Post;
+  comments: Array<Comment>;
+  length: Scalars['Int'];
 };
 
 export type Mutation = {
@@ -202,12 +211,15 @@ export type CommentSnippetFragment = (
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
-  ) }
+  ), children: Array<(
+    { __typename?: 'Comment' }
+    & Pick<Comment, 'id' | 'text' | 'points'>
+  )> }
 );
 
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'textSnippet' | 'image' | 'link' | 'linkSnippet' | 'points' | 'voteStatus'>
+  & Pick<Post, 'id' | 'createdAt' | 'title' | 'textSnippet' | 'image' | 'link' | 'linkSnippet' | 'points' | 'voteStatus'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -417,11 +429,15 @@ export type PostQueryVariables = Exact<{
 export type PostQuery = (
   { __typename?: 'Query' }
   & { post?: Maybe<(
-    { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'image' | 'link' | 'points' | 'voteStatus'>
-    & { creator: (
-      { __typename?: 'User' }
-      & Pick<User, 'id' | 'username'>
+    { __typename?: 'CommentsPost' }
+    & Pick<CommentsPost, 'length'>
+    & { content: (
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'createdAt' | 'title' | 'text' | 'image' | 'link' | 'points' | 'voteStatus'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ) }
     ), comments: Array<(
       { __typename?: 'Comment' }
       & CommentSnippetFragment
@@ -444,7 +460,7 @@ export type PostsQuery = (
       { __typename?: 'Post' }
       & { comments: Array<(
         { __typename?: 'Comment' }
-        & CommentSnippetFragment
+        & Pick<Comment, 'id'>
       )> }
       & PostSnippetFragment
     )> }
@@ -463,13 +479,17 @@ export const CommentSnippetFragmentDoc = gql`
     id
     username
   }
+  children {
+    id
+    text
+    points
+  }
 }
     `;
 export const PostSnippetFragmentDoc = gql`
     fragment PostSnippet on Post {
   id
   createdAt
-  updatedAt
   title
   textSnippet
   image
@@ -971,22 +991,24 @@ export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const PostDocument = gql`
     query Post($id: Int!) {
   post(id: $id) {
-    id
-    createdAt
-    updatedAt
-    title
-    text
-    image
-    link
-    points
-    voteStatus
-    creator {
+    content {
       id
-      username
+      createdAt
+      title
+      text
+      image
+      link
+      points
+      voteStatus
+      creator {
+        id
+        username
+      }
     }
     comments {
       ...CommentSnippet
     }
+    length
   }
 }
     ${CommentSnippetFragmentDoc}`;
@@ -1022,14 +1044,13 @@ export const PostsDocument = gql`
     hasMore
     posts {
       comments {
-        ...CommentSnippet
+        id
       }
       ...PostSnippet
     }
   }
 }
-    ${CommentSnippetFragmentDoc}
-${PostSnippetFragmentDoc}`;
+    ${PostSnippetFragmentDoc}`;
 
 /**
  * __usePostsQuery__
