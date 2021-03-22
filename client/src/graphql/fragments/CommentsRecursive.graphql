@@ -1,0 +1,14 @@
+fragment CommentsRecursive on Comment {
+  children {
+    ...CommentSnippet
+    children {
+      ...CommentSnippet
+      children {
+        ...CommentSnippet
+        children {
+          ...CommentSnippet
+        }
+      }
+    }
+  }
+}

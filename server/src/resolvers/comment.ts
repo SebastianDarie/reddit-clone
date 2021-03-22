@@ -42,8 +42,8 @@ export class CommentResolver {
     return commentUpvote ? commentUpvote.value : null;
   }
 
-  @Query(() => [Comment])
-  async getComments(): Promise<Comment[]> {
+  @Query(() => Comment)
+  async getComments(): Promise<Comment> {
     // const comments = await getConnection().query(`
     //   with recursive CommentTree (id, postId, parentCommentId,  creator, text, treeDepth) as (
     //     select *, 0 as depth from comment
@@ -56,24 +56,27 @@ export class CommentResolver {
     // `);
 
     const repository = getManager().getTreeRepository(Comment);
-    const parentComment = await Comment.findOne(1);
+    const parentComment = await Comment.findOne(27);
 
     //return repository.findTrees();
     //return repository.findRoots();
 
     //return repository.findDescendants(parentComment!);
-    //return repository.findDescendantsTree(parentComment!);
 
-    const childrenCount =
-      (await repository.countDescendants(parentComment!)) - 1;
+    const ancestorCount = await repository.countAncestors(parentComment!);
+    console.log(ancestorCount - 1);
+    return repository.findDescendantsTree(parentComment!);
+
+    // const childrenCount =
+    //   (await repository.countDescendants(parentComment!)) - 1;
     //console.log(childrenCount);
-    return repository
-      .createDescendantsQueryBuilder(
-        'comment',
-        'comment_closure',
-        parentComment!
-      )
-      .getMany();
+    // return repository
+    //   .createDescendantsQueryBuilder(
+    //     'comment',
+    //     'comment_closure',
+    //     parentComment!
+    //   )
+    //   .getMany();
   }
 
   @Mutation(() => Comment)
@@ -83,6 +86,7 @@ export class CommentResolver {
     @Arg('postId', () => Int) postId: number,
     @Arg('text') text: string,
     @Arg('parent', () => Int, { nullable: true }) parent: number
+    //@Arg('level', () => Int) level: number
   ): Promise<Comment> {
     const { userId } = req.session;
 
@@ -93,7 +97,15 @@ export class CommentResolver {
       postId,
       text,
       parent: parentComment,
+      //level,
     }).save();
+
+    // await getConnection().query(`
+    //   insert into comment_closure (id_ancestor, id_descendant, level)
+    //   select id_ancestor, ${newComment.id}, level+1 from comment_closure
+    //   where id_descendant = ${parent ? parentComment : newComment.id}
+    //   union all select ${newComment.id}, ${newComment.id}, 0
+    // `);
 
     const childrenObj = await getManager()
       .getTreeRepository(Comment)

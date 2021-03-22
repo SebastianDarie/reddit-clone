@@ -18,7 +18,7 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<CommentsPost>;
   me?: Maybe<User>;
-  getComments: Array<Comment>;
+  getComments: Comment;
 };
 
 
@@ -70,6 +70,7 @@ export type Comment = {
   id: Scalars['Float'];
   text: Scalars['String'];
   children: Array<Comment>;
+  depth?: Maybe<Scalars['Int']>;
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
   postId: Scalars['Float'];
@@ -207,13 +208,30 @@ export type UsernamePasswordInput = {
 
 export type CommentSnippetFragment = (
   { __typename?: 'Comment' }
-  & Pick<Comment, 'id' | 'text' | 'points' | 'voteStatus' | 'createdAt' | 'updatedAt'>
+  & Pick<Comment, 'id' | 'text' | 'points' | 'voteStatus' | 'createdAt' | 'updatedAt' | 'depth'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
-  ), children: Array<(
+  ) }
+);
+
+export type CommentsRecursiveFragment = (
+  { __typename?: 'Comment' }
+  & { children: Array<(
     { __typename?: 'Comment' }
-    & Pick<Comment, 'id' | 'text' | 'points'>
+    & { children: Array<(
+      { __typename?: 'Comment' }
+      & { children: Array<(
+        { __typename?: 'Comment' }
+        & { children: Array<(
+          { __typename?: 'Comment' }
+          & CommentSnippetFragment
+        )> }
+        & CommentSnippetFragment
+      )> }
+      & CommentSnippetFragment
+    )> }
+    & CommentSnippetFragment
   )> }
 );
 
@@ -441,6 +459,7 @@ export type PostQuery = (
     ), comments: Array<(
       { __typename?: 'Comment' }
       & CommentSnippetFragment
+      & CommentsRecursiveFragment
     )> }
   )> }
 );
@@ -479,13 +498,25 @@ export const CommentSnippetFragmentDoc = gql`
     id
     username
   }
-  children {
-    id
-    text
-    points
-  }
+  depth
 }
     `;
+export const CommentsRecursiveFragmentDoc = gql`
+    fragment CommentsRecursive on Comment {
+  children {
+    ...CommentSnippet
+    children {
+      ...CommentSnippet
+      children {
+        ...CommentSnippet
+        children {
+          ...CommentSnippet
+        }
+      }
+    }
+  }
+}
+    ${CommentSnippetFragmentDoc}`;
 export const PostSnippetFragmentDoc = gql`
     fragment PostSnippet on Post {
   id
@@ -1007,11 +1038,13 @@ export const PostDocument = gql`
     }
     comments {
       ...CommentSnippet
+      ...CommentsRecursive
     }
     length
   }
 }
-    ${CommentSnippetFragmentDoc}`;
+    ${CommentSnippetFragmentDoc}
+${CommentsRecursiveFragmentDoc}`;
 
 /**
  * __usePostQuery__

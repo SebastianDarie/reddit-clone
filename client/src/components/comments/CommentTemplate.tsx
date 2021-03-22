@@ -15,6 +15,7 @@ import { FaRegCommentAlt } from 'react-icons/fa';
 import { Formik, Form } from 'formik';
 import {
   CommentSnippetFragment,
+  CommentsRecursiveFragment,
   MeQuery,
   PostDocument,
   PostQuery,
@@ -28,21 +29,37 @@ import { InputField } from '../form-fields/InputField';
 import { CommentSchema } from '../../validation/yup';
 
 interface CommentTemplateProps {
-  comment: CommentSnippetFragment;
+  comment: CommentSnippetFragment & CommentsRecursiveFragment;
   meData: MeQuery | undefined;
   post: PostSnippetFragment;
+  nestLevel?: 0 | 1 | 2 | 3 | 4;
 }
 
 export const CommentTemplate: React.FC<CommentTemplateProps> = ({
   comment,
   meData,
   post,
+  nestLevel,
 }) => {
   const [isReply, setIsReply] = useState(false);
   const [reply] = useCommentMutation();
 
   return (
-    <Flex flexDir="column" m="5px 0px">
+    <Flex
+      flexDir="column"
+      m="5px 0px"
+      ml={
+        nestLevel === 1
+          ? '10px'
+          : nestLevel === 2
+          ? '20px'
+          : nestLevel === 3
+          ? '40px'
+          : nestLevel === 4
+          ? '80px'
+          : undefined
+      }
+    >
       <Flex fontSize={12} fontWeight={400}>
         <Text mr={2}>{comment.creator.username} </Text>
         <Text color="gray.500">
@@ -167,6 +184,20 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
           meData={meData}
         />
       </Flex>
+
+      {comment.children &&
+        comment.children.map((comment) => {
+          comment = { ...comment, depth: nestLevel };
+          return (
+            <CommentTemplate
+              key={comment.id}
+              comment={comment as any}
+              meData={meData}
+              post={post}
+              nestLevel={(comment.depth! + 1) as 0 | 1 | 2 | 3 | 4 | undefined}
+            />
+          );
+        })}
     </Flex>
   );
 };

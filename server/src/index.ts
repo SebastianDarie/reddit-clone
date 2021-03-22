@@ -34,9 +34,9 @@ const main = async () => {
 
   await conn.runMigrations();
 
-  //await Post.delete({});
-  //await Comment.delete({});
-  //await CommentUpvote.delete({});
+  // await Post.delete({});
+  // await Comment.delete({});
+  // await CommentUpvote.delete({});
 
   const app = express();
 

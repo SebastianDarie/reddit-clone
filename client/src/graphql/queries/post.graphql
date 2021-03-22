@@ -17,6 +17,7 @@ query Post($id: Int!) {
 
     comments {
       ...CommentSnippet
+      ...CommentsRecursive
     }
 
     length

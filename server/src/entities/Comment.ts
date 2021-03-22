@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   Tree,
   TreeChildren,
+  TreeLevelColumn,
   TreeParent,
   UpdateDateColumn,
 } from 'typeorm';
@@ -42,6 +43,13 @@ export class Comment extends BaseEntity {
   @Field(() => [Comment])
   @TreeChildren()
   children: Comment[];
+
+  // @Field()
+  // @TreeLevelColumn()
+  // level: number;
+
+  @Field(() => Int, { nullable: true })
+  depth: number;
 
   @Field()
   @Column({ type: 'int', default: 0 })

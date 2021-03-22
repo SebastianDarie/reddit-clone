@@ -140,7 +140,8 @@ const Post = ({}) => {
               key={comment.id}
               comment={comment}
               meData={meData}
-              post={data.post as any}
+              post={data.post?.content as any}
+              nestLevel={0}
             />
           ))}
       </Flex>

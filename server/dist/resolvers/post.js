@@ -156,13 +156,13 @@ let PostResolver = class PostResolver {
             const currRoots = rootComments.filter((root) => root.postId === id);
             let finalComments = [];
             let finalCount = 0;
-            currRoots.forEach((root) => __awaiter(this, void 0, void 0, function* () {
+            for (const root of currRoots) {
                 const currCount = yield treeRepo.countDescendants(root);
                 const childrenObj = yield treeRepo.findDescendantsTree(root);
                 root.children = childrenObj.children;
                 finalComments.push(root);
                 finalCount += currCount;
-            }));
+            }
             const post = yield Post_1.Post.findOne(id);
             return {
                 content: post,
