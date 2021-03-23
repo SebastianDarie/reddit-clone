@@ -157,8 +157,8 @@ let PostResolver = class PostResolver {
             let finalComments = [];
             let finalCount = 0;
             for (const root of currRoots) {
-                const currCount = yield treeRepo.countDescendants(root);
                 const childrenObj = yield treeRepo.findDescendantsTree(root);
+                const currCount = yield treeRepo.countDescendants(root);
                 root.children = childrenObj.children;
                 finalComments.push(root);
                 finalCount += currCount;

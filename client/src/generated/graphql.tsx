@@ -69,6 +69,7 @@ export type Comment = {
   __typename?: 'Comment';
   id: Scalars['Float'];
   text: Scalars['String'];
+  parent: Comment;
   children: Array<Comment>;
   depth?: Maybe<Scalars['Int']>;
   points: Scalars['Float'];
@@ -290,6 +291,10 @@ export type CommentMutation = (
   { __typename?: 'Mutation' }
   & { comment: (
     { __typename?: 'Comment' }
+    & { parent: (
+      { __typename?: 'Comment' }
+      & Pick<Comment, 'id'>
+    ) }
     & CommentSnippetFragment
   ) }
 );
@@ -594,6 +599,9 @@ export const CommentDocument = gql`
     mutation Comment($postId: Int!, $text: String!, $parent: Int) {
   comment(postId: $postId, text: $text, parent: $parent) {
     ...CommentSnippet
+    parent {
+      id
+    }
   }
 }
     ${CommentSnippetFragmentDoc}`;

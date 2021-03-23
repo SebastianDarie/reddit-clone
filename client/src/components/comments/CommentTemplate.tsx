@@ -113,7 +113,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                     variables: {
                       postId: post.id,
                       text: values.reply,
-                      parent: post.id,
+                      parent: comment.id,
                     },
                     update: (cache, { data: commentData }) => {
                       const newComment = commentData?.comment;
@@ -122,21 +122,36 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                         variables: { id: post.id },
                       });
 
+                      let parentComment = currComments?.post?.comments.find(
+                        (oldComm) => newComment?.parent.id === oldComm.id
+                      );
+                      parentComment = {
+                        ...parentComment,
+                        children: [...parentComment!.children, newComment],
+                      };
+                      const newComments = currComments!.post?.comments.filter(
+                        (comment) => comment.id !== parentComment?.id
+                      );
+
                       cache.writeQuery({
                         query: PostDocument,
                         data: {
                           post: {
                             ...currComments?.post,
-                            comments: [
-                              ...currComments!.post?.comments!,
-                              newComment,
-                            ],
+                            // comments: [
+                            //   ...currComments!.post?.comments!,
+                            //   newComment,
+                            // ],
+                            comments: [...newComments, parentComment],
+                            length: currComments?.post?.length! + 1,
                           },
                         },
+                        variables: { id: post.id },
                       });
                     },
                   });
                   resetForm();
+                  setIsReply(false);
                 }}
               >
                 {({ values }) => (
@@ -182,22 +197,28 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
           creatorId={comment.creator.id}
           comment={comment}
           meData={meData}
+          post={post}
         />
       </Flex>
 
       {comment.children &&
-        comment.children.map((comment) => {
-          comment = { ...comment, depth: nestLevel };
-          return (
-            <CommentTemplate
-              key={comment.id}
-              comment={comment as any}
-              meData={meData}
-              post={post}
-              nestLevel={(comment.depth! + 1) as 0 | 1 | 2 | 3 | 4 | undefined}
-            />
-          );
-        })}
+        comment.children
+          .slice()
+          .sort((a, b) => b.points - a.points)
+          .map((comment) => {
+            comment = { ...comment, depth: nestLevel };
+            return (
+              <CommentTemplate
+                key={comment.id}
+                comment={comment as any}
+                meData={meData}
+                post={post}
+                nestLevel={
+                  (comment.depth! + 1) as 0 | 1 | 2 | 3 | 4 | undefined
+                }
+              />
+            );
+          })}
     </Flex>
   );
 };

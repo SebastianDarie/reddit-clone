@@ -16,6 +16,8 @@ import { useState } from 'react';
 import {
   CommentSnippetFragment,
   MeQuery,
+  PostDocument,
+  PostQuery,
   useDeleteCommentMutation,
   useUpdateCommentMutation,
 } from '../../generated/graphql';
@@ -27,6 +29,7 @@ interface EditDeleteCommentButtonsProps {
   creatorId: number;
   comment: CommentSnippetFragment;
   meData: MeQuery | undefined;
+  post: any;
 }
 
 export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> = ({
@@ -34,6 +37,7 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
   creatorId,
   comment,
   meData,
+  post,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [updateComment] = useUpdateCommentMutation();
@@ -110,6 +114,7 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
             variables: { id },
             update: (cache) => {
               cache.evict({ id: 'Comment:' + id });
+              cache.evict({ id: 'Post:' + post.id });
             },
           });
         }}

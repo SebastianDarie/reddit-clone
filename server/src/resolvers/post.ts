@@ -192,8 +192,8 @@ export class PostResolver {
     //console.log(orderedComments);
 
     for (const root of currRoots) {
-      const currCount = await treeRepo.countDescendants(root);
       const childrenObj = await treeRepo.findDescendantsTree(root);
+      const currCount = await treeRepo.countDescendants(root);
       root.children = childrenObj.children;
       finalComments.push(root);
       finalCount += currCount;

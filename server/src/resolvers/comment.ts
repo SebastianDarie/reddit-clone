@@ -107,10 +107,18 @@ export class CommentResolver {
     //   union all select ${newComment.id}, ${newComment.id}, 0
     // `);
 
+    // const ancestorArr = await getManager()
+    //   .getTreeRepository(Comment)
+    //   .findAncestors(newComment);
+    // const ancestorObj = await getManager()
+    //   .getTreeRepository(Comment)
+    //   .findAncestorsTree(newComment);
+    // console.log(ancestorArr.pop());
     const childrenObj = await getManager()
       .getTreeRepository(Comment)
       .findDescendantsTree(newComment);
 
+    //newComment.parent = ancestorObj;
     newComment.children = childrenObj.children;
     return newComment;
 

@@ -37,6 +37,7 @@ export class Comment extends BaseEntity {
   // @Column({ nullable: true, type: 'integer' })
   // parentCommentId: number | null;
 
+  @Field()
   @TreeParent()
   parent: Comment;
 

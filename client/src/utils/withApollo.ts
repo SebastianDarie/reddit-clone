@@ -1,7 +1,7 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 import { NextPageContext } from 'next';
 import { withApollo as createWithApollo } from 'next-apollo';
-import { PaginatedPosts } from '../generated/graphql';
+import { Comment, CommentsPost, PaginatedPosts } from '../generated/graphql';
 
 const createClient = (ctx: NextPageContext | undefined) =>
   new ApolloClient({
@@ -30,6 +30,25 @@ const createClient = (ctx: NextPageContext | undefined) =>
                 };
               },
             },
+            // post: {
+            //   keyArgs: ['id'],
+            //   merge(
+            //     existing: CommentsPost | undefined,
+            //     incoming: CommentsPost
+            //   ): CommentsPost {
+            //     console.log(existing, incoming);
+            //     return {
+            //       ...incoming,
+            //       comments: [
+            //         ...(existing?.comments.filter((staleData) => {
+            //           return incoming.comments.some((freshData) => {
+            //             return staleData.id === freshData.id;
+            //           });
+            //         }) || []),
+            //       ],
+            //     };
+            //   },
+            // },
           },
         },
       },

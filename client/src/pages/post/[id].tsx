@@ -91,10 +91,12 @@ const Post = ({}) => {
                   query: PostDocument,
                   data: {
                     post: {
-                      ...currComments?.post?.content,
+                      ...currComments?.post,
                       comments: [...currComments!.post?.comments!, newComment],
+                      length: currComments?.post?.length! + 1,
                     },
                   },
+                  variables: { id: data.post?.content.id },
                 });
               },
             });

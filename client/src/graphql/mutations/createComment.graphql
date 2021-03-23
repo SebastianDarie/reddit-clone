@@ -1,5 +1,8 @@
 mutation Comment($postId: Int!, $text: String!, $parent: Int) {
   comment(postId: $postId, text: $text, parent: $parent) {
     ...CommentSnippet
+    parent {
+      id
+    }
   }
 }
