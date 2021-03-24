@@ -16,8 +16,6 @@ import { useState } from 'react';
 import {
   CommentSnippetFragment,
   MeQuery,
-  PostDocument,
-  PostQuery,
   useDeleteCommentMutation,
   useUpdateCommentMutation,
 } from '../../generated/graphql';

@@ -31,24 +31,38 @@ const createClient = (ctx: NextPageContext | undefined) =>
               },
             },
             // post: {
-            //   keyArgs: ['id'],
-            //   merge(
-            //     existing: CommentsPost | undefined,
-            //     incoming: CommentsPost
-            //   ): CommentsPost {
-            //     console.log(existing, incoming);
-            //     return {
-            //       ...incoming,
-            //       comments: [
-            //         ...(existing?.comments.filter((staleData) => {
-            //           return incoming.comments.some((freshData) => {
-            //             return staleData.id === freshData.id;
-            //           });
-            //         }) || []),
-            //       ],
-            //     };
-            //   },
+            //   keyArgs: [],
+            //   merge: true,
+            // merge(
+            //   existing: CommentsPost | undefined,
+            //   incoming: CommentsPost
+            // ): CommentsPost {
+            //   console.log(existing, incoming);
+            // return {
+            //   ...incoming,
+            //   comments: [
+            //     ...(existing?.comments.filter((staleData) => {
+            //       return incoming.comments.some((freshData) => {
+            //         return staleData.id === freshData.id;
+            //       });
+            //     }) || []),
+            //   ],
+            // };
+            //   return {
+            //     ...incoming,
+            //     comments: [...incoming.comments],
+            //   };
             // },
+            // },
+          },
+        },
+        Comment: {
+          fields: {
+            children: {
+              merge(_existing, incoming) {
+                return incoming;
+              },
+            },
           },
         },
       },

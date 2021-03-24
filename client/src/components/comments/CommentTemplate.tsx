@@ -44,6 +44,52 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
   const [isReply, setIsReply] = useState(false);
   const [reply] = useCommentMutation();
 
+  const recurse = (
+    currComments: PostQuery | null,
+    newComment:
+      | ({
+          __typename?: 'Comment' | undefined;
+        } & {
+          parent: {
+            __typename?: 'Comment' | undefined;
+          } & Pick<Comment, 'id'>;
+        } & {
+          __typename?: 'Comment' | undefined;
+        })
+      | undefined
+  ) => {
+    let parentComment:
+      | (CommentSnippetFragment & CommentsRecursiveFragment)
+      | undefined;
+    parentComment = currComments?.post?.comments.find(
+      (oldComm) => newComment?.parent.id === oldComm.id
+    );
+    if (parentComment) {
+      parentComment = {
+        ...parentComment,
+        children: [...parentComment!.children, newComment],
+      };
+    } else {
+      currComments?.post?.comments.forEach((comment) => {
+        parentComment = comment.children.find(
+          (child) => newComment?.parent.id === child.id
+        );
+        if (!parentComment) {
+          recurse(currComments, newComment);
+        }
+      });
+    }
+
+    const newComments = currComments!.post?.comments.filter(
+      (comment) => comment.id !== parentComment?.id
+    );
+
+    return {
+      parentComment,
+      newComments,
+    };
+  };
+
   return (
     <Flex
       flexDir="column"
@@ -122,15 +168,9 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                         variables: { id: post.id },
                       });
 
-                      let parentComment = currComments?.post?.comments.find(
-                        (oldComm) => newComment?.parent.id === oldComm.id
-                      );
-                      parentComment = {
-                        ...parentComment,
-                        children: [...parentComment!.children, newComment],
-                      };
-                      const newComments = currComments!.post?.comments.filter(
-                        (comment) => comment.id !== parentComment?.id
+                      const { newComments, parentComment } = recurse(
+                        currComments,
+                        newComment
                       );
 
                       cache.writeQuery({
@@ -142,7 +182,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                             //   ...currComments!.post?.comments!,
                             //   newComment,
                             // ],
-                            comments: [...newComments, parentComment],
+                            comments: [...newComments!, parentComment],
                             length: currComments?.post?.length! + 1,
                           },
                         },
