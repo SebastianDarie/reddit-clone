@@ -68,7 +68,7 @@ export const VoteSection: React.FC<VoteSectionProps> = ({
         style={{
           margin: '4px',
           cursor: 'pointer',
-          pointerEvents: meData?.me ? undefined : 'none',
+          pointerEvents: meData?.me ? 'auto' : 'none',
         }}
         onClick={async () => {
           await vote({
@@ -84,7 +84,7 @@ export const VoteSection: React.FC<VoteSectionProps> = ({
           margin: '4px',
           transform: 'rotate(180deg)',
           cursor: 'pointer',
-          pointerEvents: meData?.me ? undefined : 'none',
+          pointerEvents: meData?.me ? 'auto' : 'none',
         }}
         onClick={async () => {
           await vote({

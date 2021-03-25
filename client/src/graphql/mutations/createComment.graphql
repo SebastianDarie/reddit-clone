@@ -1,7 +1,12 @@
-mutation Comment($postId: Int!, $text: String!, $parent: Int) {
+mutation Comment(
+  $postId: Int!
+  $text: String!
+  $parent: Int
+  $skipParent: Boolean!
+) {
   comment(postId: $postId, text: $text, parent: $parent) {
     ...CommentSnippet
-    parent {
+    parent @skip(if: $skipParent) {
       id
     }
   }

@@ -79,6 +79,7 @@ const Post = ({}) => {
               variables: {
                 postId: data.post!.content.id,
                 text: values.comment,
+                skipParent: true,
               },
               update: (cache, { data: commentData }) => {
                 const newComment = commentData?.comment;

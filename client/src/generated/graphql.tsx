@@ -284,6 +284,7 @@ export type CommentMutationVariables = Exact<{
   postId: Scalars['Int'];
   text: Scalars['String'];
   parent?: Maybe<Scalars['Int']>;
+  skipParent: Scalars['Boolean'];
 }>;
 
 
@@ -596,10 +597,10 @@ export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswo
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
 export const CommentDocument = gql`
-    mutation Comment($postId: Int!, $text: String!, $parent: Int) {
+    mutation Comment($postId: Int!, $text: String!, $parent: Int, $skipParent: Boolean!) {
   comment(postId: $postId, text: $text, parent: $parent) {
     ...CommentSnippet
-    parent {
+    parent @skip(if: $skipParent) {
       id
     }
   }
@@ -623,6 +624,7 @@ export type CommentMutationFn = Apollo.MutationFunction<CommentMutation, Comment
  *      postId: // value for 'postId'
  *      text: // value for 'text'
  *      parent: // value for 'parent'
+ *      skipParent: // value for 'skipParent'
  *   },
  * });
  */

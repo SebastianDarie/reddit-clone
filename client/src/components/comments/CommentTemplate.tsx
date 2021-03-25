@@ -14,6 +14,7 @@ import {
 import { FaRegCommentAlt } from 'react-icons/fa';
 import { Formik, Form } from 'formik';
 import {
+  Comment,
   CommentSnippetFragment,
   CommentsRecursiveFragment,
   MeQuery,
@@ -44,6 +45,17 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
   const [isReply, setIsReply] = useState(false);
   const [reply] = useCommentMutation();
 
+  const flat = (currComments: Comment[]): Comment[] => {
+    let arr: Comment[] = [];
+    currComments.forEach((comment) => {
+      arr.push(comment);
+      if (Array.isArray(comment.children)) {
+        arr = arr.concat(flat(comment.children));
+      }
+    });
+    return arr;
+  };
+
   const recurse = (
     currComments: PostQuery | null,
     newComment:
@@ -58,29 +70,17 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
         })
       | undefined
   ) => {
-    let parentComment:
-      | (CommentSnippetFragment & CommentsRecursiveFragment)
-      | undefined;
-    parentComment = currComments?.post?.comments.find(
-      (oldComm) => newComment?.parent.id === oldComm.id
-    );
-    if (parentComment) {
-      parentComment = {
-        ...parentComment,
-        children: [...parentComment!.children, newComment],
-      };
-    } else {
-      currComments?.post?.comments.forEach((comment) => {
-        parentComment = comment.children.find(
-          (child) => newComment?.parent.id === child.id
-        );
-        if (!parentComment) {
-          recurse(currComments, newComment);
-        }
-      });
-    }
+    const flatComments = flat(currComments?.post?.comments);
 
-    const newComments = currComments!.post?.comments.filter(
+    let parentComment = flatComments.find(
+      (comment) => comment.id === newComment?.parent.id
+    );
+    parentComment = {
+      ...parentComment,
+      children: [...parentComment!.children!, newComment],
+    };
+
+    const newComments = flatComments.filter(
       (comment) => comment.id !== parentComment?.id
     );
 
@@ -160,6 +160,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                       postId: post.id,
                       text: values.reply,
                       parent: comment.id,
+                      skipParent: false,
                     },
                     update: (cache, { data: commentData }) => {
                       const newComment = commentData?.comment;
@@ -178,10 +179,6 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
                         data: {
                           post: {
                             ...currComments?.post,
-                            // comments: [
-                            //   ...currComments!.post?.comments!,
-                            //   newComment,
-                            // ],
                             comments: [...newComments!, parentComment],
                             length: currComments?.post?.length! + 1,
                           },

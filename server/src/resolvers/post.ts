@@ -153,43 +153,12 @@ export class PostResolver {
   @Query(() => CommentsPost, { nullable: true })
   async post(@Arg('id', () => Int) id: number): Promise<CommentsPost> {
     const treeRepo = getManager().getTreeRepository(Comment);
-    //const treeComments = await treeRepo.findTrees();
-    //const currTrees = treeComments.filter((tree) => tree.postId === id);
-    const rootComments = await treeRepo.findRoots();
-    //console.log(rootComments);
-    const currRoots = rootComments.filter((root) => root.postId === id);
-    //console.log(currRoots);
 
-    //const rootsToFind = await Comment.findByIds(currRoots)
+    const rootComments = await treeRepo.findRoots();
+    const currRoots = rootComments.filter((root) => root.postId === id);
+
     let finalComments: Comment[] = [];
     let finalCount: number = 0;
-
-    // const asyncFunc = async (): Promise<Comment[]> => {
-    //   currRoots.forEach(async (root: Comment) => {
-    //     //const currDepth = (await treeRepo.countAncestors(root)) - 1;
-    //     const currCount = await treeRepo.countDescendants(root);
-    //     const childrenObj = await treeRepo.findDescendantsTree(root);
-    //     root.children = childrenObj.children;
-    //     //root.depth = currDepth;
-    //     finalComments.push(root);
-    //     console.log(finalComments);
-    //     finalCount += currCount;
-    //   });
-    //   return finalComments;
-    // };
-
-    // currRoots.forEach(async (root) => {
-    //   //const currDepth = (await treeRepo.countAncestors(root)) - 1;
-    //   const currCount = await treeRepo.countDescendants(root);
-    //   const childrenObj = await treeRepo.findDescendantsTree(root);
-    //   root.children = childrenObj.children;
-    //   //root.depth = currDepth;
-    //   finalComments.push(root);
-    //   finalCount += currCount;
-    // });
-
-    //const orderedComments = await treeRepo.findDescendantsTree(firstComment!);
-    //console.log(orderedComments);
 
     for (const root of currRoots) {
       const childrenObj = await treeRepo.findDescendantsTree(root);
@@ -199,10 +168,8 @@ export class PostResolver {
       finalCount += currCount;
     }
 
-    //const comments = await asyncFunc();
     const post = await Post.findOne(id);
 
-    //console.log(finalComments, comments);
     return {
       content: post,
       comments: finalComments,
