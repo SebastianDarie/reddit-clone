@@ -9,10 +9,11 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-import { getConnection, getManager } from 'typeorm';
+import { getConnection, getCustomRepository, getManager } from 'typeorm';
 import { Comment } from '../entities/Comment';
 import { User } from '../entities/User';
 import { isAuth } from '../middleware/isAuth';
+import { CommentTreeRepository } from '../repositories/CommentRepository';
 import { MyContext } from '../types';
 
 @Resolver(Comment)
@@ -99,19 +100,9 @@ export class CommentResolver {
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async deleteComment(
-    @Arg('id', () => Int) id: number,
-    @Ctx() { req }: MyContext
-  ): Promise<boolean> {
-    await getConnection()
-      .createQueryBuilder()
-      .delete()
-      .from('comment_closure')
-      .where('id_ancestor = :id', { id })
-      .orWhere('id_descendant = :id', { id })
-      .execute();
-
-    await Comment.delete({ id, creatorId: req.session.userId });
+  async deleteComment(@Arg('id', () => Int) id: number): Promise<boolean> {
+    const commentRepository = getCustomRepository(CommentTreeRepository);
+    await commentRepository.deleteComment(id);
     return true;
   }
 }

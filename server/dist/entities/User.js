@@ -38,6 +38,13 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({
+        default: 'https://d2cqrrc2420sv.cloudfront.net/default-user/avatar_default_02_A5A4A4.png',
+    }),
+    __metadata("design:type", String)
+], User.prototype, "photoUrl", void 0);
+__decorate([
     typeorm_1.OneToMany(() => Post_1.Post, (post) => post.creator),
     __metadata("design:type", Array)
 ], User.prototype, "posts", void 0);

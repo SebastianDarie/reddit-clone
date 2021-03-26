@@ -48,6 +48,11 @@ export class UserResolver {
     return '';
   }
 
+  @Query(() => User, { nullable: true })
+  user(@Arg('username') username: string): Promise<User | undefined> {
+    return User.findOne({ username });
+  }
+
   @Mutation(() => UserResponse)
   async changePassword(
     @Arg('token') token: string,

@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
+import NextLink from 'next/link';
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  IconButton,
+  Link,
+  Text,
+} from '@chakra-ui/react';
 import { FaRegCommentAlt } from 'react-icons/fa';
 import { Formik, Form } from 'formik';
 import { EditDeletePostButtons } from '../../components/posts/EditDeletePostButtons';
@@ -17,6 +26,7 @@ import {
 } from '../../generated/graphql';
 import { CommentSchema } from '../../validation/yup';
 import { isServer } from '../../utils/isServer';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 
 const Post = ({}) => {
   const { data, error, loading } = useGetPostFromUrl();
@@ -45,16 +55,29 @@ const Post = ({}) => {
 
   return (
     <Layout>
-      <Flex justifyContent="space-between">
-        <Heading fontSize={20}>{data.post.content.title}</Heading>
-        <UpvoteSection post={data.post.content as any} meData={meData} row />
+      <Flex flexDir="column">
+        <Flex color="gray.500" fontSize={12} fontWeight={400} mb="4px">
+          <Text>Posted by u/ </Text>
+          <NextLink
+            href="/user/[username]"
+            as={`/user/${data.post.content.creator.username}`}
+          >
+            <Link mr="2px">{data.post.content.creator.username}</Link>
+          </NextLink>
+          {formatTimestamp(new Date(+data.post.content.createdAt).getTime())}
+        </Flex>
 
-        <EditDeletePostButtons
-          id={data.post.content.id}
-          creatorId={data.post.content.creator.id}
-          editable={!!data.post.content.text}
-          image={data.post.content.image}
-        />
+        <Flex justifyContent="space-between">
+          <Heading fontSize={20}>{data.post.content.title}</Heading>
+          <UpvoteSection post={data.post.content as any} meData={meData} row />
+
+          <EditDeletePostButtons
+            id={data.post.content.id}
+            creatorId={data.post.content.creator.id}
+            editable={!!data.post.content.text}
+            image={data.post.content.image}
+          />
+        </Flex>
       </Flex>
 
       <PostData post={data.post.content as any} single />
