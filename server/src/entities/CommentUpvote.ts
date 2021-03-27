@@ -20,6 +20,6 @@ export class CommentUpvote extends BaseEntity {
   @PrimaryColumn()
   userId: number;
 
-  @ManyToOne(() => User, (user) => user.commentUpvotes)
+  @ManyToOne(() => User, (user) => user.commentUpvotes, { onDelete: 'CASCADE' })
   user: User;
 }

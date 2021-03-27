@@ -1,5 +1,4 @@
 import { Form, Formik } from 'formik';
-import * as Yup from 'yup';
 import { Box, Button } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { Wrapper } from '../components/Wrapper';
@@ -8,18 +7,7 @@ import { MeDocument, MeQuery, useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { withApollo } from '../utils/withApollo';
 import { PasswordField } from '../components/form-fields/PasswordField';
-
-const RegisterSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(3, 'Choose an interesting username')
-    .max(20, 'That is too much Jimbo')
-    .required('Identify yourself'),
-  email: Yup.string().email('Invalid Email').required('Anything works!'),
-  password: Yup.string()
-    .min(3, 'Not safe enough!')
-    .max(50, 'That is enough!')
-    .required('Password is required'),
-});
+import { RegisterSchema } from '../validation/yup';
 
 const Register: React.FC<unknown> = ({}) => {
   const router = useRouter();

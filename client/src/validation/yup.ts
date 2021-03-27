@@ -47,3 +47,15 @@ export const ImageSchema = Yup.object().shape({
 export const CommentSchema = Yup.object().shape({
   comment: Yup.string().max(10000, 'Stop or I call the police!'),
 });
+
+export const RegisterSchema = Yup.object().shape({
+  username: Yup.string()
+    .min(3, 'Choose an interesting username')
+    .max(20, 'That is too much Jimbo')
+    .required('Identify yourself'),
+  email: Yup.string().email('Invalid Email').required('Anything works!'),
+  password: Yup.string()
+    .min(3, 'Not safe enough!')
+    .max(50, 'That is enough!')
+    .required('Password is required'),
+});

@@ -14,7 +14,11 @@ import { v4 } from 'uuid';
 import { getConnection } from 'typeorm';
 import { User } from '../entities/User';
 import { MyContext } from '../types';
-import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
+import {
+  COLOR_VARIATIONS,
+  COOKIE_NAME,
+  FORGET_PASSWORD_PREFIX,
+} from '../constants';
 import { UsernamePasswordInput } from './UsernamePasswordInput';
 import { validateRegister } from '../utils/validateRegister';
 import { sendEmail } from '../utils/sendEmail';
@@ -46,6 +50,11 @@ export class UserResolver {
     }
 
     return '';
+  }
+
+  @Query(() => [User])
+  users(): Promise<User[]> {
+    return User.find({});
   }
 
   @Query(() => User, { nullable: true })
@@ -150,6 +159,9 @@ export class UserResolver {
       return { errors };
     }
 
+    const randomVariation = Math.floor(Math.random() * 20) + 1;
+    const colorIdx = Math.floor(Math.random() * COLOR_VARIATIONS.length);
+
     const hashedPassword = await argon2.hash(credentials.password);
     let user;
     try {
@@ -161,6 +173,9 @@ export class UserResolver {
           username: credentials.username,
           email: credentials.email,
           password: hashedPassword,
+          photoUrl: `https://d2cqrrc2420sv.cloudfront.net/default-user/avatar_default_${
+            randomVariation >= 10 ? randomVariation : '0' + randomVariation
+          }_${COLOR_VARIATIONS[colorIdx]}.png`,
         })
         .returning('*')
         .execute();
@@ -237,5 +252,11 @@ export class UserResolver {
         resolve(true);
       });
     });
+  }
+
+  @Mutation(() => Boolean)
+  async deleteUser(@Arg('username') username: string): Promise<Boolean> {
+    await User.delete({ username });
+    return true;
   }
 }

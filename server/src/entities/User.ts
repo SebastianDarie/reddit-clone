@@ -32,10 +32,7 @@ export class User extends BaseEntity {
   password!: string;
 
   @Field()
-  @Column({
-    default:
-      'https://d2cqrrc2420sv.cloudfront.net/default-user/avatar_default_02_A5A4A4.png',
-  })
+  @Column()
   photoUrl!: string;
 
   @OneToMany(() => Post, (post) => post.creator)

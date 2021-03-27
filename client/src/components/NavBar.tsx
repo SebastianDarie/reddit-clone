@@ -45,7 +45,9 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
             Create Post
           </Button>
         </NextLink>
-        <Box mr={2}>{data.me.username}</Box>
+        <NextLink href="/user/[username]" as={`/user/${data.me.username}`}>
+          <Link mr={2}>{data.me.username}</Link>
+        </NextLink>
         <Button
           variant="link"
           isLoading={logoutFetching}

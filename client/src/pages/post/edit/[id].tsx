@@ -41,7 +41,10 @@ const EditPost = ({}) => {
   return (
     <Layout variant="small">
       <Formik
-        initialValues={{ title: data.post.title, text: data.post.text }}
+        initialValues={{
+          title: data.post.content.title,
+          text: data.post.content.text,
+        }}
         validationSchema={TextSchema}
         onSubmit={async (values) => {
           await updatePost({ variables: { id: intId, ...values } });

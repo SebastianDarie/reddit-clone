@@ -8,6 +8,7 @@ fragment CommentSnippet on Comment {
   creator {
     id
     username
+    photoUrl
   }
   depth
 }

@@ -39,9 +39,7 @@ __decorate([
 ], User.prototype, "password", void 0);
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.Column({
-        default: 'https://d2cqrrc2420sv.cloudfront.net/default-user/avatar_default_02_A5A4A4.png',
-    }),
+    typeorm_1.Column(),
     __metadata("design:type", String)
 ], User.prototype, "photoUrl", void 0);
 __decorate([

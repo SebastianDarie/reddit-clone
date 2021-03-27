@@ -63,7 +63,15 @@ export class Comment extends BaseEntity {
   creatorId: number;
 
   @Field()
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(
+    () => User,
+    (user) => user.comments
+    //  {
+    //   createForeignKeyConstraints: false,
+    //   onDelete: 'CASCADE',
+    //   orphanedRowAction: 'delete',
+    // }
+  )
   creator: User;
 
   @Field(() => String)

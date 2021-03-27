@@ -10,7 +10,7 @@ export class Upvote extends BaseEntity {
   @PrimaryColumn()
   userId: number;
 
-  @ManyToOne(() => User, (user) => user.upvotes)
+  @ManyToOne(() => User, (user) => user.upvotes, { onDelete: 'CASCADE' })
   user: User;
 
   @PrimaryColumn()

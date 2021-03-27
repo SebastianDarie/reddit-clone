@@ -67,6 +67,9 @@ let UserResolver = class UserResolver {
         }
         return '';
     }
+    users() {
+        return User_1.User.find({});
+    }
     user(username) {
         return User_1.User.findOne({ username });
     }
@@ -131,6 +134,8 @@ let UserResolver = class UserResolver {
             if (errors) {
                 return { errors };
             }
+            const randomVariation = Math.floor(Math.random() * 20) + 1;
+            const colorIdx = Math.floor(Math.random() * constants_1.COLOR_VARIATIONS.length);
             const hashedPassword = yield argon2_1.default.hash(credentials.password);
             let user;
             try {
@@ -142,6 +147,7 @@ let UserResolver = class UserResolver {
                     username: credentials.username,
                     email: credentials.email,
                     password: hashedPassword,
+                    photoUrl: `https://d2cqrrc2420sv.cloudfront.net/default-user/avatar_default_${randomVariation >= 10 ? randomVariation : '0' + randomVariation}_${constants_1.COLOR_VARIATIONS[colorIdx]}.png`,
                 })
                     .returning('*')
                     .execute();
@@ -207,6 +213,12 @@ let UserResolver = class UserResolver {
             });
         });
     }
+    deleteUser(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield User_1.User.delete({ username });
+            return true;
+        });
+    }
 };
 __decorate([
     type_graphql_1.FieldResolver(() => String),
@@ -215,6 +227,12 @@ __decorate([
     __metadata("design:paramtypes", [User_1.User, Object]),
     __metadata("design:returntype", String)
 ], UserResolver.prototype, "email", null);
+__decorate([
+    type_graphql_1.Query(() => [User_1.User]),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "users", null);
 __decorate([
     type_graphql_1.Query(() => User_1.User, { nullable: true }),
     __param(0, type_graphql_1.Arg('username')),
@@ -270,6 +288,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg('username')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "deleteUser", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

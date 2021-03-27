@@ -1,9 +1,12 @@
+import Image from 'next/image';
+import NextLink from 'next/link';
 import { useState } from 'react';
 import {
   Button,
   ButtonGroup,
   Flex,
   IconButton,
+  Link,
   Popover,
   PopoverArrow,
   PopoverCloseButton,
@@ -13,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { FaRegCommentAlt } from 'react-icons/fa';
 import { Formik, Form } from 'formik';
+import { ClassNames } from '@emotion/react';
 import {
   Comment,
   CommentSnippetFragment,
@@ -106,8 +110,27 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
           : undefined
       }
     >
-      <Flex fontSize={12} fontWeight={400}>
-        <Text mr={2}>{comment.creator.username} </Text>
+      <Flex alignItems="center" fontSize={12} fontWeight={400}>
+        <ClassNames>
+          {({ css }) => (
+            <Image
+              src={comment.creator.photoUrl}
+              alt="profile pic"
+              className={css`
+                border-radius: 50%;
+              `}
+              width={28}
+              height={28}
+            />
+          )}
+        </ClassNames>
+
+        <NextLink
+          href="/user/[username]"
+          as={`/user/${comment.creator.username}`}
+        >
+          <Link m="0 0.5rem">{comment.creator.username}</Link>
+        </NextLink>
         <Text color="gray.500">
           {formatTimestamp(new Date(+comment.createdAt).getTime())}
         </Text>

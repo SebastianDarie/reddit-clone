@@ -58,7 +58,7 @@ __decorate([
 ], Post.prototype, "creatorId", void 0);
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.ManyToOne(() => User_1.User, (user) => user.posts),
+    typeorm_1.ManyToOne(() => User_1.User, (user) => user.posts, { onDelete: 'CASCADE' }),
     __metadata("design:type", User_1.User)
 ], Post.prototype, "creator", void 0);
 __decorate([

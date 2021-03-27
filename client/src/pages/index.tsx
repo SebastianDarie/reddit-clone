@@ -49,10 +49,21 @@ const Index = () => {
                 <Box data-testid="posts" flex={1}>
                   <Flex>
                     <Flex flexDir="column">
-                      <Text color="gray.500" fontSize={12} fontWeight={400}>
-                        Posted by u/{p.creator.username}{' '}
+                      <Flex
+                        color="gray.500"
+                        fontSize={12}
+                        fontWeight={400}
+                        mb="4px"
+                      >
+                        <Text>Posted by u/ </Text>
+                        <NextLink
+                          href="/user/[username]"
+                          as={`/user/${p.creator.username}`}
+                        >
+                          <Link mr="2px">{p.creator.username}</Link>
+                        </NextLink>
                         {formatTimestamp(new Date(+p.createdAt).getTime())}
-                      </Text>
+                      </Flex>
 
                       <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                         <Link>
