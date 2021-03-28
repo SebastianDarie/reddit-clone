@@ -43,10 +43,12 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "photoUrl", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Post_1.Post]),
     typeorm_1.OneToMany(() => Post_1.Post, (post) => post.creator),
     __metadata("design:type", Array)
 ], User.prototype, "posts", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Comment_1.Comment]),
     typeorm_1.OneToMany(() => Comment_1.Comment, (comment) => comment.creator),
     __metadata("design:type", Array)
 ], User.prototype, "comments", void 0);

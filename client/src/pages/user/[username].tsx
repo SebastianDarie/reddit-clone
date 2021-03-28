@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import NextLink from 'next/link';
 import { useRef, useState } from 'react';
 import {
   AlertDialog,
@@ -10,22 +11,34 @@ import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
+  Heading,
   IconButton,
+  Input,
+  Link,
   Text,
 } from '@chakra-ui/react';
 import { GiCakeSlice, GiVineFlower } from 'react-icons/gi';
 import { RiPencilLine, RiSettings5Line } from 'react-icons/ri';
 import { useRouter } from 'next/router';
+import { useApolloClient } from '@apollo/client';
 import { Layout } from '../../components/Layout';
+import { PostData } from '../../components/posts/PostData';
 import { withApollo } from '../../utils/withApollo';
 import { formatTimestamp } from '../../utils/formatTimestamp';
 import { useGetUserFromUrl } from '../../utils/useGetUserFromUrl';
-import { useDeleteUserMutation, useMeQuery } from '../../generated/graphql';
+import {
+  useDeleteUserMutation,
+  useMeQuery,
+  UserQuery,
+} from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
 
 interface UserProps {}
 
 const User: React.FC<UserProps> = ({}) => {
+  const apolloClient = useApolloClient();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
@@ -54,8 +67,22 @@ const User: React.FC<UserProps> = ({}) => {
     );
   }
 
+  const calculateKarma = (data: UserQuery | undefined): number => {
+    let karma = 0;
+    data?.user?.posts.forEach((post) => {
+      karma++;
+      karma += post.points * 2;
+    });
+    data?.user?.comments.forEach((comment) => {
+      karma++;
+      karma += comment.points * 2;
+    });
+
+    return karma;
+  };
+
   return (
-    <Layout variant="small">
+    <Layout variant="medium">
       <Flex flexDir="column">
         <Flex justify="space-between">
           <Flex flexDir="column">
@@ -77,11 +104,30 @@ const User: React.FC<UserProps> = ({}) => {
 
           {meData?.me?.id === data.user.id ? (
             <Flex flexDir="column">
-              <IconButton
-                aria-label="edit"
-                icon={<RiPencilLine />}
-                borderRadius="50%"
-              />
+              {/* <FormControl isInvalid={!!error}>
+                <FormLabel htmlFor="profile">
+                  <IconButton
+                    aria-label="edit"
+                    icon={<RiPencilLine />}
+                    borderRadius="50%"
+                  />
+                </FormLabel>
+
+                <Input
+                  type="file"
+                  accept="image/png, image/jpg, image/jpeg, image/gif"
+                  id="profile"
+                  name="profile"
+                  label="profile"
+                  display="none"
+                  // onChange={(e) => {
+                  //   if (e.target.files?.[0]) {
+                  //     setFieldValue('image', e.target?.files[0]);
+                  //   }
+                  // }}
+                />
+              </FormControl> */}
+
               <IconButton
                 aria-label="edit"
                 icon={<RiSettings5Line />}
@@ -111,16 +157,15 @@ const User: React.FC<UserProps> = ({}) => {
                       </Button>
                       <Button
                         colorScheme="red"
-                        // onClick={async () => {
-                        //   const response = await deleteUser({
-                        //     variables: { username: data.user?.username! },
-                        //     update: (cache) =>
-                        //       cache.evict({ id: 'User' + data.user?.id }),
-                        //   });
-                        //   if (!response.errors) {
-                        //     router.push('/');
-                        //   }
-                        // }}
+                        onClick={async () => {
+                          const response = await deleteUser({
+                            variables: { username: data.user?.username! },
+                          });
+                          if (!response.errors) {
+                            await apolloClient.resetStore();
+                            router.push('/');
+                          }
+                        }}
                         ml={3}
                       >
                         Delete
@@ -139,7 +184,7 @@ const User: React.FC<UserProps> = ({}) => {
             <Flex alignItems="center">
               <GiVineFlower color="dodgerblue" />{' '}
               <Text color="gray.500" ml="4px">
-                103
+                {calculateKarma(data)}
               </Text>
             </Flex>
           </Flex>
@@ -154,6 +199,91 @@ const User: React.FC<UserProps> = ({}) => {
               </Text>
             </Flex>
           </Flex>
+        </Flex>
+
+        <Flex flexDir="column">
+          {data.user.posts
+            .slice()
+            .sort((a, b) => +b.createdAt - +a.createdAt)
+            .map((post) => (
+              <Flex key={post.id} p={4} shadow="md" borderWidth="1px">
+                <Box data-testid="posts" flex={1}>
+                  <Flex>
+                    <Flex flexDir="column">
+                      <Flex
+                        color="gray.500"
+                        fontSize={12}
+                        fontWeight={400}
+                        mb="4px"
+                      >
+                        <Text>Posted by u/ </Text>
+                        <NextLink
+                          href="/user/[username]"
+                          as={`/user/${data.user?.username}`}
+                        >
+                          <Link mr="2px">{data.user?.username}</Link>
+                        </NextLink>
+                        {formatTimestamp(new Date(+post.createdAt).getTime())}
+                      </Flex>
+
+                      <NextLink href="/post/[id]" as={`/post/${post.id}`}>
+                        <Link>
+                          <Heading fontSize={18} mt={2}>
+                            {post.title}
+                          </Heading>
+                        </Link>
+                      </NextLink>
+                    </Flex>
+                  </Flex>
+                  <Flex align="center">
+                    <PostData post={post as any} />
+                  </Flex>
+                </Box>
+              </Flex>
+            ))}
+          {data.user.comments.map((comment) => (
+            <Flex
+              key={comment.id}
+              flexDir="column"
+              m="5px 0px"
+              p={2}
+              shadow="md"
+              borderWidth="1px"
+            >
+              {/* <NextLink href="/post/[id]" as={`/post/${comment.postId}`}>
+                <Link>
+                  <Heading fontSize={18} mt={2}>
+                    {
+                      data.user?.posts.find(
+                        (post) => post.id === comment.postId
+                      )?.title
+                    }
+                  </Heading>
+                </Link>
+              </NextLink> */}
+              <Flex alignItems="center" fontSize={12} fontWeight={400}>
+                <Text color="gray.500">
+                  {formatTimestamp(new Date(+comment.createdAt).getTime())}
+                </Text>
+                {comment.createdAt !== comment.updatedAt ? (
+                  <>
+                    <Text color="gray.500" pl="4px">
+                      {' '}
+                      ·{' '}
+                    </Text>
+                    <Text color="gray.500" fontStyle="italic" ml="3px">
+                      edited{' '}
+                      {formatTimestamp(new Date(+comment.updatedAt).getTime())}
+                    </Text>
+                  </>
+                ) : null}
+              </Flex>
+
+              <Text fontWeight={400} mb={2}>
+                {comment.text}
+              </Text>
+            </Flex>
+          ))}
         </Flex>
       </Flex>
     </Layout>

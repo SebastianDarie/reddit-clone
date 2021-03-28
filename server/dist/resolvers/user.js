@@ -34,6 +34,8 @@ const constants_1 = require("../constants");
 const UsernamePasswordInput_1 = require("./UsernamePasswordInput");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
+const Comment_1 = require("../entities/Comment");
+const CommentRepository_1 = require("../repositories/CommentRepository");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -71,7 +73,7 @@ let UserResolver = class UserResolver {
         return User_1.User.find({});
     }
     user(username) {
-        return User_1.User.findOne({ username });
+        return User_1.User.findOne({ username }, { relations: ['posts', 'comments'] });
     }
     changePassword(token, newPassword, { redis, req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -213,10 +215,33 @@ let UserResolver = class UserResolver {
             });
         });
     }
-    deleteUser(username) {
+    deleteUser(username, { req, res }) {
         return __awaiter(this, void 0, void 0, function* () {
+            const treeRepo = typeorm_1.getManager().getTreeRepository(Comment_1.Comment);
+            const commentRepository = typeorm_1.getCustomRepository(CommentRepository_1.CommentTreeRepository);
+            const rootComments = yield treeRepo.findRoots();
+            for (const root of rootComments) {
+                const descendants = yield treeRepo.findDescendantsTree(root);
+                const currDescendants = descendants.children.filter((child) => child.creatorId === req.session.userId);
+                for (const descendant of currDescendants) {
+                    yield commentRepository.deleteComment(descendant.id);
+                }
+            }
+            const currRoots = rootComments.filter((root) => root.creatorId === req.session.userId);
+            for (const root of currRoots) {
+                yield commentRepository.deleteComment(root.id);
+            }
             yield User_1.User.delete({ username });
-            return true;
+            return new Promise((resolve) => {
+                req.session.destroy((err) => {
+                    res.clearCookie(constants_1.COOKIE_NAME);
+                    if (err) {
+                        resolve(false);
+                        return;
+                    }
+                    resolve(true);
+                });
+            });
         });
     }
 };
@@ -291,8 +316,9 @@ __decorate([
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     __param(0, type_graphql_1.Arg('username')),
+    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "deleteUser", null);
 UserResolver = __decorate([

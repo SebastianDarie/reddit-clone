@@ -35,15 +35,19 @@ export class User extends BaseEntity {
   @Column()
   photoUrl!: string;
 
+  @Field(() => [Post])
   @OneToMany(() => Post, (post) => post.creator)
   posts: Post[];
 
+  @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.creator)
   comments: Comment[];
 
+  //@Field(() => [CommentUpvote])
   @OneToMany(() => CommentUpvote, (commentUpvote) => commentUpvote.user)
   commentUpvotes: CommentUpvote[];
 
+  //@Field(() => [Upvote])
   @OneToMany(() => Upvote, (upvote) => upvote.user)
   upvotes: Upvote[];
 

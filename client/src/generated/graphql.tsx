@@ -69,6 +69,8 @@ export type User = {
   username: Scalars['String'];
   email: Scalars['String'];
   photoUrl: Scalars['String'];
+  posts: Array<Post>;
+  comments: Array<Comment>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -526,6 +528,13 @@ export type UserQuery = (
   & { user?: Maybe<(
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username' | 'photoUrl' | 'createdAt'>
+    & { posts: Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'createdAt' | 'title' | 'textSnippet' | 'image' | 'link' | 'linkSnippet' | 'points' | 'voteStatus'>
+    )>, comments: Array<(
+      { __typename?: 'Comment' }
+      & Pick<Comment, 'id' | 'text' | 'postId' | 'points' | 'voteStatus' | 'createdAt' | 'updatedAt'>
+    )> }
   )> }
 );
 
@@ -1196,6 +1205,26 @@ export const UserDocument = gql`
     username
     photoUrl
     createdAt
+    posts {
+      id
+      createdAt
+      title
+      textSnippet
+      image
+      link
+      linkSnippet
+      points
+      voteStatus
+    }
+    comments {
+      id
+      text
+      postId
+      points
+      voteStatus
+      createdAt
+      updatedAt
+    }
   }
 }
     `;

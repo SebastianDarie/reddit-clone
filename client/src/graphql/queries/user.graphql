@@ -4,5 +4,25 @@ query User($username: String!) {
     username
     photoUrl
     createdAt
+    posts {
+      id
+      createdAt
+      title
+      textSnippet
+      image
+      link
+      linkSnippet
+      points
+      voteStatus
+    }
+    comments {
+      id
+      text
+      postId
+      points
+      voteStatus
+      createdAt
+      updatedAt
+    }
   }
 }

@@ -26,7 +26,7 @@ export const updateAfterVote = (
   }>({
     id: 'Comment:' + commentId,
     fragment: gql`
-      fragment _ on Comment {
+      fragment ___ on Comment {
         id
         points
         voteStatus
@@ -45,7 +45,7 @@ export const updateAfterVote = (
     cache.writeFragment({
       id: 'Comment:' + commentId,
       fragment: gql`
-        fragment __ on Comment {
+        fragment ____ on Comment {
           points
           voteStatus
         }

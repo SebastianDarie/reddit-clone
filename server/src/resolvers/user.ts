@@ -11,7 +11,7 @@ import {
 } from 'type-graphql';
 import argon2 from 'argon2';
 import { v4 } from 'uuid';
-import { getConnection } from 'typeorm';
+import { getConnection, getCustomRepository, getManager } from 'typeorm';
 import { User } from '../entities/User';
 import { MyContext } from '../types';
 import {
@@ -22,6 +22,8 @@ import {
 import { UsernamePasswordInput } from './UsernamePasswordInput';
 import { validateRegister } from '../utils/validateRegister';
 import { sendEmail } from '../utils/sendEmail';
+import { Comment } from '../entities/Comment';
+import { CommentTreeRepository } from '../repositories/CommentRepository';
 
 @ObjectType()
 class FieldError {
@@ -59,7 +61,7 @@ export class UserResolver {
 
   @Query(() => User, { nullable: true })
   user(@Arg('username') username: string): Promise<User | undefined> {
-    return User.findOne({ username });
+    return User.findOne({ username }, { relations: ['posts', 'comments'] });
   }
 
   @Mutation(() => UserResponse)
@@ -240,7 +242,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  logout(@Ctx() { req, res }: MyContext): Promise<unknown> {
+  logout(@Ctx() { req, res }: MyContext): Promise<boolean> {
     return new Promise((resolve) => {
       req.session.destroy((err) => {
         res.clearCookie(COOKIE_NAME);
@@ -255,8 +257,42 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteUser(@Arg('username') username: string): Promise<Boolean> {
+  async deleteUser(
+    @Arg('username') username: string,
+    @Ctx() { req, res }: MyContext
+  ): Promise<Boolean> {
+    const treeRepo = getManager().getTreeRepository(Comment);
+    const commentRepository = getCustomRepository(CommentTreeRepository);
+
+    const rootComments = await treeRepo.findRoots();
+    for (const root of rootComments) {
+      const descendants = await treeRepo.findDescendantsTree(root);
+      const currDescendants = descendants.children.filter(
+        (child) => child.creatorId === req.session.userId
+      );
+      for (const descendant of currDescendants) {
+        await commentRepository.deleteComment(descendant.id);
+      }
+    }
+    const currRoots = rootComments.filter(
+      (root) => root.creatorId === req.session.userId
+    );
+
+    for (const root of currRoots) {
+      await commentRepository.deleteComment(root.id);
+    }
+
     await User.delete({ username });
-    return true;
+    return new Promise((resolve) => {
+      req.session.destroy((err) => {
+        res.clearCookie(COOKIE_NAME);
+        if (err) {
+          resolve(false);
+          return;
+        }
+
+        resolve(true);
+      });
+    });
   }
 }

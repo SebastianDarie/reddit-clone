@@ -1,7 +1,7 @@
 import { Box, useColorModeValue as mode } from '@chakra-ui/react';
 
 export type BackgroundVariant = 'transparent' | 'black' | 'white' | 'gray.50';
-export type WrapperVariant = 'small' | 'regular';
+export type WrapperVariant = 'small' | 'medium' | 'regular';
 
 interface WrapperProps {
   background?: BackgroundVariant;
@@ -18,7 +18,13 @@ export const Wrapper: React.FC<WrapperProps> = ({
       bg={mode('inherit', 'inherit')}
       mt={8}
       mx="auto"
-      maxW={variant === 'regular' ? '800px' : '400px'}
+      maxW={
+        variant === 'regular'
+          ? '800px'
+          : variant === 'medium'
+          ? '600px'
+          : '400px'
+      }
       w="100%"
     >
       {children}
