@@ -69,7 +69,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
             if (postType === 'image') {
               const { data } = await s3Sign({
                 variables: {
-                  filename: formatFilename(values.image.name),
+                  filename: formatFilename(values.image.name, 'posts'),
                   filetype: values.image.type,
                 },
               });

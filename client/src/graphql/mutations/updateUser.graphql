@@ -1,0 +1,6 @@
+mutation UpdateUser($id: Int!, $photoUrl: String!, $currImage: String) {
+  updateUser(id: $id, photoUrl: $photoUrl, currImage: $currImage) {
+    id
+    photoUrl
+  }
+}

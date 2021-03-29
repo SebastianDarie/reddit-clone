@@ -17,12 +17,21 @@ import {
   IconButton,
   Input,
   Link,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { GiCakeSlice, GiVineFlower } from 'react-icons/gi';
 import { RiPencilLine, RiSettings5Line } from 'react-icons/ri';
 import { useRouter } from 'next/router';
 import { useApolloClient } from '@apollo/client';
+import { Form, Formik } from 'formik';
 import { Layout } from '../../components/Layout';
 import { PostData } from '../../components/posts/PostData';
 import { withApollo } from '../../utils/withApollo';
@@ -32,14 +41,23 @@ import {
   useDeleteUserMutation,
   useMeQuery,
   UserQuery,
+  useSignS3Mutation,
+  useUpdateUserMutation,
 } from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
+import { formatFilename } from '../../utils/formatFilename';
 
 interface UserProps {}
 
 const User: React.FC<UserProps> = ({}) => {
   const apolloClient = useApolloClient();
   const router = useRouter();
+  const {
+    isOpen: isModalOpen,
+    onOpen,
+    onClose: onModalClose,
+  } = useDisclosure();
+  const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef(null);
@@ -48,6 +66,20 @@ const User: React.FC<UserProps> = ({}) => {
     skip: isServer(),
   });
   const [deleteUser] = useDeleteUserMutation();
+  const [updateUser] = useUpdateUserMutation();
+  const [s3Sign] = useSignS3Mutation();
+
+  const uploadToS3 = async (file: File, signedRequest: string) => {
+    const options = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': `${file.type}`,
+      },
+      body: file,
+    };
+
+    await fetch(signedRequest, options);
+  };
 
   if (!data && loading) {
     <Layout>
@@ -104,29 +136,111 @@ const User: React.FC<UserProps> = ({}) => {
 
           {meData?.me?.id === data.user.id ? (
             <Flex flexDir="column">
-              {/* <FormControl isInvalid={!!error}>
-                <FormLabel htmlFor="profile">
-                  <IconButton
-                    aria-label="edit"
-                    icon={<RiPencilLine />}
-                    borderRadius="50%"
-                  />
-                </FormLabel>
+              <IconButton
+                aria-label="edit"
+                icon={<RiPencilLine />}
+                borderRadius="50%"
+                onClick={onOpen}
+              />
 
-                <Input
-                  type="file"
-                  accept="image/png, image/jpg, image/jpeg, image/gif"
-                  id="profile"
-                  name="profile"
-                  label="profile"
-                  display="none"
-                  // onChange={(e) => {
-                  //   if (e.target.files?.[0]) {
-                  //     setFieldValue('image', e.target?.files[0]);
-                  //   }
-                  // }}
-                />
-              </FormControl> */}
+              <Modal isOpen={isModalOpen} onClose={onModalClose}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>Update Profile Picture</ModalHeader>
+                  <ModalCloseButton />
+                  <Formik
+                    initialValues={{ profile: ('' as unknown) as File }}
+                    onSubmit={async (values) => {
+                      const { data: signedData } = await s3Sign({
+                        variables: {
+                          filename: formatFilename(values.profile.name, 'user'),
+                          filetype: values.profile.type,
+                        },
+                      });
+
+                      await uploadToS3(
+                        values.profile,
+                        signedData!.signS3.signedRequest
+                      );
+                      await updateUser({
+                        variables: {
+                          id: data.user?.id!,
+                          photoUrl: signedData?.signS3.url!,
+                          currImage: data.user?.photoUrl,
+                        },
+                      });
+
+                      setPreview(null);
+                      onModalClose();
+                    }}
+                  >
+                    {({ isSubmitting, setFieldValue, resetForm }) => (
+                      <Form>
+                        <ModalBody>
+                          <FormControl>
+                            <FormLabel htmlFor="profile">
+                              Profile Picture
+                            </FormLabel>
+
+                            <Input
+                              type="file"
+                              accept="image/png, image/jpg, image/jpeg, image/gif"
+                              id="profile"
+                              name="profile"
+                              label="profile"
+                              size="md"
+                              padding="4px 5px"
+                              onChange={(e) => {
+                                if (e.target.files?.[0]) {
+                                  setFieldValue('profile', e.target.files?.[0]);
+                                  let reader = new FileReader();
+                                  reader.onload = () => {
+                                    setPreview(reader.result);
+                                  };
+                                  reader.readAsDataURL(e.target.files?.[0]);
+                                }
+                              }}
+                            />
+                          </FormControl>
+
+                          <Flex justify="center" mt="10px">
+                            {preview && (
+                              <Image
+                                src={preview as string}
+                                alt="profile image"
+                                layout="fixed"
+                                width={100}
+                                height={100}
+                              />
+                            )}
+                          </Flex>
+                        </ModalBody>
+
+                        <ModalFooter>
+                          <Button
+                            colorScheme="blue"
+                            mr={3}
+                            type="submit"
+                            isLoading={isSubmitting}
+                          >
+                            Update
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              onModalClose();
+                              setPreview(null);
+                              resetForm();
+                            }}
+                          >
+                            Close
+                          </Button>
+                        </ModalFooter>
+                      </Form>
+                    )}
+                  </Formik>
+                </ModalContent>
+              </Modal>
 
               <IconButton
                 aria-label="edit"

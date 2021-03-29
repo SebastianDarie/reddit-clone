@@ -11,6 +11,8 @@ import {
 import { Comment } from './Comment';
 import { CommentUpvote } from './CommentUpvote';
 import { Post } from './Post';
+//import { SubReddit } from './SubReddit';
+//import { SubRedditUser } from './SubRedditUser';
 import { Upvote } from './Upvote';
 
 @ObjectType()
@@ -43,13 +45,17 @@ export class User extends BaseEntity {
   @OneToMany(() => Comment, (comment) => comment.creator)
   comments: Comment[];
 
-  //@Field(() => [CommentUpvote])
   @OneToMany(() => CommentUpvote, (commentUpvote) => commentUpvote.user)
   commentUpvotes: CommentUpvote[];
 
-  //@Field(() => [Upvote])
   @OneToMany(() => Upvote, (upvote) => upvote.user)
   upvotes: Upvote[];
+
+  // @OneToMany(() => SubRedditUser, su => su.subReddit)
+  // subRedditConnection: Promise<SubRedditUser[]>
+
+  // @OneToMany(() => SubReddit, (subReddit) => subReddit.creator)
+  // subReddits: SubReddit[];
 
   @Field(() => String)
   @CreateDateColumn()

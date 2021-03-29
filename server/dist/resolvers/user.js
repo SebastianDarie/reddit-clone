@@ -29,6 +29,7 @@ const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
 const uuid_1 = require("uuid");
 const typeorm_1 = require("typeorm");
+const s3_1 = __importDefault(require("aws-sdk/clients/s3"));
 const User_1 = require("../entities/User");
 const constants_1 = require("../constants");
 const UsernamePasswordInput_1 = require("./UsernamePasswordInput");
@@ -215,6 +216,36 @@ let UserResolver = class UserResolver {
             });
         });
     }
+    updateUser(id, photoUrl, currImage) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (currImage &&
+                !currImage
+                    .slice(37, currImage.length)
+                    .replace(/[^/]*$/, '')
+                    .includes('default-user')) {
+                const path = currImage.slice(37, currImage.length);
+                const s3 = new s3_1.default({
+                    signatureVersion: 'v4',
+                    region: 'us-east-1',
+                });
+                const s3Params = {
+                    Bucket: process.env.S3_BUCKET_NAME,
+                    Key: path,
+                };
+                yield s3.deleteObject(s3Params).promise();
+            }
+            const result = yield typeorm_1.getConnection()
+                .createQueryBuilder()
+                .update(User_1.User)
+                .set({ photoUrl })
+                .where('id = :id', {
+                id,
+            })
+                .returning('*')
+                .execute();
+            return result.raw[0];
+        });
+    }
     deleteUser(username, { req, res }) {
         return __awaiter(this, void 0, void 0, function* () {
             const treeRepo = typeorm_1.getManager().getTreeRepository(Comment_1.Comment);
@@ -313,6 +344,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    type_graphql_1.Mutation(() => User_1.User, { nullable: true }),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('photoUrl')),
+    __param(2, type_graphql_1.Arg('currImage', { nullable: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "updateUser", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     __param(0, type_graphql_1.Arg('username')),

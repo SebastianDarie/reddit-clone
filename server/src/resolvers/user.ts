@@ -3,6 +3,7 @@ import {
   Ctx,
   Field,
   FieldResolver,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -12,6 +13,7 @@ import {
 import argon2 from 'argon2';
 import { v4 } from 'uuid';
 import { getConnection, getCustomRepository, getManager } from 'typeorm';
+import S3 from 'aws-sdk/clients/s3';
 import { User } from '../entities/User';
 import { MyContext } from '../types';
 import {
@@ -254,6 +256,47 @@ export class UserResolver {
         resolve(true);
       });
     });
+  }
+
+  @Mutation(() => User, { nullable: true })
+  async updateUser(
+    @Arg('id', () => Int) id: number,
+    @Arg('photoUrl') photoUrl: string,
+    @Arg('currImage', { nullable: true }) currImage: string
+  ): Promise<User | null> {
+    if (
+      currImage &&
+      !currImage
+        .slice(37, currImage.length)
+        .replace(/[^/]*$/, '')
+        .includes('default-user')
+    ) {
+      const path = currImage.slice(37, currImage.length);
+
+      const s3 = new S3({
+        signatureVersion: 'v4',
+        region: 'us-east-1',
+      });
+
+      const s3Params = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: path,
+      };
+
+      await s3.deleteObject(s3Params).promise();
+    }
+
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(User)
+      .set({ photoUrl })
+      .where('id = :id', {
+        id,
+      })
+      .returning('*')
+      .execute();
+
+    return result.raw[0];
   }
 
   @Mutation(() => Boolean)

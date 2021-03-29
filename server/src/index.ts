@@ -21,6 +21,7 @@ import { Comment } from './entities/Comment';
 import { CommentUpvote } from './entities/CommentUpvote';
 import { CommentResolver } from './resolvers/comment';
 import { createCommentUpvoteLoader } from './utils/createCommentUpvoteLoader';
+import { SubReddit } from './entities/SubReddit';
 
 const main = async () => {
   const conn = await createConnection({
@@ -29,7 +30,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User, Upvote, Comment, CommentUpvote],
+    entities: [Post, User, Upvote, Comment, CommentUpvote, SubReddit],
   });
 
   await conn.runMigrations();
