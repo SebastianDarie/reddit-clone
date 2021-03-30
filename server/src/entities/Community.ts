@@ -3,24 +3,23 @@ import {
   BaseEntity,
   Column,
   Entity,
-  ManyToMany,
-  ManyToOne,
+  //  ManyToOne,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-//import { SubRedditUser } from './SubRedditUser';
-//import { Post } from './Post';
-//import { User } from './User';
+import { CommunityUser } from './CommunityUser';
+// import { Post } from './Post'./CommunityUser
+// import { User } from './User';
 
 @ObjectType()
 @Entity()
-export class SubReddit extends BaseEntity {
+export class Community extends BaseEntity {
+  @Field()
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   name!: string;
 
   @Field()
@@ -34,13 +33,13 @@ export class SubReddit extends BaseEntity {
   // @ManyToMany(() => User)
   // users: User[];
 
-  // @OneToMany(() => SubRedditUser, su => su.user)
-  // userConnection: Promise<SubRedditUser[]>
+  @OneToMany(() => CommunityUser, (cu) => cu.user)
+  userConnection: Promise<CommunityUser[]>;
 
-  @Column()
-  creatorId: number;
+  // @Column()
+  // creatorId: number;
 
-  // @ManyToOne(() => User, (user) => user.subReddits)
+  // @ManyToOne(() => User, (user) => user.communities)
   // creator: User;
 
   // @Column()

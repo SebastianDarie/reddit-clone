@@ -21,7 +21,9 @@ import { Comment } from './entities/Comment';
 import { CommentUpvote } from './entities/CommentUpvote';
 import { CommentResolver } from './resolvers/comment';
 import { createCommentUpvoteLoader } from './utils/createCommentUpvoteLoader';
-import { SubReddit } from './entities/SubReddit';
+import { Community } from './entities/Community';
+import { CommunityUser } from './entities/CommunityUser';
+import { CommunityResolver } from './resolvers/community';
 
 const main = async () => {
   const conn = await createConnection({
@@ -30,7 +32,15 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User, Upvote, Comment, CommentUpvote, SubReddit],
+    entities: [
+      Post,
+      User,
+      Upvote,
+      Comment,
+      CommentUpvote,
+      Community,
+      CommunityUser,
+    ],
   });
 
   await conn.runMigrations();
@@ -66,7 +76,12 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [PostResolver, UserResolver, CommentResolver],
+      resolvers: [
+        PostResolver,
+        UserResolver,
+        CommentResolver,
+        CommunityResolver,
+      ],
       validate: false,
     }),
     context: ({ req, res }) => ({

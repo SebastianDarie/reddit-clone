@@ -35,7 +35,9 @@ const Comment_1 = require("./entities/Comment");
 const CommentUpvote_1 = require("./entities/CommentUpvote");
 const comment_1 = require("./resolvers/comment");
 const createCommentUpvoteLoader_1 = require("./utils/createCommentUpvoteLoader");
-const SubReddit_1 = require("./entities/SubReddit");
+const Community_1 = require("./entities/Community");
+const CommunityUser_1 = require("./entities/CommunityUser");
+const community_1 = require("./resolvers/community");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: 'postgres',
@@ -43,7 +45,15 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         logging: true,
         synchronize: true,
         migrations: [path_1.default.join(__dirname, './migrations/*')],
-        entities: [Post_1.Post, User_1.User, Upvote_1.Upvote, Comment_1.Comment, CommentUpvote_1.CommentUpvote, SubReddit_1.SubReddit],
+        entities: [
+            Post_1.Post,
+            User_1.User,
+            Upvote_1.Upvote,
+            Comment_1.Comment,
+            CommentUpvote_1.CommentUpvote,
+            Community_1.Community,
+            CommunityUser_1.CommunityUser,
+        ],
     });
     yield conn.runMigrations();
     const app = express_1.default();
@@ -67,7 +77,12 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
-            resolvers: [post_1.PostResolver, user_1.UserResolver, comment_1.CommentResolver],
+            resolvers: [
+                post_1.PostResolver,
+                user_1.UserResolver,
+                comment_1.CommentResolver,
+                community_1.CommunityResolver,
+            ],
             validate: false,
         }),
         context: ({ req, res }) => ({

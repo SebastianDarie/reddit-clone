@@ -15,6 +15,7 @@ const typeorm_1 = require("typeorm");
 const Comment_1 = require("./Comment");
 const CommentUpvote_1 = require("./CommentUpvote");
 const Post_1 = require("./Post");
+const CommunityUser_1 = require("./CommunityUser");
 const Upvote_1 = require("./Upvote");
 let User = class User extends typeorm_1.BaseEntity {
 };
@@ -60,6 +61,10 @@ __decorate([
     typeorm_1.OneToMany(() => Upvote_1.Upvote, (upvote) => upvote.user),
     __metadata("design:type", Array)
 ], User.prototype, "upvotes", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => CommunityUser_1.CommunityUser, (cu) => cu.community),
+    __metadata("design:type", Promise)
+], User.prototype, "communityConnection", void 0);
 __decorate([
     type_graphql_1.Field(() => String),
     typeorm_1.CreateDateColumn(),
