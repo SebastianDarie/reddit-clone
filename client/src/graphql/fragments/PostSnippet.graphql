@@ -12,4 +12,8 @@ fragment PostSnippet on Post {
     id
     username
   }
+  community {
+    id
+    name
+  }
 }

@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CommunityUser } from './CommunityUser';
-// import { Post } from './Post'./CommunityUser
+import { Post } from './Post';
 // import { User } from './User';
 
 @ObjectType()
@@ -29,6 +29,9 @@ export class Community extends BaseEntity {
   @Field()
   @Column({ type: 'int', default: 1 })
   memberCount: number;
+
+  @OneToMany(() => Post, (post) => post.community)
+  posts: Post[];
 
   // @ManyToMany(() => User)
   // users: User[];

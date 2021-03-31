@@ -55,6 +55,15 @@ const Index = () => {
                         fontWeight={400}
                         mb="4px"
                       >
+                        <NextLink
+                          href="/r/[name]"
+                          as={`/r/${p.community.name}`}
+                        >
+                          <Link color="gray.200" fontWeight={700} mr="2px">
+                            r/{p.community.name}
+                          </Link>
+                        </NextLink>
+                        <Text m="0 4px">•</Text>
                         <Text>Posted by u/ </Text>
                         <NextLink
                           href="/user/[username]"

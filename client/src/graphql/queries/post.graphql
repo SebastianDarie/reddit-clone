@@ -13,6 +13,10 @@ query Post($id: Int!) {
         id
         username
       }
+      community {
+        id
+        name
+      }
     }
 
     comments {

@@ -1,0 +1,8 @@
+query GetCommunity($name: String!) {
+  getCommunity(name: $name) {
+    id
+    name
+    description
+    memberCount
+  }
+}

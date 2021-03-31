@@ -33,6 +33,7 @@ const User_1 = require("../entities/User");
 const Comment_1 = require("../entities/Comment");
 const isAuth_1 = require("../middleware/isAuth");
 const vote_1 = require("./vote");
+const Community_1 = require("../entities/Community");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -51,6 +52,10 @@ __decorate([
     type_graphql_1.Field(),
     __metadata("design:type", String)
 ], PostInput.prototype, "link", void 0);
+__decorate([
+    type_graphql_1.Field(() => type_graphql_1.Int),
+    __metadata("design:type", Number)
+], PostInput.prototype, "communityId", void 0);
 PostInput = __decorate([
     type_graphql_1.InputType()
 ], PostInput);
@@ -113,6 +118,9 @@ let PostResolver = class PostResolver {
     }
     creator(post, { userLoader }) {
         return userLoader.load(post.creatorId);
+    }
+    community(post, { communityLoader }) {
+        return communityLoader.load(post.communityId);
     }
     voteStatus(post, { req, upvoteLoader }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -260,6 +268,14 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "creator", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => Community_1.Community),
+    __param(0, type_graphql_1.Root()),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Post_1.Post, Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "community", null);
 __decorate([
     type_graphql_1.FieldResolver(() => type_graphql_1.Int, { nullable: true }),
     __param(0, type_graphql_1.Root()),

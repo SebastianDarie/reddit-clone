@@ -23,6 +23,13 @@ export class CommunityResolver {
     return Community.find({});
   }
 
+  @Query(() => Community, { nullable: true })
+  async getCommunity(
+    @Arg('name') name: string
+  ): Promise<Community | undefined> {
+    return Community.findOne({ name });
+  }
+
   @Mutation(() => Community)
   @UseMiddleware(isAuth)
   async createCommunity(
@@ -37,7 +44,27 @@ export class CommunityResolver {
     @Arg('userId', () => Int) userId: number,
     @Arg('communityId', () => Int) communityId: number
   ): Promise<Boolean> {
+    const community = await Community.findOne(communityId);
+    await getConnection()
+      .createQueryBuilder()
+      .update(Community)
+      .set({ memberCount: community!.memberCount + 1 })
+      .where('id = :id', {
+        id: communityId,
+      })
+      .returning('"memberCount"')
+      .execute();
     await CommunityUser.create({ userId, communityId }).save();
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async leaveCommunity(
+    @Arg('communityId', () => Int) communityId: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    await CommunityUser.delete({ communityId, userId: req.session.userId });
     return true;
   }
 

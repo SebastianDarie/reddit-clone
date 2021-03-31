@@ -13,6 +13,7 @@ exports.Post = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Comment_1 = require("./Comment");
+const Community_1 = require("./Community");
 const Upvote_1 = require("./Upvote");
 const User_1 = require("./User");
 let Post = class Post extends typeorm_1.BaseEntity {
@@ -61,6 +62,15 @@ __decorate([
     typeorm_1.ManyToOne(() => User_1.User, (user) => user.posts, { onDelete: 'CASCADE' }),
     __metadata("design:type", User_1.User)
 ], Post.prototype, "creator", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Post.prototype, "communityId", void 0);
+__decorate([
+    typeorm_1.ManyToOne(() => Community_1.Community, (community) => community.posts),
+    __metadata("design:type", Community_1.Community)
+], Post.prototype, "community", void 0);
 __decorate([
     type_graphql_1.Field(() => [Comment_1.Comment]),
     typeorm_1.OneToMany(() => Comment_1.Comment, (comment) => comment.post),

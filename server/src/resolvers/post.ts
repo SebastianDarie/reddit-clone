@@ -20,6 +20,7 @@ import { Comment } from '../entities/Comment';
 import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
 import { submitVote } from './vote';
+import { Community } from '../entities/Community';
 
 @InputType()
 class PostInput {
@@ -31,6 +32,8 @@ class PostInput {
   image: string;
   @Field()
   link: string;
+  @Field(() => Int)
+  communityId: number;
 }
 
 @ObjectType()
@@ -83,6 +86,14 @@ export class PostResolver {
   @FieldResolver(() => User)
   creator(@Root() post: Post, @Ctx() { userLoader }: MyContext): Promise<User> {
     return userLoader.load(post.creatorId);
+  }
+
+  @FieldResolver(() => Community)
+  community(
+    @Root() post: Post,
+    @Ctx() { communityLoader }: MyContext
+  ): Promise<Community> {
+    return communityLoader.load(post.communityId);
   }
 
   @FieldResolver(() => Int, { nullable: true })

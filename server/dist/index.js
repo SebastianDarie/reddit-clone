@@ -38,6 +38,7 @@ const createCommentUpvoteLoader_1 = require("./utils/createCommentUpvoteLoader")
 const Community_1 = require("./entities/Community");
 const CommunityUser_1 = require("./entities/CommunityUser");
 const community_1 = require("./resolvers/community");
+const createCommunityLoader_1 = require("./utils/createCommunityLoader");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: 'postgres',
@@ -92,6 +93,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             userLoader: createUserLoader_1.createUserLoader(),
             upvoteLoader: createUpvoteLoader_1.createUpvoteLoader(),
             commentUpvoteLoader: createCommentUpvoteLoader_1.createCommentUpvoteLoader(),
+            communityLoader: createCommunityLoader_1.createCommunityLoader(),
         }),
     });
     apolloServer.applyMiddleware({

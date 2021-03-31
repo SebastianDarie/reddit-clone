@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comment } from './Comment';
+import { Community } from './Community';
 import { Upvote } from './Upvote';
 import { User } from './User';
 
@@ -50,6 +51,13 @@ export class Post extends BaseEntity {
   @Field()
   @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   creator: User;
+
+  @Field()
+  @Column()
+  communityId: number;
+
+  @ManyToOne(() => Community, (community) => community.posts)
+  community: Community;
 
   @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.post)

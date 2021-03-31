@@ -21,6 +21,8 @@ export type Query = {
   user?: Maybe<User>;
   me?: Maybe<User>;
   getComments: Comment;
+  getCommunities: Array<Community>;
+  getCommunity?: Maybe<Community>;
 };
 
 
@@ -37,6 +39,11 @@ export type QueryPostArgs = {
 
 export type QueryUserArgs = {
   username: Scalars['String'];
+};
+
+
+export type QueryGetCommunityArgs = {
+  name: Scalars['String'];
 };
 
 export type PaginatedPosts = {
@@ -56,11 +63,13 @@ export type Post = {
   voteStatus?: Maybe<Scalars['Int']>;
   creatorId: Scalars['Float'];
   creator: User;
+  communityId: Scalars['Float'];
   comments: Array<Comment>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
   linkSnippet: Scalars['String'];
+  community: Community;
 };
 
 export type User = {
@@ -91,6 +100,14 @@ export type Comment = {
   updatedAt: Scalars['String'];
 };
 
+export type Community = {
+  __typename?: 'Community';
+  id: Scalars['Float'];
+  name: Scalars['String'];
+  description: Scalars['String'];
+  memberCount: Scalars['Float'];
+};
+
 export type CommentsPost = {
   __typename?: 'CommentsPost';
   content: Post;
@@ -115,6 +132,10 @@ export type Mutation = {
   comment: Comment;
   updateComment?: Maybe<Comment>;
   deleteComment: Scalars['Boolean'];
+  createCommunity: Community;
+  addCommunityUser: Scalars['Boolean'];
+  leaveCommunity: Scalars['Boolean'];
+  deleteCommunity: Scalars['Boolean'];
 };
 
 
@@ -200,6 +221,28 @@ export type MutationDeleteCommentArgs = {
   id: Scalars['Int'];
 };
 
+
+export type MutationCreateCommunityArgs = {
+  description: Scalars['String'];
+  name: Scalars['String'];
+};
+
+
+export type MutationAddCommunityUserArgs = {
+  communityId: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+export type MutationLeaveCommunityArgs = {
+  communityId: Scalars['Int'];
+};
+
+
+export type MutationDeleteCommunityArgs = {
+  communityId: Scalars['Int'];
+};
+
 export type S3Payload = {
   __typename?: 'S3Payload';
   signedRequest: Scalars['String'];
@@ -211,6 +254,7 @@ export type PostInput = {
   text: Scalars['String'];
   image: Scalars['String'];
   link: Scalars['String'];
+  communityId: Scalars['Int'];
 };
 
 export type UserResponse = {
@@ -266,6 +310,9 @@ export type PostSnippetFragment = (
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
+  ), community: (
+    { __typename?: 'Community' }
+    & Pick<Community, 'id' | 'name'>
   ) }
 );
 
@@ -483,6 +530,19 @@ export type VoteMutation = (
   & Pick<Mutation, 'vote'>
 );
 
+export type GetCommunityQueryVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type GetCommunityQuery = (
+  { __typename?: 'Query' }
+  & { getCommunity?: Maybe<(
+    { __typename?: 'Community' }
+    & Pick<Community, 'id' | 'name' | 'description' | 'memberCount'>
+  )> }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -510,6 +570,9 @@ export type PostQuery = (
       & { creator: (
         { __typename?: 'User' }
         & Pick<User, 'id' | 'username'>
+      ), community: (
+        { __typename?: 'Community' }
+        & Pick<Community, 'id' | 'name'>
       ) }
     ), comments: Array<(
       { __typename?: 'Comment' }
@@ -607,6 +670,10 @@ export const PostSnippetFragmentDoc = gql`
   creator {
     id
     username
+  }
+  community {
+    id
+    name
   }
 }
     `;
@@ -1132,6 +1199,42 @@ export function useVoteMutation(baseOptions?: Apollo.MutationHookOptions<VoteMut
 export type VoteMutationHookResult = ReturnType<typeof useVoteMutation>;
 export type VoteMutationResult = Apollo.MutationResult<VoteMutation>;
 export type VoteMutationOptions = Apollo.BaseMutationOptions<VoteMutation, VoteMutationVariables>;
+export const GetCommunityDocument = gql`
+    query GetCommunity($name: String!) {
+  getCommunity(name: $name) {
+    id
+    name
+    description
+    memberCount
+  }
+}
+    `;
+
+/**
+ * __useGetCommunityQuery__
+ *
+ * To run a query within a React component, call `useGetCommunityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCommunityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCommunityQuery({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useGetCommunityQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityQuery, GetCommunityQueryVariables>) {
+        return Apollo.useQuery<GetCommunityQuery, GetCommunityQueryVariables>(GetCommunityDocument, baseOptions);
+      }
+export function useGetCommunityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityQuery, GetCommunityQueryVariables>) {
+          return Apollo.useLazyQuery<GetCommunityQuery, GetCommunityQueryVariables>(GetCommunityDocument, baseOptions);
+        }
+export type GetCommunityQueryHookResult = ReturnType<typeof useGetCommunityQuery>;
+export type GetCommunityLazyQueryHookResult = ReturnType<typeof useGetCommunityLazyQuery>;
+export type GetCommunityQueryResult = Apollo.QueryResult<GetCommunityQuery, GetCommunityQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -1179,6 +1282,10 @@ export const PostDocument = gql`
       creator {
         id
         username
+      }
+      community {
+        id
+        name
       }
     }
     comments {
