@@ -134,17 +134,32 @@ let PostResolver = class PostResolver {
             return upvote ? upvote.value : null;
         });
     }
-    posts(limit, cursor) {
+    posts(limit, cursor, communityId) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlusOne = realLimit + 1;
-            const qb = typeorm_1.getConnection()
-                .getRepository(Post_1.Post)
-                .createQueryBuilder('p')
-                .addSelect('c.id')
-                .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-                .orderBy('p.createdAt', 'DESC')
-                .take(realLimitPlusOne);
+            let qb;
+            if (communityId) {
+                qb = typeorm_1.getConnection()
+                    .getRepository(Post_1.Post)
+                    .createQueryBuilder('p')
+                    .addSelect('c.id')
+                    .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+                    .where('p."communityId" = :communityId', {
+                    communityId,
+                })
+                    .orderBy('p.createdAt', 'DESC')
+                    .take(realLimitPlusOne);
+            }
+            else {
+                qb = typeorm_1.getConnection()
+                    .getRepository(Post_1.Post)
+                    .createQueryBuilder('p')
+                    .addSelect('c.id')
+                    .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+                    .orderBy('p.createdAt', 'DESC')
+                    .take(realLimitPlusOne);
+            }
             if (cursor) {
                 qb.where('p."createdAt" < :cursor', {
                     cursor: new Date(parseInt(cursor)),
@@ -288,8 +303,9 @@ __decorate([
     type_graphql_1.Query(() => PaginatedPosts),
     __param(0, type_graphql_1.Arg('limit', () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg('cursor', () => String, { nullable: true })),
+    __param(2, type_graphql_1.Arg('communityId', () => String, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([

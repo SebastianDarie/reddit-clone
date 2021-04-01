@@ -25,6 +25,7 @@ import { Community } from './entities/Community';
 import { CommunityUser } from './entities/CommunityUser';
 import { CommunityResolver } from './resolvers/community';
 import { createCommunityLoader } from './utils/createCommunityLoader';
+import { createCommunityUserLoader } from './utils/createCommunityUserLoader';
 
 const main = async () => {
   const conn = await createConnection({
@@ -93,6 +94,7 @@ const main = async () => {
       upvoteLoader: createUpvoteLoader(),
       commentUpvoteLoader: createCommentUpvoteLoader(),
       communityLoader: createCommunityLoader(),
+      communityUserLoader: createCommunityUserLoader(),
     }),
   });
 

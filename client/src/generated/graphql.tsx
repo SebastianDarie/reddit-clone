@@ -27,6 +27,7 @@ export type Query = {
 
 
 export type QueryPostsArgs = {
+  communityId?: Maybe<Scalars['String']>;
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
@@ -106,6 +107,8 @@ export type Community = {
   name: Scalars['String'];
   description: Scalars['String'];
   memberCount: Scalars['Float'];
+  posts: Array<Post>;
+  users: Array<User>;
 };
 
 export type CommentsPost = {
@@ -337,6 +340,17 @@ export type RegularUserResponseFragment = (
   )> }
 );
 
+export type AddCommunityUserMutationVariables = Exact<{
+  communityId: Scalars['Int'];
+  userId: Scalars['Int'];
+}>;
+
+
+export type AddCommunityUserMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'addCommunityUser'>
+);
+
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
   newPassword: Scalars['String'];
@@ -371,6 +385,20 @@ export type CommentMutation = (
   ) }
 );
 
+export type CreateCommunityMutationVariables = Exact<{
+  name: Scalars['String'];
+  description: Scalars['String'];
+}>;
+
+
+export type CreateCommunityMutation = (
+  { __typename?: 'Mutation' }
+  & { createCommunity: (
+    { __typename?: 'Community' }
+    & Pick<Community, 'id' | 'name' | 'description' | 'memberCount'>
+  ) }
+);
+
 export type CreatePostMutationVariables = Exact<{
   input: PostInput;
 }>;
@@ -392,6 +420,16 @@ export type DeleteCommentMutationVariables = Exact<{
 export type DeleteCommentMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'deleteComment'>
+);
+
+export type DeleteCommunityMutationVariables = Exact<{
+  communityId: Scalars['Int'];
+}>;
+
+
+export type DeleteCommunityMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteCommunity'>
 );
 
 export type DeletePostMutationVariables = Exact<{
@@ -423,6 +461,16 @@ export type ForgotPasswordMutationVariables = Exact<{
 export type ForgotPasswordMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'forgotPassword'>
+);
+
+export type LeaveCommunityMutationVariables = Exact<{
+  communityId: Scalars['Int'];
+}>;
+
+
+export type LeaveCommunityMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'leaveCommunity'>
 );
 
 export type LoginMutationVariables = Exact<{
@@ -540,6 +588,10 @@ export type GetCommunityQuery = (
   & { getCommunity?: Maybe<(
     { __typename?: 'Community' }
     & Pick<Community, 'id' | 'name' | 'description' | 'memberCount'>
+    & { users: Array<(
+      { __typename?: 'User' }
+      & Pick<User, 'id'>
+    )> }
   )> }
 );
 
@@ -585,6 +637,7 @@ export type PostQuery = (
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
+  communityId?: Maybe<Scalars['String']>;
 }>;
 
 
@@ -700,6 +753,37 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const AddCommunityUserDocument = gql`
+    mutation AddCommunityUser($communityId: Int!, $userId: Int!) {
+  addCommunityUser(communityId: $communityId, userId: $userId)
+}
+    `;
+export type AddCommunityUserMutationFn = Apollo.MutationFunction<AddCommunityUserMutation, AddCommunityUserMutationVariables>;
+
+/**
+ * __useAddCommunityUserMutation__
+ *
+ * To run a mutation, you first call `useAddCommunityUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddCommunityUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addCommunityUserMutation, { data, loading, error }] = useAddCommunityUserMutation({
+ *   variables: {
+ *      communityId: // value for 'communityId'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useAddCommunityUserMutation(baseOptions?: Apollo.MutationHookOptions<AddCommunityUserMutation, AddCommunityUserMutationVariables>) {
+        return Apollo.useMutation<AddCommunityUserMutation, AddCommunityUserMutationVariables>(AddCommunityUserDocument, baseOptions);
+      }
+export type AddCommunityUserMutationHookResult = ReturnType<typeof useAddCommunityUserMutation>;
+export type AddCommunityUserMutationResult = Apollo.MutationResult<AddCommunityUserMutation>;
+export type AddCommunityUserMutationOptions = Apollo.BaseMutationOptions<AddCommunityUserMutation, AddCommunityUserMutationVariables>;
 export const ChangePasswordDocument = gql`
     mutation changePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -771,6 +855,42 @@ export function useCommentMutation(baseOptions?: Apollo.MutationHookOptions<Comm
 export type CommentMutationHookResult = ReturnType<typeof useCommentMutation>;
 export type CommentMutationResult = Apollo.MutationResult<CommentMutation>;
 export type CommentMutationOptions = Apollo.BaseMutationOptions<CommentMutation, CommentMutationVariables>;
+export const CreateCommunityDocument = gql`
+    mutation CreateCommunity($name: String!, $description: String!) {
+  createCommunity(name: $name, description: $description) {
+    id
+    name
+    description
+    memberCount
+  }
+}
+    `;
+export type CreateCommunityMutationFn = Apollo.MutationFunction<CreateCommunityMutation, CreateCommunityMutationVariables>;
+
+/**
+ * __useCreateCommunityMutation__
+ *
+ * To run a mutation, you first call `useCreateCommunityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommunityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommunityMutation, { data, loading, error }] = useCreateCommunityMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      description: // value for 'description'
+ *   },
+ * });
+ */
+export function useCreateCommunityMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommunityMutation, CreateCommunityMutationVariables>) {
+        return Apollo.useMutation<CreateCommunityMutation, CreateCommunityMutationVariables>(CreateCommunityDocument, baseOptions);
+      }
+export type CreateCommunityMutationHookResult = ReturnType<typeof useCreateCommunityMutation>;
+export type CreateCommunityMutationResult = Apollo.MutationResult<CreateCommunityMutation>;
+export type CreateCommunityMutationOptions = Apollo.BaseMutationOptions<CreateCommunityMutation, CreateCommunityMutationVariables>;
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {
@@ -841,6 +961,36 @@ export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
 export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
+export const DeleteCommunityDocument = gql`
+    mutation DeleteCommunity($communityId: Int!) {
+  deleteCommunity(communityId: $communityId)
+}
+    `;
+export type DeleteCommunityMutationFn = Apollo.MutationFunction<DeleteCommunityMutation, DeleteCommunityMutationVariables>;
+
+/**
+ * __useDeleteCommunityMutation__
+ *
+ * To run a mutation, you first call `useDeleteCommunityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCommunityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCommunityMutation, { data, loading, error }] = useDeleteCommunityMutation({
+ *   variables: {
+ *      communityId: // value for 'communityId'
+ *   },
+ * });
+ */
+export function useDeleteCommunityMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCommunityMutation, DeleteCommunityMutationVariables>) {
+        return Apollo.useMutation<DeleteCommunityMutation, DeleteCommunityMutationVariables>(DeleteCommunityDocument, baseOptions);
+      }
+export type DeleteCommunityMutationHookResult = ReturnType<typeof useDeleteCommunityMutation>;
+export type DeleteCommunityMutationResult = Apollo.MutationResult<DeleteCommunityMutation>;
+export type DeleteCommunityMutationOptions = Apollo.BaseMutationOptions<DeleteCommunityMutation, DeleteCommunityMutationVariables>;
 export const DeletePostDocument = gql`
     mutation DeletePost($id: Int!, $image: String!) {
   deletePost(id: $id, image: $image)
@@ -932,6 +1082,36 @@ export function useForgotPasswordMutation(baseOptions?: Apollo.MutationHookOptio
 export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswordMutation>;
 export type ForgotPasswordMutationResult = Apollo.MutationResult<ForgotPasswordMutation>;
 export type ForgotPasswordMutationOptions = Apollo.BaseMutationOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>;
+export const LeaveCommunityDocument = gql`
+    mutation LeaveCommunity($communityId: Int!) {
+  leaveCommunity(communityId: $communityId)
+}
+    `;
+export type LeaveCommunityMutationFn = Apollo.MutationFunction<LeaveCommunityMutation, LeaveCommunityMutationVariables>;
+
+/**
+ * __useLeaveCommunityMutation__
+ *
+ * To run a mutation, you first call `useLeaveCommunityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLeaveCommunityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [leaveCommunityMutation, { data, loading, error }] = useLeaveCommunityMutation({
+ *   variables: {
+ *      communityId: // value for 'communityId'
+ *   },
+ * });
+ */
+export function useLeaveCommunityMutation(baseOptions?: Apollo.MutationHookOptions<LeaveCommunityMutation, LeaveCommunityMutationVariables>) {
+        return Apollo.useMutation<LeaveCommunityMutation, LeaveCommunityMutationVariables>(LeaveCommunityDocument, baseOptions);
+      }
+export type LeaveCommunityMutationHookResult = ReturnType<typeof useLeaveCommunityMutation>;
+export type LeaveCommunityMutationResult = Apollo.MutationResult<LeaveCommunityMutation>;
+export type LeaveCommunityMutationOptions = Apollo.BaseMutationOptions<LeaveCommunityMutation, LeaveCommunityMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($usernameOrEmail: String!, $password: String!) {
   login(usernameOrEmail: $usernameOrEmail, password: $password) {
@@ -1206,6 +1386,9 @@ export const GetCommunityDocument = gql`
     name
     description
     memberCount
+    users {
+      id
+    }
   }
 }
     `;
@@ -1324,8 +1507,8 @@ export type PostQueryHookResult = ReturnType<typeof usePostQuery>;
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>;
 export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>;
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String) {
-  posts(limit: $limit, cursor: $cursor) {
+    query Posts($limit: Int!, $cursor: String, $communityId: String) {
+  posts(limit: $limit, cursor: $cursor, communityId: $communityId) {
     hasMore
     posts {
       comments {
@@ -1351,6 +1534,7 @@ export const PostsDocument = gql`
  *   variables: {
  *      limit: // value for 'limit'
  *      cursor: // value for 'cursor'
+ *      communityId: // value for 'communityId'
  *   },
  * });
  */

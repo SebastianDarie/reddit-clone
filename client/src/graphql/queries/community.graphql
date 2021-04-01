@@ -4,5 +4,8 @@ query GetCommunity($name: String!) {
     name
     description
     memberCount
+    users {
+      id
+    }
   }
 }

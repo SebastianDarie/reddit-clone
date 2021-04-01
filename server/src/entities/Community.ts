@@ -1,4 +1,4 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Ctx, Field, ObjectType } from 'type-graphql';
 import {
   BaseEntity,
   Column,
@@ -7,9 +7,10 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MyContext } from '../types';
 import { CommunityUser } from './CommunityUser';
 import { Post } from './Post';
-// import { User } from './User';
+import { User } from './User';
 
 @ObjectType()
 @Entity()
@@ -30,6 +31,7 @@ export class Community extends BaseEntity {
   @Column({ type: 'int', default: 1 })
   memberCount: number;
 
+  @Field(() => [Post])
   @OneToMany(() => Post, (post) => post.community)
   posts: Post[];
 
@@ -38,6 +40,11 @@ export class Community extends BaseEntity {
 
   @OneToMany(() => CommunityUser, (cu) => cu.user)
   userConnection: Promise<CommunityUser[]>;
+
+  @Field(() => [User])
+  async users(@Ctx() { communityUserLoader }: MyContext): Promise<User[]> {
+    return communityUserLoader.load(this.id);
+  }
 
   // @Column()
   // creatorId: number;

@@ -1,0 +1,3 @@
+mutation AddCommunityUser($communityId: Int!, $userId: Int!) {
+  addCommunityUser(communityId: $communityId, userId: $userId)
+}

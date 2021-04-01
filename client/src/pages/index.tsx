@@ -17,12 +17,14 @@ import { EditDeletePostButtons } from '../components/posts/EditDeletePostButtons
 import { withApollo } from '../utils/withApollo';
 import { PostData } from '../components/posts/PostData';
 import { formatTimestamp } from '../utils/formatTimestamp';
+import { PostFeed } from '../components/posts/PostFeed';
 
 const Index = () => {
   const { data, error, loading, fetchMore, variables } = usePostsQuery({
     variables: {
       limit: 20,
       cursor: null,
+      communityId: null,
     },
     notifyOnNetworkStatusChange: true,
   });
@@ -41,80 +43,7 @@ const Index = () => {
       {!data && loading ? (
         <div>loading...</div>
       ) : (
-        <Stack spacing={8}>
-          {data?.posts.posts.map((p) =>
-            !p ? null : (
-              <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                <UpvoteSection post={p} />
-                <Box data-testid="posts" flex={1}>
-                  <Flex>
-                    <Flex flexDir="column">
-                      <Flex
-                        color="gray.500"
-                        fontSize={12}
-                        fontWeight={400}
-                        mb="4px"
-                      >
-                        <NextLink
-                          href="/r/[name]"
-                          as={`/r/${p.community.name}`}
-                        >
-                          <Link color="gray.200" fontWeight={700} mr="2px">
-                            r/{p.community.name}
-                          </Link>
-                        </NextLink>
-                        <Text m="0 4px">•</Text>
-                        <Text>Posted by u/ </Text>
-                        <NextLink
-                          href="/user/[username]"
-                          as={`/user/${p.creator.username}`}
-                        >
-                          <Link mr="2px">{p.creator.username}</Link>
-                        </NextLink>
-                        {formatTimestamp(new Date(+p.createdAt).getTime())}
-                      </Flex>
-
-                      <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                        <Link>
-                          <Heading fontSize={18} mt={2}>
-                            {p.title}
-                          </Heading>
-                        </Link>
-                      </NextLink>
-                    </Flex>
-                    <Box ml="auto">
-                      <EditDeletePostButtons
-                        id={p.id}
-                        creatorId={p.creator.id}
-                        editable={!!p.textSnippet}
-                        image={p.image}
-                      />
-                    </Box>
-                  </Flex>
-                  <Flex align="center">
-                    <PostData post={p as any} />
-                  </Flex>
-                  <Flex mt={4}>
-                    <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                      <Link _hover={{ textDecoration: 'none' }}>
-                        <Flex alignItems="center">
-                          <IconButton
-                            aria-label="comments"
-                            size="md"
-                            variant="outline"
-                            icon={<FaRegCommentAlt />}
-                            mr={2}
-                          />
-                          <Text>{p.comments.length} Comments</Text>
-                        </Flex>
-                      </Link>
-                    </NextLink>
-                  </Flex>
-                </Box>
-              </Flex>
-            )
-          )}
-        </Stack>
+        <PostFeed posts={data?.posts.posts!} />
       )}
       {data && data.posts.hasMore ? (
         <Flex>

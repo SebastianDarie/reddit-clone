@@ -116,7 +116,9 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
-    @Arg('cursor', () => String, { nullable: true }) cursor: string | null
+    @Arg('cursor', () => String, { nullable: true }) cursor: string | null,
+    @Arg('communityId', () => String, { nullable: true })
+    communityId: string | null
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
@@ -138,20 +140,41 @@ export class PostResolver {
     //   replacements
     // );
 
-    const qb = getConnection()
-      .getRepository(Post)
-      .createQueryBuilder('p')
-      .addSelect('c.id')
-      .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-      //.leftJoinAndSelect('c.creator', 'creator')
-      .orderBy('p.createdAt', 'DESC')
-      .take(realLimitPlusOne);
+    let qb;
+    if (communityId) {
+      qb = getConnection()
+        .getRepository(Post)
+        .createQueryBuilder('p')
+        .addSelect('c.id')
+        .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+        //.leftJoinAndSelect('c.creator', 'creator')
+        .where('p."communityId" = :communityId', {
+          communityId,
+        })
+        .orderBy('p.createdAt', 'DESC')
+        .take(realLimitPlusOne);
+    } else {
+      qb = getConnection()
+        .getRepository(Post)
+        .createQueryBuilder('p')
+        .addSelect('c.id')
+        .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+        .orderBy('p.createdAt', 'DESC')
+        .take(realLimitPlusOne);
+    }
 
     if (cursor) {
       qb.where('p."createdAt" < :cursor', {
         cursor: new Date(parseInt(cursor)),
       });
     }
+    // else if (cursor && communityId) {
+    //   qb.where('p."createdAt" < :cursor', {
+    //     cursor: new Date(parseInt(cursor)),
+    //   }).andWhere('p."communityId" = :communityId', {
+    //     communityId,
+    //   });
+    // }
 
     const posts = await qb.getMany();
 

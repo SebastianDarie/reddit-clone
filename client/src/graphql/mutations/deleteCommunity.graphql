@@ -1,0 +1,3 @@
+mutation DeleteCommunity($communityId: Int!) {
+  deleteCommunity(communityId: $communityId)
+}
