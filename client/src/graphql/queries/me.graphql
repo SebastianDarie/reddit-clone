@@ -1,5 +1,9 @@
-query Me {
+query Me($skipCommunities: Boolean!) {
   me {
     ...RegularUser
+    communities @skip(if: $skipCommunities) {
+      id
+      name
+    }
   }
 }

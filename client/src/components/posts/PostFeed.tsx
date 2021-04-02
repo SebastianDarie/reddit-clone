@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { FaRegCommentAlt } from 'react-icons/fa';
+import { useApolloClient } from '@apollo/client';
 import { Post } from '../../generated/graphql';
 import { EditDeletePostButtons } from './EditDeletePostButtons';
 import { PostData } from './PostData';
@@ -25,6 +26,8 @@ interface PostFeedProps {
 }
 
 export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
+  //const apolloClient = useApolloClient();
+
   return (
     <>
       <Stack spacing={8}>
@@ -42,7 +45,16 @@ export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
                       mb="4px"
                     >
                       <NextLink href="/r/[name]" as={`/r/${p.community.name}`}>
-                        <Link color="gray.200" fontWeight={700} mr="2px">
+                        <Link
+                          color="gray.200"
+                          fontWeight={700}
+                          mr="2px"
+                          // onClick={async () => {
+                          //   await apolloClient.cache.evict({
+                          //     fieldName: 'posts:{}',
+                          //   });
+                          // }}
+                        >
                           r/{p.community.name}
                         </Link>
                       </NextLink>

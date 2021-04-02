@@ -81,6 +81,7 @@ const Login: React.FC<unknown> = ({}) => {
                   __typename: 'Query',
                   me: data?.login.user,
                 },
+                variables: { skipCommunities: true },
               });
               cache.evict({ fieldName: 'posts:{}' });
             },

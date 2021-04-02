@@ -25,6 +25,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
   const apolloClient = useApolloClient();
   const [logout, { loading: logoutFetching }] = useLogoutMutation();
   const { data, loading } = useMeQuery({
+    variables: { skipCommunities: false },
     skip: isServer(),
   });
 
@@ -74,7 +75,11 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
     <Flex bg="#d2a28c" p={4} position="sticky" top={0} zIndex={1}>
       <Flex align="center" flex={1} m="auto" maxW={800}>
         <NextLink href="/">
-          <Link>
+          <Link
+            onClick={async () => {
+              await apolloClient.cache.evict({ fieldName: 'posts:{}' });
+            }}
+          >
             <Heading>Reddit</Heading>
           </Link>
         </NextLink>
@@ -93,12 +98,21 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title="My Communities">
-                <MenuItem>React</MenuItem>
-                <MenuItem>GraphQL</MenuItem>
+                {data?.me?.communities.map((community) => (
+                  <NextLink
+                    href="/r/[name]"
+                    as={`/r/${community.name}`}
+                    key={community.id}
+                  >
+                    <MenuItem>{community.name}</MenuItem>
+                  </NextLink>
+                ))}
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title="Other">
-                <MenuItem>Create Post</MenuItem>
+                <NextLink href="/create-post">
+                  <MenuItem>Create Post</MenuItem>
+                </NextLink>
                 <MenuItem>Create Community</MenuItem>
               </MenuGroup>
             </MenuList>

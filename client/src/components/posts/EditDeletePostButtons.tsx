@@ -16,7 +16,9 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
   editable,
   image = '',
 }) => {
-  const { data: meData } = useMeQuery();
+  const { data: meData } = useMeQuery({
+    variables: { skipCommunities: true },
+  });
   const [deletePost] = useDeletePostMutation();
 
   if (meData?.me?.id !== creatorId) {

@@ -27,7 +27,7 @@ export type Query = {
 
 
 export type QueryPostsArgs = {
-  communityId?: Maybe<Scalars['String']>;
+  communityId?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
@@ -81,6 +81,7 @@ export type User = {
   photoUrl: Scalars['String'];
   posts: Array<Post>;
   comments: Array<Comment>;
+  communities: Array<Community>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -595,13 +596,19 @@ export type GetCommunityQuery = (
   )> }
 );
 
-export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+export type MeQueryVariables = Exact<{
+  skipCommunities: Scalars['Boolean'];
+}>;
 
 
 export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
+    & { communities: Array<(
+      { __typename?: 'Community' }
+      & Pick<Community, 'id' | 'name'>
+    )> }
     & RegularUserFragment
   )> }
 );
@@ -637,7 +644,7 @@ export type PostQuery = (
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
-  communityId?: Maybe<Scalars['String']>;
+  communityId?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -1419,9 +1426,13 @@ export type GetCommunityQueryHookResult = ReturnType<typeof useGetCommunityQuery
 export type GetCommunityLazyQueryHookResult = ReturnType<typeof useGetCommunityLazyQuery>;
 export type GetCommunityQueryResult = Apollo.QueryResult<GetCommunityQuery, GetCommunityQueryVariables>;
 export const MeDocument = gql`
-    query Me {
+    query Me($skipCommunities: Boolean!) {
   me {
     ...RegularUser
+    communities @skip(if: $skipCommunities) {
+      id
+      name
+    }
   }
 }
     ${RegularUserFragmentDoc}`;
@@ -1438,10 +1449,11 @@ export const MeDocument = gql`
  * @example
  * const { data, loading, error } = useMeQuery({
  *   variables: {
+ *      skipCommunities: // value for 'skipCommunities'
  *   },
  * });
  */
-export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+export function useMeQuery(baseOptions: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
         return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
       }
 export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
@@ -1507,7 +1519,7 @@ export type PostQueryHookResult = ReturnType<typeof usePostQuery>;
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>;
 export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>;
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String, $communityId: String) {
+    query Posts($limit: Int!, $cursor: String, $communityId: Int) {
   posts(limit: $limit, cursor: $cursor, communityId: $communityId) {
     hasMore
     posts {

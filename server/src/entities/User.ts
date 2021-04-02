@@ -1,4 +1,4 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Ctx, Field, ObjectType } from 'type-graphql';
 import {
   BaseEntity,
   Column,
@@ -14,6 +14,8 @@ import { Post } from './Post';
 // import { Community } from './Community';
 import { CommunityUser } from './CommunityUser';
 import { Upvote } from './Upvote';
+import { Community } from './Community';
+import { MyContext } from '../types';
 
 @ObjectType()
 @Entity()
@@ -54,8 +56,12 @@ export class User extends BaseEntity {
   @OneToMany(() => CommunityUser, (cu) => cu.community)
   communityConnection: Promise<CommunityUser[]>;
 
-  // @OneToMany(() => Community, (community) => community.creator)
-  // communities: Community[];
+  @Field(() => [Community])
+  async communities(
+    @Ctx() { userCommunityLoader }: MyContext
+  ): Promise<Community[]> {
+    return userCommunityLoader.load(this.id);
+  }
 
   @Field(() => String)
   @CreateDateColumn()

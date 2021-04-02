@@ -31,6 +31,7 @@ import { formatTimestamp } from '../../utils/formatTimestamp';
 const Post = ({}) => {
   const { data, error, loading } = useGetPostFromUrl();
   const { data: meData } = useMeQuery({
+    variables: { skipCommunities: true },
     skip: isServer(),
   });
   const [comment] = useCommentMutation();

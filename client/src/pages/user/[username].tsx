@@ -63,6 +63,7 @@ const User: React.FC<UserProps> = ({}) => {
   const cancelRef = useRef(null);
   const { data, error, loading } = useGetUserFromUrl();
   const { data: meData } = useMeQuery({
+    variables: { skipCommunities: true },
     skip: isServer(),
   });
   const [deleteUser] = useDeleteUserMutation();

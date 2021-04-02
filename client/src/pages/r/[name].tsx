@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import {
   Badge,
   Box,
@@ -15,6 +16,11 @@ import {
   useAddCommunityUserMutation,
   useLeaveCommunityMutation,
   usePostsQuery,
+  usePostsLazyQuery,
+  MeDocument,
+  GetCommunityDocument,
+  GetCommunityQuery,
+  MeQuery,
 } from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
 import { useGetCommunityFromUrl } from '../../utils/useGetCommunityFromUrl';
@@ -23,24 +29,22 @@ import { withApollo } from '../../utils/withApollo';
 interface CommunityProps {}
 
 const Community: React.FC<CommunityProps> = ({}) => {
+  const apolloClient = useApolloClient();
   const { data, error, loading } = useGetCommunityFromUrl();
   const { data: meData } = useMeQuery({
+    variables: { skipCommunities: true },
     skip: isServer(),
   });
-  const {
-    data: postsData,
-    error: postsErr,
-    loading: postsLoading,
-    fetchMore,
-    variables,
-  } = usePostsQuery({
-    variables: {
-      limit: 20,
-      cursor: null,
-      communityId: data?.getCommunity.id,
+  const [
+    getPosts,
+    {
+      data: postsData,
+      error: postsErr,
+      loading: postsLoading,
+      fetchMore,
+      variables,
     },
-    notifyOnNetworkStatusChange: true,
-  });
+  ] = usePostsLazyQuery();
   const [addCommunityUser] = useAddCommunityUserMutation();
   const [leaveCommunity] = useLeaveCommunityMutation();
 
@@ -123,10 +127,59 @@ const Community: React.FC<CommunityProps> = ({}) => {
                       ? leaveCommunity({
                           variables: { communityId: data.getCommunity!.id },
                           update: (cache) => {
-                            cache.evict({
-                              id: 'Community:' + data.getCommunity?.id,
+                            const currData = cache.readQuery<GetCommunityQuery>(
+                              {
+                                query: GetCommunityDocument,
+                                variables: { name: data.getCommunity?.name },
+                              }
+                            );
+                            cache.writeQuery({
+                              query: GetCommunityDocument,
+                              variables: { name: data.getCommunity?.name },
+                              data: {
+                                getCommunity: {
+                                  ...currData,
+                                  users: [
+                                    ...currData?.getCommunity?.users.filter(
+                                      (user) => user.id !== currUser.id
+                                    )!,
+                                  ],
+                                },
+                              },
                             });
+
+                            // const currMeData = cache.readQuery<MeQuery>({
+                            //   query: MeDocument,
+                            //   variables: { skipCommunities: false },
+                            // });
+                            // cache.writeQuery({
+                            //   query: MeDocument,
+                            //   variables: { skipCommunities: false },
+                            //   data: {
+                            //     me: {
+                            //       ...currMeData,
+                            //       communities: [
+                            //         ...currMeData?.me?.communities.filter(
+                            //           (community) =>
+                            //             community.id !== data.getCommunity?.id
+                            //         )!,
+                            //       ],
+                            //     },
+                            //   },
+                            // });
+                            const normalizedId = cache.identify({
+                              __typename: 'User',
+                              id: meData?.me?.id,
+                            });
+                            cache.evict({ id: normalizedId });
+                            cache.gc();
                           },
+                          // refetchQueries: [
+                          //   {
+                          //     query: MeDocument,
+                          //     variables: { skipCommunities: false },
+                          //   },
+                          // ],
                         })
                       : addCommunityUser({
                           variables: {
@@ -134,10 +187,59 @@ const Community: React.FC<CommunityProps> = ({}) => {
                             userId: meData?.me?.id!,
                           },
                           update: (cache) => {
-                            cache.evict({
-                              id: 'Community:' + data.getCommunity?.id,
+                            const currData = cache.readQuery<GetCommunityQuery>(
+                              {
+                                query: GetCommunityDocument,
+                                variables: { name: data.getCommunity?.name },
+                              }
+                            );
+                            cache.writeQuery({
+                              query: GetCommunityDocument,
+                              variables: { name: data.getCommunity?.name },
+                              data: {
+                                getCommunity: {
+                                  ...currData,
+                                  users: [
+                                    ...currData?.getCommunity?.users!,
+                                    { id: meData?.me?.id },
+                                  ],
+                                },
+                              },
                             });
+
+                            // const currMeData = cache.readQuery<MeQuery>({
+                            //   query: MeDocument,
+                            //   variables: { skipCommunities: false },
+                            // });
+                            // cache.writeQuery({
+                            //   query: MeDocument,
+                            //   variables: { skipCommunities: false },
+                            //   data: {
+                            //     me: {
+                            //       ...currMeData,
+                            //       communities: [
+                            //         ...currMeData?.me?.communities!,
+                            //         {
+                            //           id: data.getCommunity?.id,
+                            //           name: data.getCommunity?.name,
+                            //         },
+                            //       ],
+                            //     },
+                            //   },
+                            // });
+                            const normalizedId = cache.identify({
+                              __typename: 'User',
+                              id: meData?.me?.id,
+                            });
+                            cache.evict({ id: normalizedId });
+                            cache.gc();
                           },
+                          // refetchQueries: [
+                          //   {
+                          //     query: MeDocument,
+                          //     variables: { skipCommunities: false },
+                          //   },
+                          // ],
                         });
                   }}
                 >
@@ -184,7 +286,24 @@ const Community: React.FC<CommunityProps> = ({}) => {
       </Flex>
       {/* </Box>
       </Box> */}
-      <PostFeed posts={postsData?.posts.posts} />
+      <Flex justify="center" align="center" mb={4}>
+        <Button
+          onClick={() => {
+            apolloClient.cache.evict({ fieldName: 'posts:{}' });
+            getPosts({
+              variables: {
+                limit: 20,
+                cursor: null,
+                communityId: data?.getCommunity?.id!,
+              },
+            });
+          }}
+        >
+          Load Posts
+        </Button>
+      </Flex>
+
+      {postsData && <PostFeed posts={postsData?.posts.posts} />}
       {postsData && postsData.posts.hasMore ? (
         <Flex>
           <Button
@@ -192,7 +311,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
             my={8}
             isLoading={loading}
             onClick={() => {
-              fetchMore({
+              fetchMore!({
                 variables: {
                   limit: variables?.limit,
                   cursor:

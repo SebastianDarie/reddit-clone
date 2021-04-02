@@ -5,6 +5,7 @@ import { createCommentUpvoteLoader } from './utils/createCommentUpvoteLoader';
 import { createCommunityLoader } from './utils/createCommunityLoader';
 import { createCommunityUserLoader } from './utils/createCommunityUserLoader';
 import { createUpvoteLoader } from './utils/createUpvoteLoader';
+import { createUserCommunityLoader } from './utils/createUserCommunityLoader';
 import { createUserLoader } from './utils/createUserLoader';
 
 export type MyContext = {
@@ -18,4 +19,5 @@ export type MyContext = {
   commentUpvoteLoader: ReturnType<typeof createCommentUpvoteLoader>;
   communityLoader: ReturnType<typeof createCommunityLoader>;
   communityUserLoader: ReturnType<typeof createCommunityUserLoader>;
+  userCommunityLoader: ReturnType<typeof createUserCommunityLoader>;
 };

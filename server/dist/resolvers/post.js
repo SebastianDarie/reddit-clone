@@ -303,7 +303,7 @@ __decorate([
     type_graphql_1.Query(() => PaginatedPosts),
     __param(0, type_graphql_1.Arg('limit', () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg('cursor', () => String, { nullable: true })),
-    __param(2, type_graphql_1.Arg('communityId', () => String, { nullable: true })),
+    __param(2, type_graphql_1.Arg('communityId', () => type_graphql_1.Int, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)

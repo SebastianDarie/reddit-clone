@@ -41,6 +41,15 @@ const createClient = (ctx: NextPageContext | undefined) =>
             },
           },
         },
+        User: {
+          fields: {
+            communities: {
+              merge(_existing, incoming) {
+                return incoming;
+              },
+            },
+          },
+        },
       },
     }),
   });
