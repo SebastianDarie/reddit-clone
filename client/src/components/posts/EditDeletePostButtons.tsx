@@ -40,6 +40,7 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({
             variables: { id, image },
             update: (cache) => {
               cache.evict({ id: 'Post:' + id });
+              cache.gc();
             },
           });
         }}

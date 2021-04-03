@@ -1,0 +1,6 @@
+query GetCommunities {
+  getCommunities {
+    id
+    name
+  }
+}

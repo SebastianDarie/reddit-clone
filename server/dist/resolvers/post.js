@@ -134,31 +134,25 @@ let PostResolver = class PostResolver {
             return upvote ? upvote.value : null;
         });
     }
-    posts(limit, cursor, communityId) {
+    posts(limit, cursor, communityId, communityIds) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlusOne = realLimit + 1;
-            let qb;
+            console.log(communityIds, typeof communityIds);
+            const qb = typeorm_1.getConnection()
+                .getRepository(Post_1.Post)
+                .createQueryBuilder('p')
+                .addSelect('c.id')
+                .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+                .orderBy('p.createdAt', 'DESC')
+                .take(realLimitPlusOne);
             if (communityId) {
-                qb = typeorm_1.getConnection()
-                    .getRepository(Post_1.Post)
-                    .createQueryBuilder('p')
-                    .addSelect('c.id')
-                    .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-                    .where('p."communityId" = :communityId', {
+                qb.where('p."communityId" = :communityId', {
                     communityId,
-                })
-                    .orderBy('p.createdAt', 'DESC')
-                    .take(realLimitPlusOne);
+                });
             }
-            else {
-                qb = typeorm_1.getConnection()
-                    .getRepository(Post_1.Post)
-                    .createQueryBuilder('p')
-                    .addSelect('c.id')
-                    .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-                    .orderBy('p.createdAt', 'DESC')
-                    .take(realLimitPlusOne);
+            else if (communityIds && communityIds !== []) {
+                qb.where('p."communityId" IN (:...communityIds)', { communityIds });
             }
             if (cursor) {
                 qb.where('p."createdAt" < :cursor', {
@@ -304,8 +298,9 @@ __decorate([
     __param(0, type_graphql_1.Arg('limit', () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg('cursor', () => String, { nullable: true })),
     __param(2, type_graphql_1.Arg('communityId', () => type_graphql_1.Int, { nullable: true })),
+    __param(3, type_graphql_1.Arg('communityIds', () => [type_graphql_1.Int], { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:paramtypes", [Number, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([

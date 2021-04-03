@@ -15,14 +15,17 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { FaChartLine } from 'react-icons/fa';
 import { GiUfo } from 'react-icons/gi';
 import NextLink from 'next/link';
 import { useApolloClient } from '@apollo/client';
+import { useRouter } from 'next/router';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 
 export const NavBar: React.FC<Record<string, never>> = ({}) => {
   const apolloClient = useApolloClient();
+  const router = useRouter();
   const [logout, { loading: logoutFetching }] = useLogoutMutation();
   const { data, loading } = useMeQuery({
     variables: { skipCommunities: false },
@@ -30,6 +33,9 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
   });
 
   const { colorMode, toggleColorMode } = useColorMode();
+
+  const currPage =
+    router.asPath !== '/' ? router.asPath?.match(/([^\/]+$)/)?.[0] : 'Home';
 
   let body = null;
 
@@ -76,8 +82,9 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
       <Flex align="center" flex={1} m="auto" maxW={800}>
         <NextLink href="/">
           <Link
-            onClick={async () => {
-              await apolloClient.cache.evict({ fieldName: 'posts:{}' });
+            onClick={() => {
+              apolloClient.cache.evict({ fieldName: 'posts:{}' });
+              apolloClient.cache.gc();
             }}
           >
             <Heading>Reddit</Heading>
@@ -87,14 +94,40 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
           <Menu isLazy>
             <MenuButton as={Button} bg="#8cc1d2">
               <Flex align="center">
-                <GiUfo />
-                <Text ml={1}>Home</Text>
+                {currPage === 'Home' ? (
+                  <GiUfo />
+                ) : currPage === 'all' ? (
+                  <FaChartLine />
+                ) : null}
+                <Text
+                  ml={currPage === 'Home' || currPage === 'all' ? 1 : undefined}
+                >
+                  {currPage}
+                </Text>
               </Flex>
             </MenuButton>
             <MenuList>
               <MenuGroup title="Reddit Feeds">
-                <MenuItem>Home</MenuItem>
-                <MenuItem>All</MenuItem>
+                <NextLink href="/">
+                  <MenuItem
+                    onClick={() => {
+                      apolloClient.cache.evict({ fieldName: 'posts:{}' });
+                      apolloClient.cache.gc();
+                    }}
+                  >
+                    Home
+                  </MenuItem>
+                </NextLink>
+                <NextLink href="/r/all">
+                  <MenuItem
+                    onClick={() => {
+                      apolloClient.cache.evict({ fieldName: 'posts:{}' });
+                      apolloClient.cache.gc();
+                    }}
+                  >
+                    All
+                  </MenuItem>
+                </NextLink>
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title="My Communities">

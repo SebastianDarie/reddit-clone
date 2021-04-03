@@ -4,5 +4,9 @@ fragment RegularUserResponse on UserResponse {
   }
   user {
     ...RegularUser
+    communities {
+      id
+      name
+    }
   }
 }

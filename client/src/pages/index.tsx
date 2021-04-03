@@ -1,49 +1,54 @@
-import NextLink from 'next/link';
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  IconButton,
-  Link,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
-import { FaRegCommentAlt } from 'react-icons/fa';
+import { Button, Flex } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { Layout } from '../components/Layout';
-import { usePostsQuery } from '../generated/graphql';
-import { UpvoteSection } from '../components/posts/UpvoteSection';
-import { EditDeletePostButtons } from '../components/posts/EditDeletePostButtons';
-import { withApollo } from '../utils/withApollo';
-import { PostData } from '../components/posts/PostData';
-import { formatTimestamp } from '../utils/formatTimestamp';
 import { PostFeed } from '../components/posts/PostFeed';
+import {
+  useMeQuery,
+  usePostsLazyQuery,
+  usePostsQuery,
+} from '../generated/graphql';
+import { isServer } from '../utils/isServer';
+import { withApollo } from '../utils/withApollo';
 
 const Index = () => {
-  const { data, error, loading, fetchMore, variables } = usePostsQuery({
-    variables: {
-      limit: 20,
-      cursor: null,
-      communityId: null,
-    },
-    notifyOnNetworkStatusChange: true,
+  const { data: meData } = useMeQuery({
+    variables: { skipCommunities: false },
+    skip: isServer(),
   });
+  const [
+    getPosts,
+    { data, error, loading, fetchMore, variables },
+  ] = usePostsLazyQuery();
 
-  if (!data && !loading) {
-    return (
-      <div>
-        <div>failed to load content</div>
-        <div>{error?.message}</div>
-      </div>
-    );
-  }
+  // if (!data && !loading) {
+  //   return (
+  //     <div>
+  //       <div>failed to load content</div>
+  //       <div>{error?.message}</div>
+  //     </div>
+  //   );
+  // }
+
+  useEffect(() => {
+    if (meData?.me?.communities) {
+      const ids = meData?.me?.communities.map((community) => community.id);
+      getPosts({
+        variables: {
+          limit: 20,
+          cursor: null,
+          communityId: null,
+          communityIds: ids,
+        },
+      });
+    }
+  }, [meData]);
 
   return (
     <Layout>
       {!data && loading ? (
         <div>loading...</div>
       ) : (
-        <PostFeed posts={data?.posts.posts!} />
+        data && <PostFeed posts={data?.posts.posts!} />
       )}
       {data && data.posts.hasMore ? (
         <Flex>
@@ -52,7 +57,7 @@ const Index = () => {
             my={8}
             isLoading={loading}
             onClick={() => {
-              fetchMore({
+              fetchMore!({
                 variables: {
                   limit: variables?.limit,
                   cursor:

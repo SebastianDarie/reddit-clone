@@ -84,6 +84,7 @@ const Login: React.FC<unknown> = ({}) => {
                 variables: { skipCommunities: true },
               });
               cache.evict({ fieldName: 'posts:{}' });
+              cache.gc();
             },
           });
           if (response.data?.login.errors) {

@@ -8,4 +8,5 @@ export interface FormValues {
   text: string;
   link: string;
   image: File;
+  communityId: number;
 }

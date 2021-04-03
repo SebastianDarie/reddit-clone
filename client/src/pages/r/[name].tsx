@@ -1,26 +1,14 @@
 import { useApolloClient } from '@apollo/client';
-import {
-  Badge,
-  Box,
-  Button,
-  Flex,
-  Stack,
-  HStack,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Button, Flex } from '@chakra-ui/react';
 import { Layout } from '../../components/Layout';
 import { PostFeed } from '../../components/posts/PostFeed';
 import {
-  useMeQuery,
-  useAddCommunityUserMutation,
-  useLeaveCommunityMutation,
-  usePostsQuery,
-  usePostsLazyQuery,
-  MeDocument,
   GetCommunityDocument,
   GetCommunityQuery,
-  MeQuery,
+  useAddCommunityUserMutation,
+  useLeaveCommunityMutation,
+  useMeQuery,
+  usePostsLazyQuery,
 } from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
 import { useGetCommunityFromUrl } from '../../utils/useGetCommunityFromUrl';
@@ -39,7 +27,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
     getPosts,
     {
       data: postsData,
-      error: postsErr,
+      // error: postsErr,
       loading: postsLoading,
       fetchMore,
       variables,
@@ -148,25 +136,6 @@ const Community: React.FC<CommunityProps> = ({}) => {
                               },
                             });
 
-                            // const currMeData = cache.readQuery<MeQuery>({
-                            //   query: MeDocument,
-                            //   variables: { skipCommunities: false },
-                            // });
-                            // cache.writeQuery({
-                            //   query: MeDocument,
-                            //   variables: { skipCommunities: false },
-                            //   data: {
-                            //     me: {
-                            //       ...currMeData,
-                            //       communities: [
-                            //         ...currMeData?.me?.communities.filter(
-                            //           (community) =>
-                            //             community.id !== data.getCommunity?.id
-                            //         )!,
-                            //       ],
-                            //     },
-                            //   },
-                            // });
                             const normalizedId = cache.identify({
                               __typename: 'User',
                               id: meData?.me?.id,
@@ -174,12 +143,6 @@ const Community: React.FC<CommunityProps> = ({}) => {
                             cache.evict({ id: normalizedId });
                             cache.gc();
                           },
-                          // refetchQueries: [
-                          //   {
-                          //     query: MeDocument,
-                          //     variables: { skipCommunities: false },
-                          //   },
-                          // ],
                         })
                       : addCommunityUser({
                           variables: {
@@ -207,26 +170,6 @@ const Community: React.FC<CommunityProps> = ({}) => {
                               },
                             });
 
-                            // const currMeData = cache.readQuery<MeQuery>({
-                            //   query: MeDocument,
-                            //   variables: { skipCommunities: false },
-                            // });
-                            // cache.writeQuery({
-                            //   query: MeDocument,
-                            //   variables: { skipCommunities: false },
-                            //   data: {
-                            //     me: {
-                            //       ...currMeData,
-                            //       communities: [
-                            //         ...currMeData?.me?.communities!,
-                            //         {
-                            //           id: data.getCommunity?.id,
-                            //           name: data.getCommunity?.name,
-                            //         },
-                            //       ],
-                            //     },
-                            //   },
-                            // });
                             const normalizedId = cache.identify({
                               __typename: 'User',
                               id: meData?.me?.id,
@@ -234,12 +177,6 @@ const Community: React.FC<CommunityProps> = ({}) => {
                             cache.evict({ id: normalizedId });
                             cache.gc();
                           },
-                          // refetchQueries: [
-                          //   {
-                          //     query: MeDocument,
-                          //     variables: { skipCommunities: false },
-                          //   },
-                          // ],
                         });
                   }}
                 >
@@ -290,11 +227,13 @@ const Community: React.FC<CommunityProps> = ({}) => {
         <Button
           onClick={() => {
             apolloClient.cache.evict({ fieldName: 'posts:{}' });
+            apolloClient.cache.gc();
             getPosts({
               variables: {
                 limit: 20,
                 cursor: null,
                 communityId: data?.getCommunity?.id!,
+                communityIds: null,
               },
             });
           }}
@@ -303,7 +242,11 @@ const Community: React.FC<CommunityProps> = ({}) => {
         </Button>
       </Flex>
 
-      {postsData && <PostFeed posts={postsData?.posts.posts} />}
+      {!postsData && postsLoading ? (
+        <div>loading...</div>
+      ) : (
+        postsData && <PostFeed posts={postsData?.posts.posts} />
+      )}
       {postsData && postsData.posts.hasMore ? (
         <Flex>
           <Button

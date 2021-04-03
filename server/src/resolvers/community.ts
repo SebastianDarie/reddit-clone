@@ -20,7 +20,7 @@ import { MyContext } from '../types';
 export class CommunityResolver {
   @Query(() => [Community])
   async getCommunities(): Promise<Community[]> {
-    return Community.find({});
+    return Community.find({ select: ['id', 'name'] });
   }
 
   @Query(() => Community, { nullable: true })

@@ -113,6 +113,7 @@ export const EditDeleteCommentButtons: React.FC<EditDeleteCommentButtonsProps> =
             update: (cache) => {
               cache.evict({ id: 'Comment:' + id });
               cache.evict({ id: 'Post:' + post.id });
+              cache.gc();
             },
           });
         }}

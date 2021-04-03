@@ -1,5 +1,15 @@
-query Posts($limit: Int!, $cursor: String, $communityId: Int) {
-  posts(limit: $limit, cursor: $cursor, communityId: $communityId) {
+query Posts(
+  $limit: Int!
+  $cursor: String
+  $communityId: Int
+  $communityIds: [Int!]
+) {
+  posts(
+    limit: $limit
+    cursor: $cursor
+    communityId: $communityId
+    communityIds: $communityIds
+  ) {
     hasMore
     posts {
       comments {

@@ -118,10 +118,13 @@ export class PostResolver {
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null,
     @Arg('communityId', () => Int, { nullable: true })
-    communityId: number | null
+    communityId: number | null,
+    @Arg('communityIds', () => [Int], { nullable: true })
+    communityIds: number[] | null
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
+    console.log(communityIds, typeof communityIds);
 
     // const replacements: (Date | number)[] = [realLimitPlusOne];
 
@@ -140,28 +143,43 @@ export class PostResolver {
     //   replacements
     // );
 
-    let qb;
+    const qb = getConnection()
+      .getRepository(Post)
+      .createQueryBuilder('p')
+      .addSelect('c.id')
+      .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+      .orderBy('p.createdAt', 'DESC')
+      .take(realLimitPlusOne);
+
     if (communityId) {
-      qb = getConnection()
-        .getRepository(Post)
-        .createQueryBuilder('p')
-        .addSelect('c.id')
-        .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-        //.leftJoinAndSelect('c.creator', 'creator')
-        .where('p."communityId" = :communityId', {
-          communityId,
-        })
-        .orderBy('p.createdAt', 'DESC')
-        .take(realLimitPlusOne);
-    } else {
-      qb = getConnection()
-        .getRepository(Post)
-        .createQueryBuilder('p')
-        .addSelect('c.id')
-        .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-        .orderBy('p.createdAt', 'DESC')
-        .take(realLimitPlusOne);
+      qb.where('p."communityId" = :communityId', {
+        communityId,
+      });
+    } else if (communityIds && communityIds !== []) {
+      qb.where('p."communityId" IN (:...communityIds)', { communityIds });
     }
+
+    // if (communityId) {
+    //   qb = getConnection()
+    //     .getRepository(Post)
+    //     .createQueryBuilder('p')
+    //     .addSelect('c.id')
+    //     .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+    //     //.leftJoinAndSelect('c.creator', 'creator')
+    //     .where('p."communityId" = :communityId', {
+    //       communityId,
+    //     })
+    //     .orderBy('p.createdAt', 'DESC')
+    //     .take(realLimitPlusOne);
+    // } else {
+    //   qb = getConnection()
+    //   .getRepository(Post)
+    //   .createQueryBuilder('p')
+    //   .addSelect('c.id')
+    //   .leftJoin('p.comments', 'c', 'c."postId" = p.id')
+    //   .orderBy('p.createdAt', 'DESC')
+    //   .take(realLimitPlusOne);
+    // }
 
     if (cursor) {
       qb.where('p."createdAt" < :cursor', {

@@ -27,6 +27,7 @@ export type Query = {
 
 
 export type QueryPostsArgs = {
+  communityIds?: Maybe<Array<Scalars['Int']>>;
   communityId?: Maybe<Scalars['Int']>;
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
@@ -337,6 +338,10 @@ export type RegularUserResponseFragment = (
     & RegularErrorFragment
   )>>, user?: Maybe<(
     { __typename?: 'User' }
+    & { communities: Array<(
+      { __typename?: 'Community' }
+      & Pick<Community, 'id' | 'name'>
+    )> }
     & RegularUserFragment
   )> }
 );
@@ -579,6 +584,17 @@ export type VoteMutation = (
   & Pick<Mutation, 'vote'>
 );
 
+export type GetCommunitiesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCommunitiesQuery = (
+  { __typename?: 'Query' }
+  & { getCommunities: Array<(
+    { __typename?: 'Community' }
+    & Pick<Community, 'id' | 'name'>
+  )> }
+);
+
 export type GetCommunityQueryVariables = Exact<{
   name: Scalars['String'];
 }>;
@@ -645,6 +661,7 @@ export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
   communityId?: Maybe<Scalars['Int']>;
+  communityIds?: Maybe<Array<Scalars['Int']> | Scalars['Int']>;
 }>;
 
 
@@ -756,6 +773,10 @@ export const RegularUserResponseFragmentDoc = gql`
   }
   user {
     ...RegularUser
+    communities {
+      id
+      name
+    }
   }
 }
     ${RegularErrorFragmentDoc}
@@ -1386,6 +1407,39 @@ export function useVoteMutation(baseOptions?: Apollo.MutationHookOptions<VoteMut
 export type VoteMutationHookResult = ReturnType<typeof useVoteMutation>;
 export type VoteMutationResult = Apollo.MutationResult<VoteMutation>;
 export type VoteMutationOptions = Apollo.BaseMutationOptions<VoteMutation, VoteMutationVariables>;
+export const GetCommunitiesDocument = gql`
+    query GetCommunities {
+  getCommunities {
+    id
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetCommunitiesQuery__
+ *
+ * To run a query within a React component, call `useGetCommunitiesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCommunitiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCommunitiesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetCommunitiesQuery(baseOptions?: Apollo.QueryHookOptions<GetCommunitiesQuery, GetCommunitiesQueryVariables>) {
+        return Apollo.useQuery<GetCommunitiesQuery, GetCommunitiesQueryVariables>(GetCommunitiesDocument, baseOptions);
+      }
+export function useGetCommunitiesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunitiesQuery, GetCommunitiesQueryVariables>) {
+          return Apollo.useLazyQuery<GetCommunitiesQuery, GetCommunitiesQueryVariables>(GetCommunitiesDocument, baseOptions);
+        }
+export type GetCommunitiesQueryHookResult = ReturnType<typeof useGetCommunitiesQuery>;
+export type GetCommunitiesLazyQueryHookResult = ReturnType<typeof useGetCommunitiesLazyQuery>;
+export type GetCommunitiesQueryResult = Apollo.QueryResult<GetCommunitiesQuery, GetCommunitiesQueryVariables>;
 export const GetCommunityDocument = gql`
     query GetCommunity($name: String!) {
   getCommunity(name: $name) {
@@ -1519,8 +1573,13 @@ export type PostQueryHookResult = ReturnType<typeof usePostQuery>;
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>;
 export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>;
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String, $communityId: Int) {
-  posts(limit: $limit, cursor: $cursor, communityId: $communityId) {
+    query Posts($limit: Int!, $cursor: String, $communityId: Int, $communityIds: [Int!]) {
+  posts(
+    limit: $limit
+    cursor: $cursor
+    communityId: $communityId
+    communityIds: $communityIds
+  ) {
     hasMore
     posts {
       comments {
@@ -1547,6 +1606,7 @@ export const PostsDocument = gql`
  *      limit: // value for 'limit'
  *      cursor: // value for 'cursor'
  *      communityId: // value for 'communityId'
+ *      communityIds: // value for 'communityIds'
  *   },
  * });
  */

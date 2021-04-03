@@ -1,6 +1,7 @@
 import {
   Box,
   Divider,
+  Select,
   Text,
   useColorModeValue as mode,
 } from '@chakra-ui/react';
@@ -8,7 +9,11 @@ import { Formik } from 'formik';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { useCreatePostMutation, useSignS3Mutation } from '../generated/graphql';
+import {
+  useCreatePostMutation,
+  useSignS3Mutation,
+  useGetCommunitiesQuery,
+} from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
 import { withApollo } from '../utils/withApollo';
 import { DividerWithText } from '../components/DividerWithText';
@@ -24,6 +29,7 @@ import { OptionsGrid } from '../components/forms/OptionsGrid';
 const CreatePost: React.FC<unknown> = ({}) => {
   const router = useRouter();
   useIsAuth();
+  const { data, loading } = useGetCommunitiesQuery();
   const [postType, setPostType] = useState('text');
   const [createPost] = useCreatePostMutation();
   const [s3Sign] = useSignS3Mutation();
@@ -45,6 +51,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
     text: '',
     link: '',
     image: ('' as unknown) as File,
+    communityId: 4,
   };
   return (
     <Layout variant="regular">
@@ -79,9 +86,16 @@ const CreatePost: React.FC<unknown> = ({}) => {
             }
 
             const { errors } = await createPost({
-              variables: { input: { ...values, image } },
+              variables: {
+                input: {
+                  ...values,
+                  image,
+                  communityId: parseInt(values.communityId as any),
+                },
+              },
               update: (cache) => {
                 cache.evict({ fieldName: 'posts:{}' });
+                cache.gc();
               },
             });
             if (!errors) {
@@ -89,7 +103,13 @@ const CreatePost: React.FC<unknown> = ({}) => {
             }
           }}
         >
-          {({ isSubmitting, setFieldValue, resetForm }) => (
+          {({
+            isSubmitting,
+            setFieldValue,
+            resetForm,
+            handleChange,
+            handleBlur,
+          }) => (
             <FormContainer>
               <DividerWithText>Options</DividerWithText>
               <OptionsGrid
@@ -97,6 +117,25 @@ const CreatePost: React.FC<unknown> = ({}) => {
                 resetForm={resetForm}
                 setPostType={setPostType}
               />
+              <Select
+                name="communityId"
+                variant="filled"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                mb={4}
+              >
+                {data &&
+                  !loading &&
+                  data.getCommunities.map((community) => (
+                    <option
+                      id="communityId"
+                      key={community.id}
+                      value={community.id}
+                    >
+                      {community.name}
+                    </option>
+                  ))}
+              </Select>
 
               <FormWrapper isSubmitting={isSubmitting}>
                 {postType === 'text' ? (
