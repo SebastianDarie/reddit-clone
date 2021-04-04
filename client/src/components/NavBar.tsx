@@ -14,10 +14,12 @@ import {
   Text,
   useColorMode,
 } from '@chakra-ui/react';
+import { ClassNames } from '@emotion/react';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { FaChartLine } from 'react-icons/fa';
 import { GiUfo } from 'react-icons/gi';
 import NextLink from 'next/link';
+import Image from 'next/image';
 import { useApolloClient } from '@apollo/client';
 import { useRouter } from 'next/router';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
@@ -60,8 +62,23 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
             Create Post
           </Button>
         </NextLink>
+        <ClassNames>
+          {({ css }) => (
+            <Image
+              src={data.me?.photoUrl!}
+              alt="profile pic"
+              className={css`
+                border-radius: 50%;
+              `}
+              width={28}
+              height={28}
+            />
+          )}
+        </ClassNames>
         <NextLink href="/user/[username]" as={`/user/${data.me.username}`}>
-          <Link mr={2}>{data.me.username}</Link>
+          <Link ml={2} mr={2}>
+            {data.me.username}
+          </Link>
         </NextLink>
         <Button
           variant="link"
@@ -102,7 +119,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
                 <Text
                   ml={currPage === 'Home' || currPage === 'all' ? 1 : undefined}
                 >
-                  {currPage}
+                  {currPage?.replace(/%20/g, ' ')}
                 </Text>
               </Flex>
             </MenuButton>
@@ -110,20 +127,20 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
               <MenuGroup title="Reddit Feeds">
                 <NextLink href="/">
                   <MenuItem
-                    onClick={() => {
-                      apolloClient.cache.evict({ fieldName: 'posts:{}' });
-                      apolloClient.cache.gc();
-                    }}
+                  // onClick={() => {
+                  //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
+                  //   apolloClient.cache.gc();
+                  // }}
                   >
                     Home
                   </MenuItem>
                 </NextLink>
                 <NextLink href="/r/all">
                   <MenuItem
-                    onClick={() => {
-                      apolloClient.cache.evict({ fieldName: 'posts:{}' });
-                      apolloClient.cache.gc();
-                    }}
+                  // onClick={() => {
+                  //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
+                  //   apolloClient.cache.gc();
+                  // }}
                   >
                     All
                   </MenuItem>
@@ -146,7 +163,9 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
                 <NextLink href="/create-post">
                   <MenuItem>Create Post</MenuItem>
                 </NextLink>
-                <MenuItem>Create Community</MenuItem>
+                <NextLink href="/create-community">
+                  <MenuItem>Create Community</MenuItem>
+                </NextLink>
               </MenuGroup>
             </MenuList>
           </Menu>

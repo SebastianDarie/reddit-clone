@@ -5,7 +5,7 @@ import { PaginatedPosts } from '../generated/graphql';
 
 const createClient = (ctx: NextPageContext | undefined) =>
   new ApolloClient({
-    ssrMode: typeof window === 'undefined',
+    ssrMode: true,
     queryDeduplication: true,
     uri: process.env.NEXT_PUBLIC_API_URL as string,
     credentials: 'include',
@@ -24,12 +24,21 @@ const createClient = (ctx: NextPageContext | undefined) =>
               merge(
                 existing: PaginatedPosts | undefined,
                 incoming: PaginatedPosts
+                //{ readField }
               ): PaginatedPosts {
+                // const merged = { ...existing };
+                // incoming.posts.forEach((post) => {
+                //   merged[readField('id', post)] = post;
+                // });
                 return {
                   ...incoming,
                   posts: [...(existing?.posts || []), ...incoming.posts],
                 };
+                //return merged;
               },
+              // read(existing) {
+              //   return existing && Object.values(existing);
+              // },
             },
           },
         },

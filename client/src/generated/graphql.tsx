@@ -328,7 +328,7 @@ export type RegularErrorFragment = (
 
 export type RegularUserFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'username'>
+  & Pick<User, 'id' | 'username' | 'photoUrl'>
 );
 
 export type RegularUserResponseFragment = (
@@ -764,6 +764,7 @@ export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
   username
+  photoUrl
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`

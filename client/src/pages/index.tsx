@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client';
 import { Button, Flex } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Layout } from '../components/Layout';
@@ -11,6 +12,7 @@ import { isServer } from '../utils/isServer';
 import { withApollo } from '../utils/withApollo';
 
 const Index = () => {
+  const apolloClient = useApolloClient();
   const { data: meData } = useMeQuery({
     variables: { skipCommunities: false },
     skip: isServer(),
@@ -31,6 +33,8 @@ const Index = () => {
 
   useEffect(() => {
     if (meData?.me?.communities) {
+      // apolloClient.cache.evict({ fieldName: 'posts:{}' });
+      // apolloClient.cache.gc();
       const ids = meData?.me?.communities.map((community) => community.id);
       getPosts({
         variables: {
@@ -40,8 +44,14 @@ const Index = () => {
           communityIds: ids,
         },
       });
+      if (data) {
+        const arr = data.posts.posts.filter((post) =>
+          ids.includes(post.community.id)
+        );
+        console.log(arr);
+      }
     }
-  }, [meData]);
+  }, [data?.posts, meData?.me]);
 
   return (
     <Layout>

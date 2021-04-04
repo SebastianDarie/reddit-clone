@@ -74,7 +74,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
         })
       | undefined
   ) => {
-    const flatComments = flat(currComments?.post?.comments);
+    const flatComments = flat(currComments?.post?.comments!);
 
     let parentComment = flatComments.find(
       (comment) => comment.id === newComment?.parent.id

@@ -1,11 +1,13 @@
 import { useApolloClient } from '@apollo/client';
 import { Box, Button, Flex } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
 import { Layout } from '../../components/Layout';
 import { PostFeed } from '../../components/posts/PostFeed';
 import {
   GetCommunityDocument,
   GetCommunityQuery,
   useAddCommunityUserMutation,
+  useDeleteCommunityMutation,
   useLeaveCommunityMutation,
   useMeQuery,
   usePostsLazyQuery,
@@ -18,6 +20,7 @@ interface CommunityProps {}
 
 const Community: React.FC<CommunityProps> = ({}) => {
   const apolloClient = useApolloClient();
+  const router = useRouter();
   const { data, error, loading } = useGetCommunityFromUrl();
   const { data: meData } = useMeQuery({
     variables: { skipCommunities: true },
@@ -35,6 +38,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
   ] = usePostsLazyQuery();
   const [addCommunityUser] = useAddCommunityUserMutation();
   const [leaveCommunity] = useLeaveCommunityMutation();
+  const [deleteCommunity] = useDeleteCommunityMutation();
 
   if (!data && !meData && !postsData && loading) {
     <Layout>
@@ -92,7 +96,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
       <Flex justify="center" mb={8}>
         <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
           <Box p="6">
-            <Box d="flex" alignItems="baseline" justifyContent="space-between">
+            <Box d="flex" alignItems="center" justifyContent="space-between">
               {/* <Badge borderRadius="full" px="2" colorScheme="teal">
                 New
               </Badge> */}
@@ -106,6 +110,11 @@ const Community: React.FC<CommunityProps> = ({}) => {
               </Box>
               <Flex>
                 <Button
+                  display={
+                    currUser && data.getCommunity.users.length === 1
+                      ? 'none'
+                      : 'inline-flex'
+                  }
                   colorScheme={currUser ? 'red' : 'teal'}
                   size="xs"
                   variant="ghost"
@@ -189,6 +198,22 @@ const Community: React.FC<CommunityProps> = ({}) => {
                     size="xs"
                     variant="ghost"
                     borderRadius="999px"
+                    onClick={async () => {
+                      const { errors } = await deleteCommunity({
+                        variables: { communityId: data.getCommunity?.id! },
+                        update: (cache) => {
+                          cache.evict({
+                            id: 'Community:' + data.getCommunity?.id,
+                          });
+                          cache.evict({ id: 'User:' + meData?.me?.id });
+                          cache.gc();
+                        },
+                      });
+
+                      if (!errors) {
+                        router.push('/');
+                      }
+                    }}
                   >
                     Delete
                   </Button>
