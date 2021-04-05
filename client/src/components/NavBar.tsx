@@ -37,7 +37,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
   const { colorMode, toggleColorMode } = useColorMode();
 
   const currPage =
-    router.asPath !== '/' ? router.asPath?.match(/([^\/]+$)/)?.[0] : 'Home';
+    router.asPath !== '/' ? router.asPath?.match(/([^\/]+$)/)?.[0] : 'All';
 
   let body = null;
 
@@ -99,10 +99,10 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
       <Flex align="center" flex={1} m="auto" maxW={800}>
         <NextLink href="/">
           <Link
-            onClick={() => {
-              apolloClient.cache.evict({ fieldName: 'posts:{}' });
-              apolloClient.cache.gc();
-            }}
+          // onClick={() => {
+          //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
+          //   apolloClient.cache.gc();
+          // }}
           >
             <Heading>Reddit</Heading>
           </Link>
@@ -111,13 +111,13 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
           <Menu isLazy>
             <MenuButton as={Button} bg="#8cc1d2">
               <Flex align="center">
-                {currPage === 'Home' ? (
+                {currPage === 'home' ? (
                   <GiUfo />
-                ) : currPage === 'all' ? (
+                ) : currPage === 'All' ? (
                   <FaChartLine />
                 ) : null}
                 <Text
-                  ml={currPage === 'Home' || currPage === 'all' ? 1 : undefined}
+                  ml={currPage === 'Home' || currPage === 'All' ? 1 : undefined}
                 >
                   {currPage?.replace(/%20/g, ' ')}
                 </Text>
@@ -125,7 +125,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
             </MenuButton>
             <MenuList>
               <MenuGroup title="Reddit Feeds">
-                <NextLink href="/">
+                <NextLink href="/r/home">
                   <MenuItem
                   // onClick={() => {
                   //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
@@ -135,7 +135,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
                     Home
                   </MenuItem>
                 </NextLink>
-                <NextLink href="/r/all">
+                <NextLink href="/">
                   <MenuItem
                   // onClick={() => {
                   //   apolloClient.cache.evict({ fieldName: 'posts:{}' });

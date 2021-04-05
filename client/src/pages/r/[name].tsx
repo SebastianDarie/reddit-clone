@@ -29,6 +29,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
   const [
     getPosts,
     {
+      called,
       data: postsData,
       // error: postsErr,
       loading: postsLoading,
@@ -248,24 +249,24 @@ const Community: React.FC<CommunityProps> = ({}) => {
       </Flex>
       {/* </Box>
       </Box> */}
-      <Flex justify="center" align="center" mb={4}>
-        <Button
-          onClick={() => {
-            apolloClient.cache.evict({ fieldName: 'posts:{}' });
-            apolloClient.cache.gc();
-            getPosts({
-              variables: {
-                limit: 20,
-                cursor: null,
-                communityId: data?.getCommunity?.id!,
-                communityIds: null,
-              },
-            });
-          }}
-        >
-          Load Posts
-        </Button>
-      </Flex>
+      {!called ? (
+        <Flex justify="center" align="center" mb={4}>
+          <Button
+            onClick={() => {
+              getPosts({
+                variables: {
+                  limit: 20,
+                  cursor: null,
+                  communityId: data?.getCommunity?.id!,
+                  communityIds: null,
+                },
+              });
+            }}
+          >
+            Load Posts
+          </Button>
+        </Flex>
+      ) : null}
 
       {!postsData && postsLoading ? (
         <div>loading...</div>
