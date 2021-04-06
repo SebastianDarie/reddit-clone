@@ -36,7 +36,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
       fetchMore,
       variables,
     },
-  ] = usePostsLazyQuery();
+  ] = usePostsLazyQuery({ notifyOnNetworkStatusChange: true });
   const [addCommunityUser] = useAddCommunityUserMutation();
   const [leaveCommunity] = useLeaveCommunityMutation();
   const [deleteCommunity] = useDeleteCommunityMutation();
@@ -249,24 +249,24 @@ const Community: React.FC<CommunityProps> = ({}) => {
       </Flex>
       {/* </Box>
       </Box> */}
-      {!called ? (
-        <Flex justify="center" align="center" mb={4}>
-          <Button
-            onClick={() => {
-              getPosts({
-                variables: {
-                  limit: 20,
-                  cursor: null,
-                  communityId: data?.getCommunity?.id!,
-                  communityIds: null,
-                },
-              });
-            }}
-          >
-            Load Posts
-          </Button>
-        </Flex>
-      ) : null}
+      {/* {!called ? ( */}
+      <Flex justify="center" align="center" mb={4}>
+        <Button
+          onClick={() => {
+            getPosts({
+              variables: {
+                limit: 20,
+                cursor: null,
+                communityId: data?.getCommunity?.id!,
+                communityIds: null,
+              },
+            });
+          }}
+        >
+          Load Posts
+        </Button>
+      </Flex>
+      {/* ) : null} */}
 
       {!postsData && postsLoading ? (
         <div>loading...</div>
@@ -286,6 +286,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
                   cursor:
                     postsData.posts.posts[postsData.posts.posts.length - 1]
                       .createdAt,
+                  communityId: variables?.communityId,
                 },
               });
             }}

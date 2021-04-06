@@ -5,7 +5,8 @@ import { PaginatedPosts } from '../generated/graphql';
 
 const createClient = (ctx: NextPageContext | undefined) =>
   new ApolloClient({
-    ssrMode: true,
+    assumeImmutableResults: true,
+    ssrMode: typeof window === 'undefined',
     queryDeduplication: true,
     uri: process.env.NEXT_PUBLIC_API_URL as string,
     credentials: 'include',
@@ -20,7 +21,7 @@ const createClient = (ctx: NextPageContext | undefined) =>
         Query: {
           fields: {
             posts: {
-              keyArgs: [],
+              keyArgs: ['communityId', 'communityIds'],
               merge(
                 existing: PaginatedPosts | undefined,
                 incoming: PaginatedPosts

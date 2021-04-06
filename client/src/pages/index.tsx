@@ -1,9 +1,11 @@
 import { useApolloClient } from '@apollo/client';
-import { Button, Flex } from '@chakra-ui/react';
+import { Button, Flex, IconButton } from '@chakra-ui/react';
+import { BiRefresh } from 'react-icons/bi';
 import { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
 import { PostFeed } from '../components/posts/PostFeed';
 import {
+  PaginatedPosts,
   Post,
   useMeQuery,
   usePostsLazyQuery,
@@ -13,39 +15,51 @@ import { isServer } from '../utils/isServer';
 import { withApollo } from '../utils/withApollo';
 
 const Index = () => {
-  const apolloClient = useApolloClient();
-  const [
-    getPosts,
-    { data, error, loading, fetchMore, variables },
-  ] = usePostsLazyQuery();
-  const [filteredPosts, setFilteredPosts] = useState<
-    Omit<Post[], 'text' | 'creatorId' | 'communityId' | 'updatedAt'>
-  >([]);
+  // const [
+  //   getPosts,
+  //   { data, error, loading, networkStatus, fetchMore, refetch, variables },
+  // ] = usePostsLazyQuery({
+  //   notifyOnNetworkStatusChange: true,
+  //   partialRefetch: true,
+  // });
 
-  useEffect(() => {
-    getPosts({
-      variables: {
-        limit: 20,
-        cursor: null,
-        communityId: null,
-        communityIds: null,
-      },
-    });
-    if (data) {
-      // const arr = data.posts.posts.filter((post) =>
-      //   ids.includes(post.community.id)
-      // );
-      // console.log(data, arr);
-      // setFilteredPosts(arr);
-      // console.log(loading);
-      setFilteredPosts(data.posts.posts);
-    }
+  // useEffect(() => {
+  //   getPosts({
+  //     variables: {
+  //       limit: 20,
+  //       cursor: null,
+  //       communityId: null,
+  //       communityIds: null,
+  //     },
+  //   });
+  //   if (data) {
+  //     setFilteredPosts(data.posts.posts);
+  //   }
 
-    // return () => {
-    //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-    //   apolloClient.cache.gc();
-    // };
-  }, [data?.posts]);
+  // }, [data?.posts]);
+
+  const {
+    data,
+    error,
+    loading,
+    networkStatus,
+    variables,
+    fetchMore,
+    refetch,
+  } = usePostsQuery({
+    variables: {
+      limit: 20,
+      cursor: null,
+      communityId: null,
+      communityIds: null,
+    },
+    notifyOnNetworkStatusChange: true,
+    partialRefetch: true,
+  });
+
+  if (loading || networkStatus === 4) {
+    <div>loading...</div>;
+  }
 
   if (!data && !loading) {
     return (
@@ -58,11 +72,16 @@ const Index = () => {
 
   return (
     <Layout>
-      {!data && loading ? (
-        <div>loading...</div>
-      ) : (
-        <PostFeed posts={filteredPosts} />
-      )}
+      <Flex justify="center" align="center" mb={4}>
+        <IconButton
+          aria-label="refresh"
+          icon={<BiRefresh />}
+          onClick={() => refetch()}
+        />
+      </Flex>
+
+      {data && <PostFeed posts={data?.posts.posts} />}
+
       {data && data.posts.hasMore ? (
         <Flex>
           <Button
@@ -70,12 +89,21 @@ const Index = () => {
             my={8}
             isLoading={loading}
             onClick={() => {
-              fetchMore!({
+              fetchMore({
                 variables: {
                   limit: variables?.limit,
                   cursor:
                     data.posts.posts[data.posts.posts.length - 1].createdAt,
                 },
+                // updateQuery: (prev: PaginatedPosts, { fetchMoreResult }) => {
+                //   if (!fetchMoreResult) return prev;
+                //   return Object.assign({}, prev, {
+                //     posts: {
+                //       ...prev.posts,
+                //       ...fetchMoreResult.posts,
+                //     },
+                //   });
+                // },
               });
             }}
           >

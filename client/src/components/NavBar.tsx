@@ -117,7 +117,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
                   <FaChartLine />
                 ) : null}
                 <Text
-                  ml={currPage === 'Home' || currPage === 'All' ? 1 : undefined}
+                  ml={currPage === 'home' || currPage === 'All' ? 1 : undefined}
                 >
                   {currPage?.replace(/%20/g, ' ')}
                 </Text>

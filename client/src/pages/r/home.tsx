@@ -22,9 +22,9 @@ const Home = () => {
     getPosts,
     { data, error, loading, fetchMore, variables },
   ] = usePostsLazyQuery();
-  const [filteredPosts, setFilteredPosts] = useState<
-    Omit<Post[], 'text' | 'creatorId' | 'communityId' | 'updatedAt'>
-  >([]);
+  // const [filteredPosts, setFilteredPosts] = useState<
+  //   Omit<Post[], 'text' | 'creatorId' | 'communityId' | 'updatedAt'>
+  // >([]);
 
   // if (!data && !loading) {
   //   return (
@@ -54,29 +54,29 @@ const Home = () => {
     // };
   }, [meData?.me?.id]);
 
-  useEffect(() => {
-    if (data) {
-      const ids = meData?.me?.communities.map((community) => community.id);
-      const arr = data.posts.posts.filter((post) =>
-        ids.includes(post.community.id)
-      );
-      console.log(data, arr);
-      setFilteredPosts(arr);
-      console.log(loading);
-    }
+  // useEffect(() => {
+  //   if (data) {
+  //     const ids = meData?.me?.communities.map((community) => community.id);
+  //     const arr = data.posts.posts.filter((post) =>
+  //       ids.includes(post.community.id)
+  //     );
+  //     console.log(data, arr);
+  //     setFilteredPosts(arr);
+  //     console.log(loading);
+  //   }
 
-    // return () => {
-    //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-    //   apolloClient.cache.gc();
-    // };
-  }, [data?.posts.posts]);
+  //   // return () => {
+  //   //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
+  //   //   apolloClient.cache.gc();
+  //   // };
+  // }, [data?.posts.posts]);
 
   return (
     <Layout>
       {!data && loading ? (
         <div>loading...</div>
       ) : (
-        data && filteredPosts && <PostFeed posts={filteredPosts} />
+        data && <PostFeed posts={data.posts.posts} />
       )}
       {data && data.posts.hasMore ? (
         <Flex>
@@ -90,6 +90,7 @@ const Home = () => {
                   limit: variables?.limit,
                   cursor:
                     data.posts.posts[data.posts.posts.length - 1].createdAt,
+                  communityIds: variables?.communityIds,
                 },
               });
             }}
