@@ -11,6 +11,8 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  Skeleton,
+  SkeletonCircle,
   Text,
   useColorMode,
 } from '@chakra-ui/react';
@@ -42,7 +44,12 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
   let body = null;
 
   if (loading) {
-    body = <>loading please wait</>;
+    body = (
+      <Flex align="center" w="225px">
+        <SkeletonCircle size="8" mr={2} />
+        <Skeleton height="20px" w="80%" />
+      </Flex>
+    );
   } else if (!data?.me) {
     body = (
       <>
@@ -70,8 +77,8 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
               className={css`
                 border-radius: 50%;
               `}
-              width={28}
-              height={28}
+              width={32}
+              height={32}
             />
           )}
         </ClassNames>
@@ -98,12 +105,7 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
     <Flex bg="#d2a28c" p={4} position="sticky" top={0} zIndex={1}>
       <Flex align="center" flex={1} m="auto" maxW={800}>
         <NextLink href="/">
-          <Link
-          // onClick={() => {
-          //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-          //   apolloClient.cache.gc();
-          // }}
-          >
+          <Link>
             <Heading>Reddit</Heading>
           </Link>
         </NextLink>
@@ -126,29 +128,15 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
             <MenuList>
               <MenuGroup title="Reddit Feeds">
                 <NextLink href="/r/home">
-                  <MenuItem
-                  // onClick={() => {
-                  //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-                  //   apolloClient.cache.gc();
-                  // }}
-                  >
-                    Home
-                  </MenuItem>
+                  <MenuItem>Home</MenuItem>
                 </NextLink>
                 <NextLink href="/">
-                  <MenuItem
-                  // onClick={() => {
-                  //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-                  //   apolloClient.cache.gc();
-                  // }}
-                  >
-                    All
-                  </MenuItem>
+                  <MenuItem>All</MenuItem>
                 </NextLink>
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title="My Communities">
-                {data?.me?.communities.map((community) => (
+                {data?.me?.communities!.map((community) => (
                   <NextLink
                     href="/r/[name]"
                     as={`/r/${community.name}`}

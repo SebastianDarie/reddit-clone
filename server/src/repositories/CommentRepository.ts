@@ -41,7 +41,7 @@ export class CommentTreeRepository<Comment> extends TreeRepository<Comment> {
         .execute();
 
       await this.createQueryBuilder()
-        .update(tableName, { [parentPropertyName]: null })
+        .update(tableName, { [parentPropertyName as any]: null })
         .where(`${parentColumn} IN (:...ids)`, { ids: descendantNodeIds })
         .execute();
 

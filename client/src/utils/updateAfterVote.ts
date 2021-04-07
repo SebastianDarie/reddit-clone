@@ -5,30 +5,21 @@ import { VoteMutation } from '../generated/graphql';
 export const updateAfterVote = (
   value: number,
   cache: ApolloCache<VoteMutation>,
-  postId?: number,
-  commentId?: number
+  postId: number
 ) => {
   const data = cache.readFragment<{
     id: number;
     points: number;
     voteStatus: number | null;
   }>({
-    id: postId ? 'Post:' + postId : 'Comment:' + commentId,
-    fragment: postId
-      ? gql`
-          fragment _ on Post {
-            id
-            points
-            voteStatus
-          }
-        `
-      : gql`
-          fragment _ on Comment {
-            id
-            points
-            voteStatus
-          }
-        `,
+    id: 'Post:' + postId,
+    fragment: gql`
+      fragment _ on Post {
+        id
+        points
+        voteStatus
+      }
+    `,
   });
 
   if (data) {
@@ -40,20 +31,14 @@ export const updateAfterVote = (
       newPoints = data.points + (!data.voteStatus ? 1 : 2) * value;
     }
     cache.writeFragment({
-      id: postId ? 'Post:' + postId : 'Comment:' + commentId,
-      fragment: postId
-        ? gql`
-            fragment __ on Post {
-              points
-              voteStatus
-            }
-          `
-        : gql`
-            fragment __ on Comment {
-              points
-              voteStatus
-            }
-          `,
+      id: 'Post:' + postId,
+      fragment: gql`
+        fragment __ on Post {
+          points
+          voteStatus
+        }
+      `,
+
       data: { points: newPoints, voteStatus: value },
     });
   }

@@ -1,18 +1,14 @@
 import {
   Arg,
   Ctx,
-  FieldResolver,
   Int,
   Mutation,
   Query,
   Resolver,
-  Root,
   UseMiddleware,
 } from 'type-graphql';
-import { getConnection, getCustomRepository, getManager } from 'typeorm';
 import { Community } from '../entities/Community';
 import { CommunityUser } from '../entities/CommunityUser';
-import { User } from '../entities/User';
 import { isAuth } from '../middleware/isAuth';
 import { MyContext } from '../types';
 
@@ -44,16 +40,6 @@ export class CommunityResolver {
     @Arg('userId', () => Int) userId: number,
     @Arg('communityId', () => Int) communityId: number
   ): Promise<Boolean> {
-    const community = await Community.findOne(communityId);
-    await getConnection()
-      .createQueryBuilder()
-      .update(Community)
-      .set({ memberCount: community!.memberCount + 1 })
-      .where('id = :id', {
-        id: communityId,
-      })
-      .returning('"memberCount"')
-      .execute();
     await CommunityUser.create({ userId, communityId }).save();
     return true;
   }

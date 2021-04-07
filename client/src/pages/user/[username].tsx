@@ -27,6 +27,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import { ClassNames } from '@emotion/react';
 import { GiCakeSlice, GiVineFlower } from 'react-icons/gi';
 import { RiPencilLine, RiSettings5Line } from 'react-icons/ri';
 import { useRouter } from 'next/router';
@@ -119,13 +120,22 @@ const User: React.FC<UserProps> = ({}) => {
       <Flex flexDir="column">
         <Flex justify="space-between">
           <Flex flexDir="column">
-            <Image
-              src={data.user.photoUrl}
-              alt="profile image"
-              layout="fixed"
-              width={100}
-              height={100}
-            />
+            <ClassNames>
+              {({ css }) => (
+                <Image
+                  src={data.user!.photoUrl}
+                  alt="profile image"
+                  layout="fixed"
+                  quality={100}
+                  className={css`
+                    border-radius: 50%;
+                  `}
+                  width={128}
+                  height={128}
+                />
+              )}
+            </ClassNames>
+
             <Text fontSize={22} fontWeight={500} m="4px 0">
               {data.user.username}
             </Text>

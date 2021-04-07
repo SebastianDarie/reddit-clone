@@ -9,25 +9,23 @@ import {
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { FaRegCommentAlt } from 'react-icons/fa';
-import { useApolloClient } from '@apollo/client';
 import { Post } from '../../generated/graphql';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import { EditDeletePostButtons } from './EditDeletePostButtons';
 import { PostData } from './PostData';
 import { UpvoteSection } from './UpvoteSection';
-import { formatTimestamp } from '../../utils/formatTimestamp';
 
-type FeedPost = Omit<
-  Post[],
-  'text' | 'creatorId' | 'communityId' | 'updatedAt'
->;
+// type FeedPost = Omit<
+//   Post[],
+//   'text' | 'creatorId' | 'communityId' | 'updatedAt'
+// >;
 
 interface PostFeedProps {
-  posts: FeedPost;
+  posts: Post[];
+  //  loading: boolean;
 }
 
 export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
-  //const apolloClient = useApolloClient();
-
   return (
     <>
       <Stack spacing={8}>
@@ -45,16 +43,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
                       mb="4px"
                     >
                       <NextLink href="/r/[name]" as={`/r/${p.community.name}`}>
-                        <Link
-                          color="gray.200"
-                          fontWeight={700}
-                          mr="2px"
-                          // onClick={async () => {
-                          //   await apolloClient.cache.evict({
-                          //     fieldName: 'posts:{}',
-                          //   });
-                          // }}
-                        >
+                        <Link color="gray.200" fontWeight={700} mr="2px">
                           r/{p.community.name}
                         </Link>
                       </NextLink>

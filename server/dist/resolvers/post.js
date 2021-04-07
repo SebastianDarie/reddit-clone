@@ -138,7 +138,6 @@ let PostResolver = class PostResolver {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlusOne = realLimit + 1;
-            console.log(communityIds, typeof communityIds);
             const qb = typeorm_1.getConnection()
                 .getRepository(Post_1.Post)
                 .createQueryBuilder('p')

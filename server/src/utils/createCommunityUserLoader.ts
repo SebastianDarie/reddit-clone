@@ -3,7 +3,7 @@ import { In } from 'typeorm';
 import { CommunityUser } from '../entities/CommunityUser';
 import { User } from '../entities/User';
 
-const batchUsers = async (communityIds: number[]) => {
+const batchUsers = async (communityIds: readonly number[]) => {
   const communityUsers = await CommunityUser.find({
     join: {
       alias: 'communityUser',
@@ -12,7 +12,7 @@ const batchUsers = async (communityIds: number[]) => {
       },
     },
     where: {
-      communityId: In(communityIds),
+      communityId: In(communityIds as number[]),
     },
   });
 

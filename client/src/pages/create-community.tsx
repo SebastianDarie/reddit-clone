@@ -12,19 +12,15 @@ import { InputField } from '../components/form-fields/InputField';
 import { FormContainer } from '../components/forms/FormContainer';
 import { Layout } from '../components/Layout';
 import {
-  GetCommunityDocument,
-  GetCommunityQuery,
   useAddCommunityUserMutation,
   useCreateCommunityMutation,
   useMeQuery,
 } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
-//import { useIsAuth } from '../utils/useIsAuth';
 import { withApollo } from '../utils/withApollo';
 
 const CreateCommunity: React.FC<unknown> = ({}) => {
   const router = useRouter();
-  //useIsAuth();
   const { data: meData } = useMeQuery({
     variables: { skipCommunities: true },
     skip: isServer(),
@@ -56,24 +52,6 @@ const CreateCommunity: React.FC<unknown> = ({}) => {
                 userId: meData?.me?.id!,
               },
               update: (cache) => {
-                // const currData = cache.readQuery<GetCommunityQuery>({
-                //   query: GetCommunityDocument,
-                //   variables: { name: data?.createCommunity.name },
-                // });
-                // cache.writeQuery({
-                //   query: GetCommunityDocument,
-                //   variables: { name: data?.createCommunity.name },
-                //   data: {
-                //     getCommunity: {
-                //       ...currData,
-                //       users: [
-                //         ...currData?.getCommunity?.users!,
-                //         { id: meData?.me?.id },
-                //       ],
-                //     },
-                //   },
-                // });
-
                 const normalizedId = cache.identify({
                   __typename: 'User',
                   id: meData?.me?.id,

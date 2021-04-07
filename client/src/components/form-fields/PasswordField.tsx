@@ -40,7 +40,6 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordProps>(
       }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [field, { error }] = useField(props as any);
 
     return (

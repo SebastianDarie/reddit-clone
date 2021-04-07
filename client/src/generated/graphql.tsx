@@ -4,6 +4,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+const defaultOptions =  {}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -11,80 +12,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-};
-
-export type Query = {
-  __typename?: 'Query';
-  posts: PaginatedPosts;
-  post?: Maybe<CommentsPost>;
-  users: Array<User>;
-  user?: Maybe<User>;
-  me?: Maybe<User>;
-  getComments: Comment;
-  getCommunities: Array<Community>;
-  getCommunity?: Maybe<Community>;
-};
-
-
-export type QueryPostsArgs = {
-  communityIds?: Maybe<Array<Scalars['Int']>>;
-  communityId?: Maybe<Scalars['Int']>;
-  cursor?: Maybe<Scalars['String']>;
-  limit: Scalars['Int'];
-};
-
-
-export type QueryPostArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryUserArgs = {
-  username: Scalars['String'];
-};
-
-
-export type QueryGetCommunityArgs = {
-  name: Scalars['String'];
-};
-
-export type PaginatedPosts = {
-  __typename?: 'PaginatedPosts';
-  posts: Array<Post>;
-  hasMore: Scalars['Boolean'];
-};
-
-export type Post = {
-  __typename?: 'Post';
-  id: Scalars['Float'];
-  title: Scalars['String'];
-  text: Scalars['String'];
-  image: Scalars['String'];
-  link: Scalars['String'];
-  points: Scalars['Float'];
-  voteStatus?: Maybe<Scalars['Int']>;
-  creatorId: Scalars['Float'];
-  creator: User;
-  communityId: Scalars['Float'];
-  comments: Array<Comment>;
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
-  textSnippet: Scalars['String'];
-  linkSnippet: Scalars['String'];
-  community: Community;
-};
-
-export type User = {
-  __typename?: 'User';
-  id: Scalars['Float'];
-  username: Scalars['String'];
-  email: Scalars['String'];
-  photoUrl: Scalars['String'];
-  posts: Array<Post>;
-  comments: Array<Comment>;
-  communities: Array<Community>;
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
 };
 
 export type Comment = {
@@ -103,21 +30,26 @@ export type Comment = {
   updatedAt: Scalars['String'];
 };
 
-export type Community = {
-  __typename?: 'Community';
-  id: Scalars['Float'];
-  name: Scalars['String'];
-  description: Scalars['String'];
-  memberCount: Scalars['Float'];
-  posts: Array<Post>;
-  users: Array<User>;
-};
-
 export type CommentsPost = {
   __typename?: 'CommentsPost';
   content: Post;
   comments: Array<Comment>;
   length: Scalars['Int'];
+};
+
+export type Community = {
+  __typename?: 'Community';
+  id: Scalars['Float'];
+  name: Scalars['String'];
+  description: Scalars['String'];
+  posts: Array<Post>;
+  users: Array<User>;
+};
+
+export type FieldError = {
+  __typename?: 'FieldError';
+  field: Scalars['String'];
+  message: Scalars['String'];
 };
 
 export type Mutation = {
@@ -248,10 +180,30 @@ export type MutationDeleteCommunityArgs = {
   communityId: Scalars['Int'];
 };
 
-export type S3Payload = {
-  __typename?: 'S3Payload';
-  signedRequest: Scalars['String'];
-  url: Scalars['String'];
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  posts: Array<Post>;
+  hasMore: Scalars['Boolean'];
+};
+
+export type Post = {
+  __typename?: 'Post';
+  id: Scalars['Float'];
+  title: Scalars['String'];
+  text: Scalars['String'];
+  image: Scalars['String'];
+  link: Scalars['String'];
+  points: Scalars['Float'];
+  voteStatus?: Maybe<Scalars['Int']>;
+  creatorId: Scalars['Float'];
+  creator: User;
+  communityId: Scalars['Float'];
+  comments: Array<Comment>;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+  textSnippet: Scalars['String'];
+  linkSnippet: Scalars['String'];
+  community: Community;
 };
 
 export type PostInput = {
@@ -262,16 +214,64 @@ export type PostInput = {
   communityId: Scalars['Int'];
 };
 
+export type Query = {
+  __typename?: 'Query';
+  posts: PaginatedPosts;
+  post?: Maybe<CommentsPost>;
+  users: Array<User>;
+  user?: Maybe<User>;
+  me?: Maybe<User>;
+  getComments: Comment;
+  getCommunities: Array<Community>;
+  getCommunity?: Maybe<Community>;
+};
+
+
+export type QueryPostsArgs = {
+  communityIds?: Maybe<Array<Scalars['Int']>>;
+  communityId?: Maybe<Scalars['Int']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
+export type QueryPostArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryUserArgs = {
+  username: Scalars['String'];
+};
+
+
+export type QueryGetCommunityArgs = {
+  name: Scalars['String'];
+};
+
+export type S3Payload = {
+  __typename?: 'S3Payload';
+  signedRequest: Scalars['String'];
+  url: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['Float'];
+  username: Scalars['String'];
+  email: Scalars['String'];
+  photoUrl: Scalars['String'];
+  posts: Array<Post>;
+  comments: Array<Comment>;
+  communities: Array<Community>;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
 export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
   user?: Maybe<User>;
-};
-
-export type FieldError = {
-  __typename?: 'FieldError';
-  field: Scalars['String'];
-  message: Scalars['String'];
 };
 
 export type UsernamePasswordInput = {
@@ -383,10 +383,10 @@ export type CommentMutation = (
   { __typename?: 'Mutation' }
   & { comment: (
     { __typename?: 'Comment' }
-    & { parent: (
+    & { parent: Maybe<(
       { __typename?: 'Comment' }
       & Pick<Comment, 'id'>
-    ) }
+    )> }
     & CommentSnippetFragment
   ) }
 );
@@ -401,7 +401,7 @@ export type CreateCommunityMutation = (
   { __typename?: 'Mutation' }
   & { createCommunity: (
     { __typename?: 'Community' }
-    & Pick<Community, 'id' | 'name' | 'description' | 'memberCount'>
+    & Pick<Community, 'id' | 'name' | 'description'>
   ) }
 );
 
@@ -604,7 +604,7 @@ export type GetCommunityQuery = (
   { __typename?: 'Query' }
   & { getCommunity?: Maybe<(
     { __typename?: 'Community' }
-    & Pick<Community, 'id' | 'name' | 'description' | 'memberCount'>
+    & Pick<Community, 'id' | 'name' | 'description'>
     & { users: Array<(
       { __typename?: 'User' }
       & Pick<User, 'id'>
@@ -621,10 +621,10 @@ export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
-    & { communities: Array<(
+    & { communities: Maybe<Array<(
       { __typename?: 'Community' }
       & Pick<Community, 'id' | 'name'>
-    )> }
+    )>> }
     & RegularUserFragment
   )> }
 );
@@ -808,7 +808,8 @@ export type AddCommunityUserMutationFn = Apollo.MutationFunction<AddCommunityUse
  * });
  */
 export function useAddCommunityUserMutation(baseOptions?: Apollo.MutationHookOptions<AddCommunityUserMutation, AddCommunityUserMutationVariables>) {
-        return Apollo.useMutation<AddCommunityUserMutation, AddCommunityUserMutationVariables>(AddCommunityUserDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddCommunityUserMutation, AddCommunityUserMutationVariables>(AddCommunityUserDocument, options);
       }
 export type AddCommunityUserMutationHookResult = ReturnType<typeof useAddCommunityUserMutation>;
 export type AddCommunityUserMutationResult = Apollo.MutationResult<AddCommunityUserMutation>;
@@ -841,7 +842,8 @@ export type ChangePasswordMutationFn = Apollo.MutationFunction<ChangePasswordMut
  * });
  */
 export function useChangePasswordMutation(baseOptions?: Apollo.MutationHookOptions<ChangePasswordMutation, ChangePasswordMutationVariables>) {
-        return Apollo.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, options);
       }
 export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>;
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
@@ -879,7 +881,8 @@ export type CommentMutationFn = Apollo.MutationFunction<CommentMutation, Comment
  * });
  */
 export function useCommentMutation(baseOptions?: Apollo.MutationHookOptions<CommentMutation, CommentMutationVariables>) {
-        return Apollo.useMutation<CommentMutation, CommentMutationVariables>(CommentDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CommentMutation, CommentMutationVariables>(CommentDocument, options);
       }
 export type CommentMutationHookResult = ReturnType<typeof useCommentMutation>;
 export type CommentMutationResult = Apollo.MutationResult<CommentMutation>;
@@ -890,7 +893,6 @@ export const CreateCommunityDocument = gql`
     id
     name
     description
-    memberCount
   }
 }
     `;
@@ -915,7 +917,8 @@ export type CreateCommunityMutationFn = Apollo.MutationFunction<CreateCommunityM
  * });
  */
 export function useCreateCommunityMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommunityMutation, CreateCommunityMutationVariables>) {
-        return Apollo.useMutation<CreateCommunityMutation, CreateCommunityMutationVariables>(CreateCommunityDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCommunityMutation, CreateCommunityMutationVariables>(CreateCommunityDocument, options);
       }
 export type CreateCommunityMutationHookResult = ReturnType<typeof useCreateCommunityMutation>;
 export type CreateCommunityMutationResult = Apollo.MutationResult<CreateCommunityMutation>;
@@ -955,7 +958,8 @@ export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, C
  * });
  */
 export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>) {
-        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, options);
       }
 export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
@@ -985,7 +989,8 @@ export type DeleteCommentMutationFn = Apollo.MutationFunction<DeleteCommentMutat
  * });
  */
 export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCommentMutation, DeleteCommentMutationVariables>) {
-        return Apollo.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, options);
       }
 export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
 export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
@@ -1015,7 +1020,8 @@ export type DeleteCommunityMutationFn = Apollo.MutationFunction<DeleteCommunityM
  * });
  */
 export function useDeleteCommunityMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCommunityMutation, DeleteCommunityMutationVariables>) {
-        return Apollo.useMutation<DeleteCommunityMutation, DeleteCommunityMutationVariables>(DeleteCommunityDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCommunityMutation, DeleteCommunityMutationVariables>(DeleteCommunityDocument, options);
       }
 export type DeleteCommunityMutationHookResult = ReturnType<typeof useDeleteCommunityMutation>;
 export type DeleteCommunityMutationResult = Apollo.MutationResult<DeleteCommunityMutation>;
@@ -1046,7 +1052,8 @@ export type DeletePostMutationFn = Apollo.MutationFunction<DeletePostMutation, D
  * });
  */
 export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostMutation, DeletePostMutationVariables>) {
-        return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument, options);
       }
 export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
 export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
@@ -1076,7 +1083,8 @@ export type DeleteUserMutationFn = Apollo.MutationFunction<DeleteUserMutation, D
  * });
  */
 export function useDeleteUserMutation(baseOptions?: Apollo.MutationHookOptions<DeleteUserMutation, DeleteUserMutationVariables>) {
-        return Apollo.useMutation<DeleteUserMutation, DeleteUserMutationVariables>(DeleteUserDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteUserMutation, DeleteUserMutationVariables>(DeleteUserDocument, options);
       }
 export type DeleteUserMutationHookResult = ReturnType<typeof useDeleteUserMutation>;
 export type DeleteUserMutationResult = Apollo.MutationResult<DeleteUserMutation>;
@@ -1106,7 +1114,8 @@ export type ForgotPasswordMutationFn = Apollo.MutationFunction<ForgotPasswordMut
  * });
  */
 export function useForgotPasswordMutation(baseOptions?: Apollo.MutationHookOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>) {
-        return Apollo.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, options);
       }
 export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswordMutation>;
 export type ForgotPasswordMutationResult = Apollo.MutationResult<ForgotPasswordMutation>;
@@ -1136,7 +1145,8 @@ export type LeaveCommunityMutationFn = Apollo.MutationFunction<LeaveCommunityMut
  * });
  */
 export function useLeaveCommunityMutation(baseOptions?: Apollo.MutationHookOptions<LeaveCommunityMutation, LeaveCommunityMutationVariables>) {
-        return Apollo.useMutation<LeaveCommunityMutation, LeaveCommunityMutationVariables>(LeaveCommunityDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LeaveCommunityMutation, LeaveCommunityMutationVariables>(LeaveCommunityDocument, options);
       }
 export type LeaveCommunityMutationHookResult = ReturnType<typeof useLeaveCommunityMutation>;
 export type LeaveCommunityMutationResult = Apollo.MutationResult<LeaveCommunityMutation>;
@@ -1169,7 +1179,8 @@ export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutati
  * });
  */
 export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
       }
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
@@ -1198,7 +1209,8 @@ export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMut
  * });
  */
 export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
-        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
       }
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
@@ -1230,7 +1242,8 @@ export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, Regis
  * });
  */
 export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
-        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, options);
       }
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
@@ -1264,7 +1277,8 @@ export type SignS3MutationFn = Apollo.MutationFunction<SignS3Mutation, SignS3Mut
  * });
  */
 export function useSignS3Mutation(baseOptions?: Apollo.MutationHookOptions<SignS3Mutation, SignS3MutationVariables>) {
-        return Apollo.useMutation<SignS3Mutation, SignS3MutationVariables>(SignS3Document, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SignS3Mutation, SignS3MutationVariables>(SignS3Document, options);
       }
 export type SignS3MutationHookResult = ReturnType<typeof useSignS3Mutation>;
 export type SignS3MutationResult = Apollo.MutationResult<SignS3Mutation>;
@@ -1299,7 +1313,8 @@ export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutat
  * });
  */
 export function useUpdateCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>) {
-        return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, options);
       }
 export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
 export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
@@ -1336,7 +1351,8 @@ export type UpdatePostMutationFn = Apollo.MutationFunction<UpdatePostMutation, U
  * });
  */
 export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMutation, UpdatePostMutationVariables>) {
-        return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument, options);
       }
 export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
@@ -1371,7 +1387,8 @@ export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, U
  * });
  */
 export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
-        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
       }
 export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
 export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
@@ -1403,7 +1420,8 @@ export type VoteMutationFn = Apollo.MutationFunction<VoteMutation, VoteMutationV
  * });
  */
 export function useVoteMutation(baseOptions?: Apollo.MutationHookOptions<VoteMutation, VoteMutationVariables>) {
-        return Apollo.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument, options);
       }
 export type VoteMutationHookResult = ReturnType<typeof useVoteMutation>;
 export type VoteMutationResult = Apollo.MutationResult<VoteMutation>;
@@ -1433,10 +1451,12 @@ export const GetCommunitiesDocument = gql`
  * });
  */
 export function useGetCommunitiesQuery(baseOptions?: Apollo.QueryHookOptions<GetCommunitiesQuery, GetCommunitiesQueryVariables>) {
-        return Apollo.useQuery<GetCommunitiesQuery, GetCommunitiesQueryVariables>(GetCommunitiesDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCommunitiesQuery, GetCommunitiesQueryVariables>(GetCommunitiesDocument, options);
       }
 export function useGetCommunitiesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunitiesQuery, GetCommunitiesQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunitiesQuery, GetCommunitiesQueryVariables>(GetCommunitiesDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCommunitiesQuery, GetCommunitiesQueryVariables>(GetCommunitiesDocument, options);
         }
 export type GetCommunitiesQueryHookResult = ReturnType<typeof useGetCommunitiesQuery>;
 export type GetCommunitiesLazyQueryHookResult = ReturnType<typeof useGetCommunitiesLazyQuery>;
@@ -1447,7 +1467,6 @@ export const GetCommunityDocument = gql`
     id
     name
     description
-    memberCount
     users {
       id
     }
@@ -1472,10 +1491,12 @@ export const GetCommunityDocument = gql`
  * });
  */
 export function useGetCommunityQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityQuery, GetCommunityQueryVariables>) {
-        return Apollo.useQuery<GetCommunityQuery, GetCommunityQueryVariables>(GetCommunityDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCommunityQuery, GetCommunityQueryVariables>(GetCommunityDocument, options);
       }
 export function useGetCommunityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityQuery, GetCommunityQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityQuery, GetCommunityQueryVariables>(GetCommunityDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCommunityQuery, GetCommunityQueryVariables>(GetCommunityDocument, options);
         }
 export type GetCommunityQueryHookResult = ReturnType<typeof useGetCommunityQuery>;
 export type GetCommunityLazyQueryHookResult = ReturnType<typeof useGetCommunityLazyQuery>;
@@ -1509,10 +1530,12 @@ export const MeDocument = gql`
  * });
  */
 export function useMeQuery(baseOptions: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
-        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
       }
 export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
         }
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
@@ -1565,10 +1588,12 @@ ${CommentsRecursiveFragmentDoc}`;
  * });
  */
 export function usePostQuery(baseOptions: Apollo.QueryHookOptions<PostQuery, PostQueryVariables>) {
-        return Apollo.useQuery<PostQuery, PostQueryVariables>(PostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PostQuery, PostQueryVariables>(PostDocument, options);
       }
 export function usePostLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostQuery, PostQueryVariables>) {
-          return Apollo.useLazyQuery<PostQuery, PostQueryVariables>(PostDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PostQuery, PostQueryVariables>(PostDocument, options);
         }
 export type PostQueryHookResult = ReturnType<typeof usePostQuery>;
 export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>;
@@ -1612,10 +1637,12 @@ export const PostsDocument = gql`
  * });
  */
 export function usePostsQuery(baseOptions: Apollo.QueryHookOptions<PostsQuery, PostsQueryVariables>) {
-        return Apollo.useQuery<PostsQuery, PostsQueryVariables>(PostsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options);
       }
 export function usePostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostsQuery, PostsQueryVariables>) {
-          return Apollo.useLazyQuery<PostsQuery, PostsQueryVariables>(PostsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options);
         }
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>;
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>;
@@ -1668,10 +1695,12 @@ export const UserDocument = gql`
  * });
  */
 export function useUserQuery(baseOptions: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
-        return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options);
       }
 export function useUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserQuery, UserQueryVariables>) {
-          return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options);
         }
 export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
 export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;

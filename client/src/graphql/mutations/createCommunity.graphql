@@ -3,6 +3,5 @@ mutation CreateCommunity($name: String!, $description: String!) {
     id
     name
     description
-    memberCount
   }
 }

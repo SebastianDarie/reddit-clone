@@ -187,6 +187,16 @@ export class UserResolver {
       user = result.raw[0];
     } catch (err) {
       if (err.code === '23505') {
+        if (err.detail.includes("email")){
+          return {
+            errors: [
+              {
+                field: "email",
+                message: "email already taken",
+              },
+            ],
+          };
+        }
         return {
           errors: [
             {

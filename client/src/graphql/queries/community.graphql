@@ -3,7 +3,6 @@ query GetCommunity($name: String!) {
     id
     name
     description
-    memberCount
     users {
       id
     }

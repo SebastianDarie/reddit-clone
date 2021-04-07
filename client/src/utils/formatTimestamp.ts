@@ -13,6 +13,9 @@ export const formatTimestamp = (d1: number, d2 = Date.now()) => {
   const elapsed = d1 - d2;
 
   for (let u in units)
-    if (Math.abs(elapsed) > units[u] || u === 'second')
-      return rtf.format(Math.round(elapsed / units[u]), u);
+    if (Math.abs(elapsed) > units[u as keyof typeof units] || u === 'second')
+      return rtf.format(
+        Math.round(elapsed / units[u as keyof typeof units]),
+        u as Intl.RelativeTimeFormatUnit
+      );
 };

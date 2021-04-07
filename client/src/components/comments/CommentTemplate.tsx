@@ -62,17 +62,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
 
   const recurse = (
     currComments: PostQuery | null,
-    newComment:
-      | ({
-          __typename?: 'Comment' | undefined;
-        } & {
-          parent: {
-            __typename?: 'Comment' | undefined;
-          } & Pick<Comment, 'id'>;
-        } & {
-          __typename?: 'Comment' | undefined;
-        })
-      | undefined
+    newComment: Omit<Comment, 'children' | 'creatorId' | 'postId'> | undefined
   ) => {
     const flatComments = flat(currComments?.post?.comments!);
 

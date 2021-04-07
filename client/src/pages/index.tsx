@@ -1,52 +1,17 @@
-import { useApolloClient } from '@apollo/client';
-import { Button, Flex, IconButton } from '@chakra-ui/react';
-import { BiRefresh } from 'react-icons/bi';
-import { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  SkeletonCircle,
+  SkeletonText,
+} from '@chakra-ui/react';
 import { Layout } from '../components/Layout';
 import { PostFeed } from '../components/posts/PostFeed';
-import {
-  PaginatedPosts,
-  Post,
-  useMeQuery,
-  usePostsLazyQuery,
-  usePostsQuery,
-} from '../generated/graphql';
-import { isServer } from '../utils/isServer';
+import { usePostsQuery } from '../generated/graphql';
 import { withApollo } from '../utils/withApollo';
 
 const Index = () => {
-  // const [
-  //   getPosts,
-  //   { data, error, loading, networkStatus, fetchMore, refetch, variables },
-  // ] = usePostsLazyQuery({
-  //   notifyOnNetworkStatusChange: true,
-  //   partialRefetch: true,
-  // });
-
-  // useEffect(() => {
-  //   getPosts({
-  //     variables: {
-  //       limit: 20,
-  //       cursor: null,
-  //       communityId: null,
-  //       communityIds: null,
-  //     },
-  //   });
-  //   if (data) {
-  //     setFilteredPosts(data.posts.posts);
-  //   }
-
-  // }, [data?.posts]);
-
-  const {
-    data,
-    error,
-    loading,
-    networkStatus,
-    variables,
-    fetchMore,
-    refetch,
-  } = usePostsQuery({
+  const { data, error, loading, variables, fetchMore } = usePostsQuery({
     variables: {
       limit: 20,
       cursor: null,
@@ -56,10 +21,6 @@ const Index = () => {
     notifyOnNetworkStatusChange: true,
     partialRefetch: true,
   });
-
-  if (loading || networkStatus === 4) {
-    <div>loading...</div>;
-  }
 
   if (!data && !loading) {
     return (
@@ -72,15 +33,14 @@ const Index = () => {
 
   return (
     <Layout>
-      <Flex justify="center" align="center" mb={4}>
-        <IconButton
-          aria-label="refresh"
-          icon={<BiRefresh />}
-          onClick={() => refetch()}
-        />
-      </Flex>
-
-      {data && <PostFeed posts={data?.posts.posts} />}
+      {!data && loading ? (
+        <Box padding="6" boxShadow="lg">
+          <SkeletonCircle size="10" />
+          <SkeletonText mt="4" noOfLines={4} spacing="4" />
+        </Box>
+      ) : (
+        <PostFeed posts={data?.posts.posts} />
+      )}
 
       {data && data.posts.hasMore ? (
         <Flex>
@@ -95,15 +55,6 @@ const Index = () => {
                   cursor:
                     data.posts.posts[data.posts.posts.length - 1].createdAt,
                 },
-                // updateQuery: (prev: PaginatedPosts, { fetchMoreResult }) => {
-                //   if (!fetchMoreResult) return prev;
-                //   return Object.assign({}, prev, {
-                //     posts: {
-                //       ...prev.posts,
-                //       ...fetchMoreResult.posts,
-                //     },
-                //   });
-                // },
               });
             }}
           >

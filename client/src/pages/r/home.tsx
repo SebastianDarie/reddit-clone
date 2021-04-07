@@ -1,19 +1,12 @@
 import { Button, Flex } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { useApolloClient } from '@apollo/client';
-import { PostFeed } from '../../components/posts/PostFeed';
-import {
-  Post,
-  useMeQuery,
-  usePostsLazyQuery,
-  usePostsQuery,
-} from '../../generated/graphql';
-import { withApollo } from '../../utils/withApollo';
+import { useEffect } from 'react';
 import { Layout } from '../../components/Layout';
+import { PostFeed } from '../../components/posts/PostFeed';
+import { useMeQuery, usePostsLazyQuery } from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
+import { withApollo } from '../../utils/withApollo';
 
 const Home = () => {
-  const apolloClient = useApolloClient();
   const { data: meData } = useMeQuery({
     variables: { skipCommunities: false },
     skip: isServer(),
@@ -21,19 +14,7 @@ const Home = () => {
   const [
     getPosts,
     { data, error, loading, fetchMore, variables },
-  ] = usePostsLazyQuery();
-  // const [filteredPosts, setFilteredPosts] = useState<
-  //   Omit<Post[], 'text' | 'creatorId' | 'communityId' | 'updatedAt'>
-  // >([]);
-
-  // if (!data && !loading) {
-  //   return (
-  //     <div>
-  //       <div>failed to load content</div>
-  //       <div>{error?.message}</div>
-  //     </div>
-  //   );
-  // }
+  ] = usePostsLazyQuery({ notifyOnNetworkStatusChange: true });
 
   useEffect(() => {
     if (meData?.me?.communities) {
@@ -47,29 +28,16 @@ const Home = () => {
         },
       });
     }
-
-    // return () => {
-    //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-    //   apolloClient.cache.gc();
-    // };
   }, [meData?.me?.id]);
 
-  // useEffect(() => {
-  //   if (data) {
-  //     const ids = meData?.me?.communities.map((community) => community.id);
-  //     const arr = data.posts.posts.filter((post) =>
-  //       ids.includes(post.community.id)
-  //     );
-  //     console.log(data, arr);
-  //     setFilteredPosts(arr);
-  //     console.log(loading);
-  //   }
-
-  //   // return () => {
-  //   //   apolloClient.cache.evict({ fieldName: 'posts:{}' });
-  //   //   apolloClient.cache.gc();
-  //   // };
-  // }, [data?.posts.posts]);
+  if (!data && !loading) {
+    return (
+      <div>
+        <div>failed to load content</div>
+        <div>{error?.message}</div>
+      </div>
+    );
+  }
 
   return (
     <Layout>

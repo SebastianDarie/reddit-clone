@@ -124,24 +124,6 @@ export class PostResolver {
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
-    console.log(communityIds, typeof communityIds);
-
-    // const replacements: (Date | number)[] = [realLimitPlusOne];
-
-    // if (cursor) {
-    //   replacements.push(new Date(parseInt(cursor)));
-    // }
-
-    // const posts = await getConnection().query(
-    //   `
-    // select p.*
-    // from post p
-    // ${cursor ? `where p."createdAt" < $2` : ''}
-    // order by p."createdAt" DESC
-    // limit $1
-    // `,
-    //   replacements
-    // );
 
     const qb = getConnection()
       .getRepository(Post)
@@ -159,40 +141,11 @@ export class PostResolver {
       qb.where('p."communityId" IN (:...communityIds)', { communityIds });
     }
 
-    // if (communityId) {
-    //   qb = getConnection()
-    //     .getRepository(Post)
-    //     .createQueryBuilder('p')
-    //     .addSelect('c.id')
-    //     .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-    //     //.leftJoinAndSelect('c.creator', 'creator')
-    //     .where('p."communityId" = :communityId', {
-    //       communityId,
-    //     })
-    //     .orderBy('p.createdAt', 'DESC')
-    //     .take(realLimitPlusOne);
-    // } else {
-    //   qb = getConnection()
-    //   .getRepository(Post)
-    //   .createQueryBuilder('p')
-    //   .addSelect('c.id')
-    //   .leftJoin('p.comments', 'c', 'c."postId" = p.id')
-    //   .orderBy('p.createdAt', 'DESC')
-    //   .take(realLimitPlusOne);
-    // }
-
     if (cursor) {
       qb.where('p."createdAt" < :cursor', {
         cursor: new Date(parseInt(cursor)),
       });
     }
-    // else if (cursor && communityId) {
-    //   qb.where('p."createdAt" < :cursor', {
-    //     cursor: new Date(parseInt(cursor)),
-    //   }).andWhere('p."communityId" = :communityId', {
-    //     communityId,
-    //   });
-    // }
 
     const posts = await qb.getMany();
 

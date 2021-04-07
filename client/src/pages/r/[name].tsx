@@ -1,5 +1,10 @@
-import { useApolloClient } from '@apollo/client';
-import { Box, Button, Flex } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  SkeletonCircle,
+  SkeletonText,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { Layout } from '../../components/Layout';
 import { PostFeed } from '../../components/posts/PostFeed';
@@ -19,7 +24,6 @@ import { withApollo } from '../../utils/withApollo';
 interface CommunityProps {}
 
 const Community: React.FC<CommunityProps> = ({}) => {
-  const apolloClient = useApolloClient();
   const router = useRouter();
   const { data, error, loading } = useGetCommunityFromUrl();
   const { data: meData } = useMeQuery({
@@ -29,7 +33,6 @@ const Community: React.FC<CommunityProps> = ({}) => {
   const [
     getPosts,
     {
-      called,
       data: postsData,
       // error: postsErr,
       loading: postsLoading,
@@ -65,42 +68,10 @@ const Community: React.FC<CommunityProps> = ({}) => {
 
   return (
     <Layout>
-      {/* <Box
-        bg={useColorModeValue('gray.50', 'inherit')}
-        minH="100vh"
-        py="12"
-        px={{ sm: '6', lg: '8' }}
-      >
-        <Box maxW={{ sm: 'md' }} mx={{ sm: 'auto' }} w={{ sm: 'full' }}> */}
-      {/* <Box as="section" pt="8" pb="12">
-        <Stack
-          direction={{ base: 'column', sm: 'row' }}
-          py="3"
-          px={{ base: '3', md: '6', lg: '8' }}
-          color="white"
-          bg={useColorModeValue('blue.600', 'blue.400')}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <HStack direction="row" spacing="3">
-            <Text fontWeight="medium" marginEnd="2">
-              Confirm your email. Check your email. We&apos;ve send a message to{' '}
-              <b>sample@gmail.com</b>
-            </Text>
-          </HStack>
-          <ActionLink w={{ base: 'full', sm: 'auto' }} flexShrink={0}>
-        Resend email
-      </ActionLink>
-        </Stack>
-      </Box> */}
-
       <Flex justify="center" mb={8}>
         <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
           <Box p="6">
             <Box d="flex" alignItems="center" justifyContent="space-between">
-              {/* <Badge borderRadius="full" px="2" colorScheme="teal">
-                New
-              </Badge> */}
               <Box
                 color="gray.500"
                 fontWeight="semibold"
@@ -222,22 +193,9 @@ const Community: React.FC<CommunityProps> = ({}) => {
               </Flex>
             </Box>
 
-            <Box
-              mt="1"
-              fontWeight="semibold"
-              as="h4"
-              lineHeight="tight"
-              // isTruncated
-            >
+            <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight">
               {data.getCommunity.description}
             </Box>
-
-            {/* <Box>
-              $1,990
-              <Box as="span" color="gray.600" fontSize="sm">
-                / wk
-              </Box>
-            </Box> */}
 
             <Box d="flex" mt="2" alignItems="center">
               <Box as="span" color="gray.600" fontSize="sm">
@@ -247,9 +205,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
           </Box>
         </Box>
       </Flex>
-      {/* </Box>
-      </Box> */}
-      {/* {!called ? ( */}
+
       <Flex justify="center" align="center" mb={4}>
         <Button
           onClick={() => {
@@ -266,10 +222,12 @@ const Community: React.FC<CommunityProps> = ({}) => {
           Load Posts
         </Button>
       </Flex>
-      {/* ) : null} */}
 
       {!postsData && postsLoading ? (
-        <div>loading...</div>
+        <Box padding="6" boxShadow="lg">
+          <SkeletonCircle size="10" />
+          <SkeletonText mt="4" noOfLines={4} spacing="4" />
+        </Box>
       ) : (
         postsData && <PostFeed posts={postsData?.posts.posts} />
       )}
