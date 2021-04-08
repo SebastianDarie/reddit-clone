@@ -11,6 +11,7 @@ import { PostFeed } from '../../components/posts/PostFeed';
 import {
   GetCommunityDocument,
   GetCommunityQuery,
+  Post,
   useAddCommunityUserMutation,
   useDeleteCommunityMutation,
   useLeaveCommunityMutation,
@@ -34,7 +35,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
     getPosts,
     {
       data: postsData,
-      // error: postsErr,
+      error: postsErr,
       loading: postsLoading,
       fetchMore,
       variables,
@@ -50,8 +51,8 @@ const Community: React.FC<CommunityProps> = ({}) => {
     </Layout>;
   }
 
-  if (error) {
-    return <div>{error.message}</div>;
+  if (error || postsErr) {
+    return <div>{error?.message || postsErr?.message}</div>;
   }
 
   if (!data?.getCommunity) {
@@ -229,7 +230,7 @@ const Community: React.FC<CommunityProps> = ({}) => {
           <SkeletonText mt="4" noOfLines={4} spacing="4" />
         </Box>
       ) : (
-        postsData && <PostFeed posts={postsData?.posts.posts} />
+        postsData && <PostFeed posts={postsData?.posts.posts as Post[]} />
       )}
       {postsData && postsData.posts.hasMore ? (
         <Flex>

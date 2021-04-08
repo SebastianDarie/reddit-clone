@@ -1,16 +1,13 @@
 import { Box, useColorModeValue as mode } from '@chakra-ui/react';
 
-export type BackgroundVariant = 'transparent' | 'black' | 'white' | 'gray.50';
 export type WrapperVariant = 'small' | 'medium' | 'regular';
 
 interface WrapperProps {
-  background?: BackgroundVariant;
   variant?: WrapperVariant;
 }
 
 export const Wrapper: React.FC<WrapperProps> = ({
   children,
-  //background,
   variant = 'regular',
 }) => {
   return (

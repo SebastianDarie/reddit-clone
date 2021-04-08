@@ -70,7 +70,7 @@ const Post = ({}) => {
 
         <Flex justifyContent="space-between">
           <Heading fontSize={20}>{data.post.content.title}</Heading>
-          <UpvoteSection post={data.post.content as any} meData={meData} row />
+          <UpvoteSection post={data.post.content as any} row />
 
           <EditDeletePostButtons
             id={data.post.content.id}

@@ -1,8 +1,14 @@
-import { Button, Flex } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  SkeletonCircle,
+  SkeletonText,
+} from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Layout } from '../../components/Layout';
 import { PostFeed } from '../../components/posts/PostFeed';
-import { useMeQuery, usePostsLazyQuery } from '../../generated/graphql';
+import { Post, useMeQuery, usePostsLazyQuery } from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
 import { withApollo } from '../../utils/withApollo';
 
@@ -42,9 +48,12 @@ const Home = () => {
   return (
     <Layout>
       {!data && loading ? (
-        <div>loading...</div>
+        <Box padding="6" boxShadow="lg">
+          <SkeletonCircle size="10" />
+          <SkeletonText mt="4" noOfLines={4} spacing="4" />
+        </Box>
       ) : (
-        data && <PostFeed posts={data.posts.posts} />
+        data && <PostFeed posts={data.posts.posts as Post[]} />
       )}
       {data && data.posts.hasMore ? (
         <Flex>

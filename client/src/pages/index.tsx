@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { Layout } from '../components/Layout';
 import { PostFeed } from '../components/posts/PostFeed';
-import { usePostsQuery } from '../generated/graphql';
+import { Post, usePostsQuery } from '../generated/graphql';
 import { withApollo } from '../utils/withApollo';
 
 const Index = () => {
@@ -39,7 +39,7 @@ const Index = () => {
           <SkeletonText mt="4" noOfLines={4} spacing="4" />
         </Box>
       ) : (
-        <PostFeed posts={data?.posts.posts} />
+        <PostFeed posts={data?.posts.posts as Post[]} />
       )}
 
       {data && data.posts.hasMore ? (

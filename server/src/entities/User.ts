@@ -11,7 +11,6 @@ import {
 import { Comment } from './Comment';
 import { CommentUpvote } from './CommentUpvote';
 import { Post } from './Post';
-// import { Community } from './Community';
 import { CommunityUser } from './CommunityUser';
 import { Upvote } from './Upvote';
 import { Community } from './Community';

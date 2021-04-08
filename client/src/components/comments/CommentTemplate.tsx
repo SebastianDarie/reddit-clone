@@ -62,16 +62,16 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
 
   const recurse = (
     currComments: PostQuery | null,
-    newComment: Omit<Comment, 'children' | 'creatorId' | 'postId'> | undefined
+    newComment: Comment | undefined
   ) => {
-    const flatComments = flat(currComments?.post?.comments!);
+    const flatComments = flat(currComments?.post?.comments! as any);
 
-    let parentComment = flatComments.find(
+    let parentComment: any = flatComments.find(
       (comment) => comment.id === newComment?.parent.id
     );
     parentComment = {
       ...parentComment,
-      children: [...parentComment!.children!, newComment],
+      children: [...parentComment?.children!, newComment!],
     };
 
     const newComments = flatComments.filter(
@@ -184,7 +184,7 @@ export const CommentTemplate: React.FC<CommentTemplateProps> = ({
 
                       const { newComments, parentComment } = recurse(
                         currComments,
-                        newComment
+                        newComment as any
                       );
 
                       cache.writeQuery({

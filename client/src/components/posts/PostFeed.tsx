@@ -15,14 +15,8 @@ import { EditDeletePostButtons } from './EditDeletePostButtons';
 import { PostData } from './PostData';
 import { UpvoteSection } from './UpvoteSection';
 
-// type FeedPost = Omit<
-//   Post[],
-//   'text' | 'creatorId' | 'communityId' | 'updatedAt'
-// >;
-
 interface PostFeedProps {
   posts: Post[];
-  //  loading: boolean;
 }
 
 export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
