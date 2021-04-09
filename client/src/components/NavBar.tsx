@@ -136,15 +136,17 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title="My Communities">
-                {data?.me?.communities!.map((community) => (
-                  <NextLink
-                    href="/r/[name]"
-                    as={`/r/${community.name}`}
-                    key={community.id}
-                  >
-                    <MenuItem>{community.name}</MenuItem>
-                  </NextLink>
-                ))}
+                {data?.me?.communities
+                  ? data?.me?.communities?.map((community) => (
+                      <NextLink
+                        href="/r/[name]"
+                        as={`/r/${community.name}`}
+                        key={community.id}
+                      >
+                        <MenuItem>{community.name}</MenuItem>
+                      </NextLink>
+                    ))
+                  : null}
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title="Other">

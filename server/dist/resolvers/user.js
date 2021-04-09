@@ -158,12 +158,12 @@ let UserResolver = class UserResolver {
             }
             catch (err) {
                 if (err.code === '23505') {
-                    if (err.detail.includes("email")) {
+                    if (err.detail.includes('email')) {
                         return {
                             errors: [
                                 {
-                                    field: "email",
-                                    message: "email already taken",
+                                    field: 'email',
+                                    message: 'email already taken',
                                 },
                             ],
                         };

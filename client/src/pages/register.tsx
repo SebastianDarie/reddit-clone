@@ -27,6 +27,7 @@ const Register: React.FC<unknown> = ({}) => {
                   __typename: 'Query',
                   me: data?.register.user,
                 },
+                variables: { skipCommunities: true },
               });
             },
           });

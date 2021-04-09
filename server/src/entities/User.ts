@@ -55,11 +55,11 @@ export class User extends BaseEntity {
   @OneToMany(() => CommunityUser, (cu) => cu.community)
   communityConnection: Promise<CommunityUser[]>;
 
-  @Field(() => [Community])
+  @Field(() => [Community], { defaultValue: [] })
   async communities(
     @Ctx() { userCommunityLoader }: MyContext
   ): Promise<Community[]> {
-    return userCommunityLoader.load(this.id);
+    return userCommunityLoader.load(this.id) || [];
   }
 
   @Field(() => String)

@@ -33,7 +33,7 @@ const Community_1 = require("./Community");
 let User = class User extends typeorm_1.BaseEntity {
     communities({ userCommunityLoader }) {
         return __awaiter(this, void 0, void 0, function* () {
-            return userCommunityLoader.load(this.id);
+            return userCommunityLoader.load(this.id) || [];
         });
     }
 };
@@ -84,7 +84,7 @@ __decorate([
     __metadata("design:type", Promise)
 ], User.prototype, "communityConnection", void 0);
 __decorate([
-    type_graphql_1.Field(() => [Community_1.Community]),
+    type_graphql_1.Field(() => [Community_1.Community], { defaultValue: [] }),
     __param(0, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
