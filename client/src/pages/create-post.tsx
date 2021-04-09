@@ -51,7 +51,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
     text: '',
     link: '',
     image: ('' as unknown) as File,
-    communityId: 4,
+    communityId: data?.getCommunities[0].id || -1,
   };
   return (
     <Layout variant="regular">
@@ -63,6 +63,7 @@ const CreatePost: React.FC<unknown> = ({}) => {
           <Divider />
         </Box>
         <Formik
+          enableReinitialize
           initialValues={initialValues}
           validationSchema={
             postType === 'link'
