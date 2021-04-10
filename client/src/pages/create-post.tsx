@@ -95,7 +95,9 @@ const CreatePost: React.FC<unknown> = ({}) => {
                 },
               },
               update: (cache) => {
-                cache.evict({ fieldName: 'posts:{}' });
+                cache.evict({
+                  fieldName: 'posts:{"communityId":null,"communityIds":null}',
+                });
                 cache.gc();
               },
             });

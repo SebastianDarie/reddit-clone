@@ -83,7 +83,9 @@ const Login: React.FC<unknown> = ({}) => {
                 },
                 variables: { skipCommunities: true },
               });
-              cache.evict({ fieldName: 'posts:{}' });
+              cache.evict({
+                fieldName: 'posts:{"communityId":null,"communityIds":null}',
+              });
               cache.gc();
             },
           });

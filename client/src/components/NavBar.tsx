@@ -156,6 +156,9 @@ export const NavBar: React.FC<Record<string, never>> = ({}) => {
                 <NextLink href="/create-community">
                   <MenuItem>Create Community</MenuItem>
                 </NextLink>
+                <NextLink href="/communities">
+                  <MenuItem>All Communities</MenuItem>
+                </NextLink>
               </MenuGroup>
             </MenuList>
           </Menu>

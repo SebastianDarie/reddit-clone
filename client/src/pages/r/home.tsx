@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -36,7 +38,14 @@ const Home = () => {
     }
   }, [meData?.me?.id]);
 
-  if (!data && !loading) {
+  if (!meData?.me?.communities) {
+    return (
+      <Alert status="warning">
+        <AlertIcon />
+        You did not join any communities yet!
+      </Alert>
+    );
+  } else if (!data && !loading) {
     return (
       <div>
         <div>failed to load content</div>
