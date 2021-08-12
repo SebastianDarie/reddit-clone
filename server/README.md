@@ -5,7 +5,7 @@ Make sure you have a `.env.production` file before proceeding and/or a place to 
 The following instructions are for deploying the Docker container to a VPS, in this case DigitalOcean which is the most friendly and cheapest to set up for begginers.\
 If you want to automate the process you need to modify the `deploy.sh` file 
 The following steps must be done even if you don't plan on using the `deploy.sh` file:
-- Go to `https://hub.docker.com/` and create an account, copy your **username** and paste it somewhere so it's to use in the near future.
+- Go to `https://hub.docker.com/` and create an account, copy your **username** and paste it somewhere so it's easy to use in the near future.
 - Click on the **Create Repository** button in the top right hand corner add a name and then click Create, do the same with the repository name as with the username.
 > **NOTE:** The next step requires you to have a credit/debit card and you'll be billed at the end of the month, for free alternatives use **Heroku** and if you can and want to add a payment method you can use the **AWS** 1 year free trial which gives you 750 hrs. of free usage on their t2.micro EC instance or **GCloud**'s 3 month trial which also gives you $300 dollars worth of credit to spend on their platform
 > The services above won't charge you unless you go over the free quota and then you can contact customer support and probably solve your issue.
@@ -21,18 +21,24 @@ read VERSION
 
 # Change the $USERNAME with your Docker Hub username and the $REPOSITORY with repository name that you've created earlier.
 # $IPV4 is the ipv4 of the droplet
+# api is the name of the dokku app that you need to create feel free to change it on creation
 
 docker build -t $USERNAME/$REPOSITORY:$VERSION .
 docker push $USERNAME/$REPOSITORY:$VERSION
 # When I initially built the app the docker image tag deployment was still being used but as of 0.24.0 is deprecated in favor of git:from-image
 
 # Deploy the old way
-ssh root@$IPV4 "docker pull sebastian2772/reddit-clone:$VERSION && docker tag sebastian2772/reddit-clone:$VERSION dokku/api:$VERSION && dokku deploy api $VERSION"
+ssh root@$IPV4 "docker pull $USERNAME/$REPOSITORY:$VERSION && docker tag $USERNAME/$REPOSITORY:$VERSION dokku/api:$VERSION && dokku deploy api $VERSION"
 
 # Deploy the new way
 ssh root@$IPV4 "dokku git:from-image api $USERNAME/$REPOSITORY:$VERSION"
 # This triggers a rebuild when the image version changes if it doesn't try dokku ps:rebuild api
 ```
+To learn about dokku and setup the app use the following resources:\
+[Dokku Application Deployment](https://dokku.com/docs/deployment/application-deployment/)\
+[Dokku Postgres Plugin](https://github.com/dokku/dokku-postgres)\
+[Dokku Redis Plugin](https://github.com/dokku/dokku-redis)\
+And of course don't be afraid to navigate through the docs by yourself for further research
 
 ## Ormconfig
 Go to the ormconfig.json file and modify the **username**, **password**, and **database** fields to match your credentials.
