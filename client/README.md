@@ -25,3 +25,43 @@ yarn create next-app --example with-chakra-ui-typescript with-chakra-ui-typescri
 ```
 
 Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env.local file
+
+`NEXT_PUBLIC_API_URL`
+## Features
+
+- Light/Dark Mode
+- SSR with Next.js and Apollo
+- Chakra UI
+- GraphQL Codegen
+
+  
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/SebastianDarie/reddit-clone.git
+```
+
+Go to the project directory
+
+```bash
+  cd reddit-clone/client
+```
+
+Install dependencies
+
+```bash
+  yarn
+```
+
+Start the server
+
+```bash
+  yarn dev
+```
