@@ -19,7 +19,7 @@ export const submitVote = async (
     await getConnection().transaction(async (tm) => {
       await tm.query(
         `
-        update ${postId ? 'upvote' : 'comment_upvote'} 
+        update ${postId ? 'upvote' : 'comment_upvote'}
         set value = $1
         where "${postId ? 'postId' : 'commentId'}" = $2 and "userId" = $3
         `,
@@ -28,7 +28,7 @@ export const submitVote = async (
 
       await tm.query(
         `
-        update ${postId ? 'post' : 'comment'} 
+        update ${postId ? 'post' : 'comment'}
         set points = points + ${upvote.value !== 0 ? 2 * realValue : realValue}
         where id = $1;
         `,
@@ -39,7 +39,7 @@ export const submitVote = async (
     await getConnection().transaction(async (tm) => {
       await tm.query(
         `
-      update ${postId ? 'upvote' : 'comment_upvote'} 
+      update ${postId ? 'upvote' : 'comment_upvote'}
       set value = 0
       where "${postId ? 'postId' : 'commentId'}" = $1 and "userId" = $2
       `,
@@ -48,7 +48,7 @@ export const submitVote = async (
 
       await tm.query(
         `
-        update ${postId ? 'post' : 'comment'} 
+        update ${postId ? 'post' : 'comment'}
         set points = points - $1
         where id = $2;
         `,
@@ -69,7 +69,7 @@ export const submitVote = async (
 
       await tm.query(
         `
-        update ${postId ? 'post' : 'comment'}  
+        update ${postId ? 'post' : 'comment'}
         set points = points + $1
         where id = $2;
         `,
