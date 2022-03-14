@@ -1,6 +1,11 @@
 type Mutation {
+  createCommunity(name: String!, description: String!): Community!
+  leaveCommunity(communityId: Int!): Boolean!
+  deleteCommunity(communityId: Int!): Boolean!
   createPost(input: PostInput!): Post!
-  updatePost(id: ID!, title: String!, text: String!): Post
+  updatePost(id: Int!, title: String!, text: String!): Post
+  deletePost(id: Int!): Boolean!
+  vote(postId: Int!, value: Int!): Boolean!
   register(credentials: RegisterInput!): UserResponse!
   login(credentials: LoginInput!): UserResponse!
   logout: Boolean!

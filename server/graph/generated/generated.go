@@ -60,6 +60,12 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreatePost func(childComplexity int, input models.PostInput) int
+		DeletePost func(childComplexity int, id int) int
+		Login      func(childComplexity int, credentials models.LoginInput) int
+		Logout     func(childComplexity int) int
+		Register   func(childComplexity int, credentials models.RegisterInput) int
+		UpdatePost func(childComplexity int, id int, title string, text string) int
+		Vote       func(childComplexity int, postID int, value int) int
 	}
 
 	PaginatedPosts struct {
@@ -118,6 +124,12 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreatePost(ctx context.Context, input models.PostInput) (*models.Post, error)
+	UpdatePost(ctx context.Context, id int, title string, text string) (*models.Post, error)
+	DeletePost(ctx context.Context, id int) (bool, error)
+	Vote(ctx context.Context, postID int, value int) (bool, error)
+	Register(ctx context.Context, credentials models.RegisterInput) (*models.UserResponse, error)
+	Login(ctx context.Context, credentials models.LoginInput) (*models.UserResponse, error)
+	Logout(ctx context.Context) (bool, error)
 }
 type QueryResolver interface {
 	Post(ctx context.Context, id int) (*models.Post, error)
@@ -209,6 +221,73 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreatePost(childComplexity, args["input"].(models.PostInput)), true
+
+	case "Mutation.deletePost":
+		if e.complexity.Mutation.DeletePost == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePost_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeletePost(childComplexity, args["id"].(int)), true
+
+	case "Mutation.login":
+		if e.complexity.Mutation.Login == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_login_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Login(childComplexity, args["credentials"].(models.LoginInput)), true
+
+	case "Mutation.logout":
+		if e.complexity.Mutation.Logout == nil {
+			break
+		}
+
+		return e.complexity.Mutation.Logout(childComplexity), true
+
+	case "Mutation.register":
+		if e.complexity.Mutation.Register == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_register_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Register(childComplexity, args["credentials"].(models.RegisterInput)), true
+
+	case "Mutation.updatePost":
+		if e.complexity.Mutation.UpdatePost == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePost_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePost(childComplexity, args["id"].(int), args["title"].(string), args["text"].(string)), true
+
+	case "Mutation.vote":
+		if e.complexity.Mutation.Vote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_vote_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Vote(childComplexity, args["postId"].(int), args["value"].(int)), true
 
 	case "PaginatedPosts.hasMore":
 		if e.complexity.PaginatedPosts.HasMore == nil {
@@ -546,8 +625,12 @@ directive @goField(
 `, BuiltIn: false},
 	{Name: "schema/mutation.graphql", Input: `type Mutation {
   createPost(input: PostInput!): Post!
-  # createUser(input: UserInput!): User!
-  # register(credentials: RegisterInput!): User!
+  updatePost(id: Int!, title: String!, text: String!): Post
+  deletePost(id: Int!): Boolean!
+  vote(postId: Int!, value: Int!): Boolean!
+  register(credentials: RegisterInput!): UserResponse!
+  login(credentials: LoginInput!): UserResponse!
+  logout: Boolean!
 }
 `, BuiltIn: false},
 	{Name: "schema/query.graphql", Input: `type Query {
@@ -675,6 +758,14 @@ input RegisterInput
   email: String!
   password: String!
 }
+
+input LoginInput
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.LoginInput"
+  ) {
+  usernameOrEmail: String!
+  password: String!
+}
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -695,6 +786,108 @@ func (ec *executionContext) field_Mutation_createPost_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deletePost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.LoginInput
+	if tmp, ok := rawArgs["credentials"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("credentials"))
+		arg0, err = ec.unmarshalNLoginInput2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐLoginInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["credentials"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_register_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.RegisterInput
+	if tmp, ok := rawArgs["credentials"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("credentials"))
+		arg0, err = ec.unmarshalNRegisterInput2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐRegisterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["credentials"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updatePost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["title"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["title"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["text"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["text"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_vote_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["postId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["postId"] = arg0
+	var arg1 int
+	if tmp, ok := rawArgs["value"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["value"] = arg1
 	return args, nil
 }
 
@@ -1122,6 +1315,248 @@ func (ec *executionContext) _Mutation_createPost(ctx context.Context, field grap
 	res := resTmp.(*models.Post)
 	fc.Result = res
 	return ec.marshalNPost2ᚖgithubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updatePost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updatePost_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdatePost(rctx, args["id"].(int), args["title"].(string), args["text"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Post)
+	fc.Result = res
+	return ec.marshalOPost2ᚖgithubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deletePost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deletePost_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeletePost(rctx, args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_vote(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_vote_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Vote(rctx, args["postId"].(int), args["value"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_register_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Register(rctx, args["credentials"].(models.RegisterInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.UserResponse)
+	fc.Result = res
+	return ec.marshalNUserResponse2ᚖgithubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐUserResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_login_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Login(rctx, args["credentials"].(models.LoginInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.UserResponse)
+	fc.Result = res
+	return ec.marshalNUserResponse2ᚖgithubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐUserResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Logout(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PaginatedPosts_posts(ctx context.Context, field graphql.CollectedField, obj *models.PaginatedPosts) (ret graphql.Marshaler) {
@@ -3609,6 +4044,37 @@ func (ec *executionContext) ___Type_specifiedByURL(ctx context.Context, field gr
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (models.LoginInput, error) {
+	var it models.LoginInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "usernameOrEmail":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usernameOrEmail"))
+			it.UsernameOrEmail, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPostInput(ctx context.Context, obj interface{}) (models.PostInput, error) {
 	var it models.PostInput
 	asMap := map[string]interface{}{}
@@ -3828,6 +4294,63 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createPost":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createPost(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updatePost":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updatePost(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+		case "deletePost":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deletePost(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "vote":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_vote(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "register":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_register(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "login":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_login(ctx, field)
+			}
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "logout":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_logout(ctx, field)
 			}
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, innerFunc)
@@ -4897,6 +5420,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐLoginInput(ctx context.Context, v interface{}) (models.LoginInput, error) {
+	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNPaginatedPosts2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐPaginatedPosts(ctx context.Context, sel ast.SelectionSet, v models.PaginatedPosts) graphql.Marshaler {
 	return ec._PaginatedPosts(ctx, sel, &v)
 }
@@ -4971,6 +5499,11 @@ func (ec *executionContext) marshalNPost2ᚖgithubᚗcomᚋSebastianDarieᚋredd
 
 func (ec *executionContext) unmarshalNPostInput2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐPostInput(ctx context.Context, v interface{}) (models.PostInput, error) {
 	res, err := ec.unmarshalInputPostInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegisterInput2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐRegisterInput(ctx context.Context, v interface{}) (models.RegisterInput, error) {
+	res, err := ec.unmarshalInputRegisterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -5054,6 +5587,20 @@ func (ec *executionContext) marshalNUpvote2ᚕgithubᚗcomᚋSebastianDarieᚋre
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserResponse2githubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐUserResponse(ctx context.Context, sel ast.SelectionSet, v models.UserResponse) graphql.Marshaler {
+	return ec._UserResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserResponse2ᚖgithubᚗcomᚋSebastianDarieᚋredditᚑcloneᚋserverᚋmodelsᚐUserResponse(ctx context.Context, sel ast.SelectionSet, v *models.UserResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._UserResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/SebastianDarie/reddit-clone/server/cache"
+	"github.com/SebastianDarie/reddit-clone/server/dataloader"
 	"github.com/SebastianDarie/reddit-clone/server/db"
 	"github.com/SebastianDarie/reddit-clone/server/graph/generated"
 	"github.com/SebastianDarie/reddit-clone/server/resolvers"
@@ -26,10 +31,12 @@ func GinContextToContextMiddleware() gin.HandlerFunc {
 	}
 }
 
-func graphqlHandler() gin.HandlerFunc {
+func graphqlHandler(cache graphql.Cache) gin.HandlerFunc {
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers.Resolver{
-		DB: db.GetDB(),
+		DB:          db.GetDB(),
+		DataLoaders: dataloader.NewRetriever(),
 	}}))
+	h.Use(extension.AutomaticPersistedQuery{Cache: cache})
 
 	return func(ctx *gin.Context) {
 		h.ServeHTTP(ctx.Writer, ctx.Request)
@@ -64,6 +71,13 @@ func main() {
 
 	defer db.Close()
 
+	apqCache, err := cache.NewCache(os.Getenv("REDIS_ADDRESS"), 24*time.Hour)
+	if err != nil {
+		log.Fatalf("Error creating APQ redis cache: %v", err)
+	}
+
+	dlMiddleware := dataloader.Middleware()
+
 	r := gin.Default()
 	store, _ := redis.NewStore(10, "tcp", os.Getenv("REDIS_ADDRESS"), "", []byte("secret"))
 	r.Use(sessions.Sessions("qid", store))
@@ -72,7 +86,8 @@ func main() {
 		AllowCredentials: true,
 	}))
 	r.Use(GinContextToContextMiddleware())
-	r.POST("/query", graphqlHandler())
+	queryHandler := graphqlHandler(apqCache)
+	r.POST("/query", dlMiddleware(queryHandler))
 	r.GET("/", playgroundHandler())
 	r.Run()
 }

@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/99designs/gqlgen v0.17.2
+	github.com/alexedwards/argon2id v0.0.0-20211130144151-3585854a6387
+	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/sessions v0.0.4
 	github.com/gin-gonic/gin v1.7.7
 	github.com/joho/godotenv v1.4.0
@@ -12,9 +14,7 @@ require (
 )
 
 require (
-	github.com/alexedwards/argon2id v0.0.0-20211130144151-3585854a6387 // indirect
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
-	github.com/gin-contrib/cors v1.3.1 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect

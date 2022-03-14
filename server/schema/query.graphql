@@ -1,4 +1,6 @@
 type Query {
+  getCommunities: [Community]
+  getCommunity(id: Int!): Community
   post(id: Int!): Post
   posts(limit: Int!, cursor: String): PaginatedPosts!
   me: User
