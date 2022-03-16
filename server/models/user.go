@@ -1,13 +1,20 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type User struct {
-	gorm.Model
-	Username string `json:"username" gorm:"username; not null; unique"`
-	Email    string `json:"email" gorm:"email; not null; unique"`
-	Password string `json:"-" gorm:"password;"`
-	PhotoURL string `json:"photoUrl" gorm:"default: 'https://i.imgur.com/sJ3CT4V.png'"`
+	ID          int `gorm:"primaryKey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Username    string      `json:"username" gorm:"username; not null; unique"`
+	Email       string      `json:"email" gorm:"email; not null; unique"`
+	Password    string      `json:"-" gorm:"password;"`
+	PhotoURL    string      `json:"photoUrl" gorm:"default: 'https://i.imgur.com/sJ3CT4V.png'"`
+	Communities []Community `json:"communities" gorm:"many2many:user_communities;"`
+	Posts       []Post      `json:"posts"`
+	Upvotes     []Upvote    `json:"upvotes"`
 }
 
 type UserInput struct {

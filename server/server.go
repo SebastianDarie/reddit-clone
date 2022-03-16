@@ -6,27 +6,16 @@ import (
 	"log"
 	"os"
 
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/SebastianDarie/reddit-clone/server/db"
+	"github.com/SebastianDarie/reddit-clone/server/graph/generated"
+	"github.com/SebastianDarie/reddit-clone/server/resolvers"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
-
-// temporary location will move
-func GinContextFromContext(ctx context.Context) (*gin.Context, error) {
-	ginContext := ctx.Value("GinContextKey")
-	if ginContext == nil {
-		err := fmt.Errorf("could not retrieve gin.Context")
-		return nil, err
-	}
-
-	gc, ok := ginContext.(*gin.Context)
-	if !ok {
-		err := fmt.Errorf("gin.Context has wrong type")
-		return nil, err
-	}
-	return gc, nil
-}
 
 func GinContextToContextMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -36,13 +25,15 @@ func GinContextToContextMiddleware() gin.HandlerFunc {
 	}
 }
 
-// func graphqlHandler() gin.HandlerFunc {
-// 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers.Resolver{}}))
+func graphqlHandler() gin.HandlerFunc {
+	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers.Resolver{
+		DB: db.GetDB(),
+	}}))
 
-// 	return func(ctx *gin.Context) {
-// 		h.ServeHTTP(ctx.Writer, ctx.Request)
-// 	}
-// }
+	return func(ctx *gin.Context) {
+		h.ServeHTTP(ctx.Writer, ctx.Request)
+	}
+}
 
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
@@ -68,11 +59,15 @@ func main() {
 
 	db.Init(dsn)
 
+	db.Migrate()
+
 	defer db.Close()
 
 	r := gin.Default()
+	store, _ := redis.NewStore(10, "tcp", os.Getenv("REDIS_ADDRESS"), "", []byte("secret"))
+	r.Use(sessions.Sessions("qid", store))
 	r.Use(GinContextToContextMiddleware())
-	// r.POST("/query", graphqlHandler())
+	r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())
 	r.Run()
 }

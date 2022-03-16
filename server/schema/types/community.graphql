@@ -1,0 +1,12 @@
+type Community
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.Community"
+  ) {
+  id: Int!
+  name: String!
+  description: String!
+  posts: [Post]
+
+  createdAt: Time!
+  updatedAt: Time!
+}

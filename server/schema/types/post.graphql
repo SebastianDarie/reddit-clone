@@ -1,0 +1,31 @@
+type Post
+  @goModel(model: "github.com/SebastianDarie/reddit-clone/server/models.Post") {
+  id: Int!
+  title: String!
+  text: String!
+  points: Int!
+  creatorId: Int!
+  creator: User!
+  communityId: Int!
+  community: Community!
+  upvotes: [Upvote!]!
+
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type PaginatedPosts
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.PaginatedPosts"
+  ) {
+  posts: [Post!]!
+  hasMore: Boolean!
+}
+
+input PostInput
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.PostInput"
+  ) {
+  title: String!
+  text: String!
+}

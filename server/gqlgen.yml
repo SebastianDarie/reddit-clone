@@ -34,9 +34,7 @@ omit_slice_element_pointers: true
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-# autobind:
-#   - "github.com/SebastianDarie/reddit-clone/server/graph/model"
-
+autobind: []
 # This section declares type mapping between the GraphQL and go type systems
 #
 # The first line in each type will be used as defaults for resolver arguments and

@@ -3,6 +3,7 @@ package db
 import (
 	"log"
 
+	"github.com/SebastianDarie/reddit-clone/server/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -28,4 +29,11 @@ func Close() {
 
 func GetDB() *gorm.DB {
 	return db
+}
+
+func Migrate() {
+	db.AutoMigrate(&models.Community{})
+	db.AutoMigrate(&models.Post{})
+	db.AutoMigrate(&models.Upvote{})
+	db.AutoMigrate(&models.User{})
 }

@@ -1,4 +1,7 @@
 type Query {
-  user(id: ID!): User
+  post(id: Int!): Post
+  posts(limit: Int!, cursor: String): PaginatedPosts!
+  me: User
+  user(id: Int!): User
   users: [User]
 }

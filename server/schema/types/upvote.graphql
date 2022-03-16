@@ -1,0 +1,10 @@
+type Upvote
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.Upvote"
+  ) {
+  value: Int!
+  userId: Int!
+  user: User!
+  postId: Int!
+  post: Post!
+}

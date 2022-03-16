@@ -1,13 +1,16 @@
 type User
   @goModel(model: "github.com/SebastianDarie/reddit-clone/server/models.User") {
-  id: ID!
+  id: Int!
   username: String!
   email: String!
   password: String!
   photoUrl: String!
+  posts: [Post!]!
+  communities: [Community!]!
+  upvotes: [Upvote!]!
 
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 input UserInput
