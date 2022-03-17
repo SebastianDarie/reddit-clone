@@ -1,4 +1,7 @@
 type Mutation {
   createPost(input: PostInput!): Post!
-  # createUser(input: UserInput!): User!
+  updatePost(id: ID!, title: String!, text: String!): Post
+  register(credentials: RegisterInput!): UserResponse!
+  login(credentials: LoginInput!): UserResponse!
+  logout: Boolean!
 }

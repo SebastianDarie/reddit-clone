@@ -11,6 +11,7 @@ import (
 	"github.com/SebastianDarie/reddit-clone/server/db"
 	"github.com/SebastianDarie/reddit-clone/server/graph/generated"
 	"github.com/SebastianDarie/reddit-clone/server/resolvers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -66,6 +67,10 @@ func main() {
 	r := gin.Default()
 	store, _ := redis.NewStore(10, "tcp", os.Getenv("REDIS_ADDRESS"), "", []byte("secret"))
 	r.Use(sessions.Sessions("qid", store))
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowCredentials: true,
+	}))
 	r.Use(GinContextToContextMiddleware())
 	r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())

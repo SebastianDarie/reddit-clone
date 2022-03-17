@@ -1,0 +1,7 @@
+type FieldError
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.FieldError"
+  ) {
+  field: String!
+  message: String!
+}

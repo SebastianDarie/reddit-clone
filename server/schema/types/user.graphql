@@ -13,11 +13,27 @@ type User
   updatedAt: Time!
 }
 
-input UserInput
+type UserResponse
   @goModel(
-    model: "github.com/SebastianDarie/reddit-clone/server/models.UserInput"
+    model: "github.com/SebastianDarie/reddit-clone/server/models.UserResponse"
+  ) {
+  errors: [FieldError!]
+  user: User
+}
+
+input RegisterInput
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.RegisterInput"
   ) {
   username: String!
   email: String!
+  password: String!
+}
+
+input LoginInput
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.LoginInput"
+  ) {
+  usernameOrEmail: String!
   password: String!
 }

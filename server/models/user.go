@@ -13,12 +13,27 @@ type User struct {
 	Password    string      `json:"-" gorm:"password;"`
 	PhotoURL    string      `json:"photoUrl" gorm:"default: 'https://i.imgur.com/sJ3CT4V.png'"`
 	Communities []Community `json:"communities" gorm:"many2many:user_communities;"`
-	Posts       []Post      `json:"posts"`
+	Posts       []Post      `json:"posts" gorm:"foreignKey:CreatorID"`
 	Upvotes     []Upvote    `json:"upvotes"`
 }
 
-type UserInput struct {
+type FieldError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
+}
+
+type UserResponse struct {
+	User   User         `json:"user"`
+	Errors []FieldError `json:"errors"`
+}
+
+type RegisterInput struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type LoginInput struct {
+	UsernameOrEmail string `json:"usernameOrEmail"`
+	Password        string `json:"password"`
 }
