@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
 
-	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/SebastianDarie/reddit-clone/server/graph"
-	"github.com/SebastianDarie/reddit-clone/server/graph/generated"
+	"github.com/SebastianDarie/reddit-clone/server/db"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // temporary location will move
@@ -35,13 +36,13 @@ func GinContextToContextMiddleware() gin.HandlerFunc {
 	}
 }
 
-func graphqlHandler() gin.HandlerFunc {
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+// func graphqlHandler() gin.HandlerFunc {
+// 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers.Resolver{}}))
 
-	return func(ctx *gin.Context) {
-		h.ServeHTTP(ctx.Writer, ctx.Request)
-	}
-}
+// 	return func(ctx *gin.Context) {
+// 		h.ServeHTTP(ctx.Writer, ctx.Request)
+// 	}
+// }
 
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
@@ -52,21 +53,26 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+	)
+
+	db.Init(dsn)
+
+	defer db.Close()
+
 	r := gin.Default()
 	r.Use(GinContextToContextMiddleware())
-	r.POST("/query", graphqlHandler())
+	// r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())
 	r.Run()
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	port = defaultPort
-	// }
-
-	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
-
-	// http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	// http.Handle("/query", srv)
-
-	// log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	// log.Fatal(http.ListenAndServe(":"+port, nil))
 }

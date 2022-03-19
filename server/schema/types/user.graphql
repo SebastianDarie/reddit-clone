@@ -1,0 +1,20 @@
+type User
+  @goModel(model: "github.com/SebastianDarie/reddit-clone/server/models.User") {
+  id: ID!
+  username: String!
+  email: String!
+  password: String!
+  photoUrl: String!
+
+  createdAt: String!
+  updatedAt: String!
+}
+
+input UserInput
+  @goModel(
+    model: "github.com/SebastianDarie/reddit-clone/server/models.UserInput"
+  ) {
+  username: String!
+  email: String!
+  password: String!
+}
