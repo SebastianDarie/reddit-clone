@@ -1,8 +1,0 @@
-**/node_modules/**
-**/server/dist/**
-**/server/src/index.ts
-**/client/.next/**
-**/client/.vercel/**
-**/client/src/__tests__/**
-**/client/src/generated/**
-**/client/public/**

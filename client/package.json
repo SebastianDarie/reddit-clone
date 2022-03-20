@@ -5,11 +5,9 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "deploy": "vercel --prod",
-    "gen": "graphql-codegen --config codegen.yml",
-    "test": "jest",
-    "test:update": "jest -u",
-    "test:pages": "jest --watch --testPathPattern=client/src/__tests__/pages"
+    "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@apollo/client": "^3.3.11",
@@ -33,17 +31,13 @@
     "@graphql-codegen/typescript": "1.21.1",
     "@graphql-codegen/typescript-operations": "1.17.15",
     "@graphql-codegen/typescript-react-apollo": "^2.2.1",
-    "@testing-library/dom": "^7.29.6",
-    "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.5",
     "@types/node": "^14.6.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
-    "@types/react-test-renderer": "^17.0.1",
     "@types/yup": "^0.29.11",
-    "next-page-tester": "^0.24.1",
+    "eslint": "8.11.0",
+    "eslint-config-next": "12.1.0",
     "react-icons": "^4.2.0",
-    "react-test-renderer": "^17.0.1",
     "typescript": "^4.2.2",
     "yup": "^0.32.9"
   },
