@@ -49,5 +49,6 @@
     "type-graphql": "^1.1.1",
     "typeorm": "^0.2.30",
     "uuid": "^8.3.2"
-  }
+  },
+  "packageManager": "yarn@3.2.1"
 }

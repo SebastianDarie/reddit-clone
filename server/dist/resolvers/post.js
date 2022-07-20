@@ -198,7 +198,6 @@ let PostResolver = class PostResolver {
                 Key: filename,
                 Expires: 60,
                 ContentType: filetype,
-                ACL: 'public-read',
             };
             const signedRequest = yield s3.getSignedUrl('putObject', s3Params);
             const url = `https://${process.env.CF_DOMAIN_NAME}/${filename}`;

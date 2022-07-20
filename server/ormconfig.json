@@ -3,8 +3,8 @@
   "host": "localhost",
   "port": 5432,
   "username": "sebastian",
-  "password": "2772",
-  "database": "reddit3",
+  "password": "2002",
+  "database": "reddit",
   "entities": ["dist/entities/*.js"],
   "migrations": ["dist/migrations/*.js"],
   "cli": {

@@ -150,7 +150,7 @@ let UserResolver = class UserResolver {
                     username: credentials.username,
                     email: credentials.email,
                     password: hashedPassword,
-                    photoUrl: `https://d2cqrrc2420sv.cloudfront.net/default-user/avatar_default_${randomVariation >= 10 ? randomVariation : '0' + randomVariation}_${constants_1.COLOR_VARIATIONS[colorIdx]}.png`,
+                    photoUrl: `https://www.redditstatic.com/avatars/avatar_default_${randomVariation >= 10 ? randomVariation : '0' + randomVariation}_${constants_1.COLOR_VARIATIONS[colorIdx]}.png`,
                 })
                     .returning('*')
                     .execute();

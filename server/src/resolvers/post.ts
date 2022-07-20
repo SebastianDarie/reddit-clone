@@ -198,7 +198,6 @@ export class PostResolver {
       Key: filename,
       Expires: 60,
       ContentType: filetype,
-      ACL: 'public-read',
     };
 
     const signedRequest = await s3.getSignedUrl('putObject', s3Params);
