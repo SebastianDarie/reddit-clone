@@ -21,10 +21,10 @@ export const ImageForm = ({ setFieldValue }: ImageProps): JSX.Element => {
     <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={field.name}>Image</FormLabel>
       <Input
+        id={field.name}
         type="file"
         accept="image/png, image/jpg, image/jpeg, image/gif"
         name="image"
-        label="Image"
         size="lg"
         padding="6px 5px"
         onChange={(e) => {

@@ -198,7 +198,6 @@ const User: React.FC<UserProps> = ({}) => {
                               accept="image/png, image/jpg, image/jpeg, image/gif"
                               id="profile"
                               name="profile"
-                              label="profile"
                               size="md"
                               padding="4px 5px"
                               onChange={(e) => {
