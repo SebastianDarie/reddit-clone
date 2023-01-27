@@ -8168,9 +8168,9 @@ next@latest:
   linkType: hard
 
 "ua-parser-js@npm:^0.7.18":
-  version: 0.7.27
-  resolution: "ua-parser-js@npm:0.7.27"
-  checksum: 4ed082cf1a013ee90137e89cb35f8d8a5c1b746415a2ae14e5db536e5d9da70d96de144b915e47a1bcaadfb92c718c48a848d2d3018030b83f564dfcb1987e7e
+  version: 0.7.33
+  resolution: "ua-parser-js@npm:0.7.33"
+  checksum: 1510e9ec26fcaf0d8c6ae8f1078a8230e8816f083e1b5f453ea19d06b8ef2b8a596601c92148fd41899e8b3e5f83fa69c42332bd5729b931a721040339831696
   languageName: node
   linkType: hard
 
